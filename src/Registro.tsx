@@ -24,16 +24,6 @@ export default function Registro() {
 
   const navigate = useNavigate()
 
-  // const formatCPF = (value) => {
-  //   const numbers = value.replace(/\D/g, '')
-  //   return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-  // }
-
-  // const handleCPFChange = (e) => {
-  //   const formatted = formatCPF(e.target.value)
-  //   setCpf(formatted)
-  // }
-
   async function registrarUsuario(data: Inputs) {
     if (data.senha != data.confirmarSenha) {
       toast.error("As senhas digitada não estão iguais")
@@ -73,11 +63,11 @@ export default function Registro() {
 
   return (
     <section className='flex flex-row'>
-      <div className='min-w-[40vw] min-h-[100vh]'>
+      <div className='min-w-[45vw] min-h-[100vh]'>
         <img src="login.png" alt="" className='h-[100vh]' />
       </div>
 
-      <div className='min-w-[60vw] min-h-[100vh] flex items-center justify-center relative'>
+      <div className='min-w-[55vw] min-h-[100vh] flex items-center justify-center relative'>
         <Link to={"/login"} className='absolute top-12 text-center right-[6rem] w-[11.62rem] px-8 py-3 bg-[#E8F5EA] text-[#407B6A] font-roboto text-[1.125rem] font-medium rounded-[4.3125rem] hover:bg-[#C8E6C9] transition-colors'>
           Voltar
         </Link>
@@ -97,8 +87,6 @@ export default function Registro() {
                 </label>
                 <input
                   type="text"
-                  // value={name}
-                  // onChange={(e) => setName(e.target.value)}
                   placeholder='Maiquel Caldeira Pereira Junior'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="nome"
@@ -113,8 +101,6 @@ export default function Registro() {
                 </label>
                 <input
                   type="text"
-                  // value={cpf}
-                  // onChange={handleCPFChange}
                   placeholder='000.000.000-00'
                   maxLength={14}
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
@@ -130,8 +116,6 @@ export default function Registro() {
                 </label>
                 <input
                   type="email"
-                  // value={email}
-                  // onChange={(e) => setEmail(e.target.value)}
                   placeholder='contato@maiquel.dev'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="email"
@@ -146,8 +130,6 @@ export default function Registro() {
                 </label>
                 <input
                   type="tel"
-                  // value={phone}
-                  // onChange={(e) => setPhone(e.target.value)}
                   placeholder='DDD + Celular'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="celular"
@@ -162,8 +144,6 @@ export default function Registro() {
                 </label>
                 <input
                   type="password"
-                  // value={password}
-                  // onChange={(e) => setPassword(e.target.value)}
                   placeholder='••••••••••••'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="senha"
@@ -178,8 +158,6 @@ export default function Registro() {
                 </label>
                 <input
                   type="password"
-                  // value={password}
-                  // onChange={(e) => setPassword(e.target.value)}
                   placeholder='••••••••••••'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="confirmarSenha"
@@ -190,8 +168,6 @@ export default function Registro() {
               <div className='flex items-center gap-3'>
                 <input
                   type="checkbox"
-                  // checked={acceptTerms}
-                  // onChange={(e) => setAcceptTerms(e.target.checked)}
                   className='w-[1.10rem] h-[1.10rem] accent-[#407B6A] rounded-sm cursor-pointer'
                   id="aceitaTermo"
                   required
