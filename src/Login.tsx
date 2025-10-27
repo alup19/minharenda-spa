@@ -46,11 +46,11 @@ export default function Login() {
 
   return (
     <section className='flex flex-row'>
-      <div className='min-w-[40vw] min-h-[100vh]'>
+      <div className='min-w-[45vw] min-h-[100vh]'>
         <img src="login.png" alt="" className='h-[100vh]' />
       </div>
 
-      <div className='min-w-[60vw] min-h-[100vh] flex items-center justify-center relative'>
+      <div className='min-w-[55vw] min-h-[100vh] flex items-center justify-center relative'>
         {/* <Link to={"/"} className='absolute text-center top-12 right-[6rem] w-[11.62rem] px-8 py-3 bg-[#E8F5EA] text-[#407B6A] font-roboto text-[1.125rem] font-medium rounded-[4.3125rem] hover:bg-[#C8E6C9] transition-colors'>
           Voltar
         </Link> */}
@@ -63,13 +63,12 @@ export default function Login() {
               </h2>
             </div>
 
-            <form className='flex flex-col gap-[2.8125rem] mt-5 mb-4'>
-              <div className='relative w-full'>
+            <form className='flex flex-col gap-[1.125rem] mt-5 mb-4'>
+              <div className='relative w-full mb-4'>
                 <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                   SEU EMAIL
                 </label>
                 <input type="email" required {...register("email")}
-                  // value={email} onChange={(e) => setEmail(e.target.value)}
                   placeholder='felipesilveira@gmail.com' className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3  placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51]  text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors' />
               </div>
 
@@ -78,19 +77,16 @@ export default function Login() {
                   SENHA
                 </label>
                 <input type="password" required {...register("senha")}
-                  // value={password} onChange={(e) => setPassword(e.target.value)}
                   placeholder='••••••••••' className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3  placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51]  text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors' />
               </div>
               <div className='flex items-center gap-3'>
                 <input id="rememberMe" type="checkbox" {...register("manter")}
-                  // checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}
                   className='w-[1.10rem] h-[1.10rem] accent-[#407B6A] rounded-sm cursor-pointer' />
                 <label htmlFor="rememberMe" className='text-[#4A4B51] font-roboto text-[1.06rem] cursor-pointer font-normal'>
                   Mantenha-me conectado
                 </label>
               </div>
               <h3 className='font-roboto text-[#407B6A] text-[1.09rem] font-normal'>Esqueceu a senha?</h3>
-
               <input
                 onClick={handleSubmit(fazerLogin)}
                 type="submit"
