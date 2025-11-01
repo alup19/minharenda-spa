@@ -10,6 +10,7 @@ import Receitas from './Receitas.js'
 import Despesas from './Despesas.js'
 import Clientes from './Clientes.js'
 import Estoque from './Estoque.js'
+import Insumos from './Insumos.js'
 
 const rotas = createBrowserRouter([
   {
@@ -21,10 +22,11 @@ const rotas = createBrowserRouter([
       { path: 'registro', element: <Registro /> },
       { path: 'despesas', element: <Despesas /> },
       { path: 'clientes', element: <Clientes /> },
+      { path: 'insumos', element: <Insumos /> },
       { path: 'estoque', element: <Estoque /> },
       { path: 'receitas', element: <Receitas /> }
     ],
-  },  
+  },
 ])
 
 createRoot(document.getElementById('root')!).render(

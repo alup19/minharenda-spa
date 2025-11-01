@@ -18,8 +18,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   async function fazerLogin(data: Inputs) {
-    const response = await
-      fetch(`${apiUrl}/login`, {
+    const response = await fetch(`${apiUrl}/login`, {
         headers: { "Content-Type": "application/json" },
         method: "POST",
         body: JSON.stringify({ email: data.email, senha: data.senha })

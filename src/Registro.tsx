@@ -16,11 +16,43 @@ type Inputs = {
   aceitaTermo: boolean
 }
 
+function formatarCPF(value: string) {
+  const digitos = value.replace(/\D/g, '').slice(0, 11)
+  const parte1 = digitos.slice(0, 3)
+  const parte2 = digitos.slice(3, 6)
+  const parte3 = digitos.slice(6, 9)
+  const parte4 = digitos.slice(9, 11)
+
+  let dig = parte1
+  if (parte2) dig += '.' + parte2
+  if (parte3) dig += '.' + parte3
+  if (parte4) dig += '-' + parte4
+  return dig
+}
+
+function formatarCelular(valor: string) {
+  const digitos = valor.replace(/\D/g, '').slice(0, 11) // até 11
+  const ddd = digitos.slice(0, 2)
+  const d1 = digitos.slice(2, 3)     // primeiro dígito (geralmente 9)
+  const bloco1 = digitos.slice(3, 7)     // quatro dígitos
+  const bloco2 = digitos.slice(7, 11)    // quatro dígitos
+
+  let saida = ''
+  if (ddd) {
+    saida = '(' + ddd
+    if (ddd.length === 2) saida += ') '
+  }
+  if (d1) saida += d1 + ' '
+  if (bloco1) saida += bloco1
+  if (bloco2) saida += '-' + bloco2
+  return saida
+}
+
 const apiUrl = import.meta.env.VITE_API_URL
 
 
 export default function Registro() {
-  const { register, handleSubmit } = useForm<Inputs>()
+  const { register, handleSubmit, setValue } = useForm<Inputs>()
 
   const navigate = useNavigate()
 
@@ -41,9 +73,9 @@ export default function Registro() {
         method: "POST",
         body: JSON.stringify({
           nome: data.nome,
-          cpf: data.cpf,
+          cpf: data.cpf.replace(/\D/g, ''),
           email: data.email,
-          celular: data.celular,
+          celular: data.celular.replace(/\D/g, ''),
           senha: data.senha
         })
       })
@@ -87,7 +119,7 @@ export default function Registro() {
                 </label>
                 <input
                   type="text"
-                  placeholder='Maiquel Caldeira Pereira Junior'
+                  placeholder='José Felipe das Flores'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="nome"
                   required
@@ -101,12 +133,17 @@ export default function Registro() {
                 </label>
                 <input
                   type="text"
-                  placeholder='000.000.000-00'
+                  placeholder='123.456.789-11'
                   maxLength={14}
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="cpf"
                   required
-                  {...register("cpf")}
+                  {...register('cpf', {
+                    onChange: (e) => {
+                      const masked = formatarCPF(e.target.value)
+                      setValue('cpf', masked, { shouldValidate: true })
+                    }
+                  })}
                 />
               </div>
 
@@ -116,7 +153,7 @@ export default function Registro() {
                 </label>
                 <input
                   type="email"
-                  placeholder='contato@maiquel.dev'
+                  placeholder='joseflores@gmail.com'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="email"
                   required
@@ -133,8 +170,12 @@ export default function Registro() {
                   placeholder='DDD + Celular'
                   className='w-full border-2 border-[#4A4B51] rounded-xl font-inter px-4 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
                   id="celular"
-                  required
-                  {...register("celular")}
+                  {...register('celular', {
+                    onChange: (e) => {
+                      const mascarado = formatarCelular(e.target.value)
+                      setValue('celular', mascarado, { shouldValidate: true })
+                    }
+                  })}
                 />
               </div>
 
