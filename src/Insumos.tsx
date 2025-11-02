@@ -1,10 +1,10 @@
-import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
-import { useNavigate } from "react-router-dom"
-import { toast } from 'sonner'
-import Titulo from './components/Titulo.js'
-import Modal from "./components/Modal.js";
-import { useState } from "react";
+// import { useForm } from 'react-hook-form'
+// import { Link } from 'react-router-dom'
+// import { useNavigate } from "react-router-dom"
+// import { toast } from 'sonner'
+import Titulo from './components/Titulo'
+// import Modal from "./components/Modal.js";
+// import { useState } from "react";
 
 
 export default function Insumos() {

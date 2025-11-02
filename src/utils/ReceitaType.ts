@@ -2,8 +2,9 @@ import type { ClienteType } from "./ClienteType.js"
 import type { TagType } from "./TagType.js"
 import type { UsuarioType } from "./UsuarioType.js"
 
-export type CursoType = {
+export type ReceitaType = {
     id: number
+    descricao: string
     valor: number
     categoria: string
     anexo: string
