@@ -7,4 +7,5 @@ export type UsuarioType = {
     admin: boolean
     vipLevel: number
     senha: string
+    token: string
 }

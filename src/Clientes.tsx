@@ -1,10 +1,10 @@
-import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
-import { useNavigate } from "react-router-dom"
-import { toast } from 'sonner'
-import Modal from "./components/Modal.js";
+// import { useForm } from 'react-hook-form'
+// import { Link } from 'react-router-dom'
+// import { useNavigate } from "react-router-dom"
+// import { toast } from 'sonner'
+import Modal from "./components/Modal";
 import { useState } from "react";
-import Titulo from './components/Titulo.js'
+import Titulo from './components/Titulo'
 
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "./components/ui/dropdown-menu"
 
 export default function Clientes() {
   const [openExcluir, setOpenExcluir] = useState(false)

@@ -3,7 +3,6 @@ import { Outlet, useNavigate } from 'react-router-dom'
 
 import { Toaster } from 'sonner'
 import { useUsuarioStore } from './context/UsuarioContext.js'
-import Titulo from './components/Titulo.js'
 
 export default function Layout() {
   const { usuario } = useUsuarioStore()
@@ -17,8 +16,6 @@ export default function Layout() {
       navigate("/")
     }
   }, [])
-
-  
 
   return (
     <>
