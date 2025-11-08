@@ -44,7 +44,7 @@ export default function Titulo() {
                 <Link to={"/insumos"}>insumos</Link>
                 <Link to={"/despesas"}>despesas</Link>
                 <Link to={"/receitas"}>receitas</Link>
-                <a>relatórios</a>
+                <Link to={"/relatorio"}>relatórios</Link>
                 <Link to={"/clientes"}>clientes</Link>
             </div>
             <div className='flex flex-row gap-[1.69rem] px-[1.1625rem] py-[0.575rem] border-[1.5px] border-[#2A2A2A] rounded-[0.9375rem]'>
