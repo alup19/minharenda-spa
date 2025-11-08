@@ -63,8 +63,9 @@ export default function Clientes() {
             </div>
             <div className='flex flex-row justify-between font-inter text-[1rem] font-normal mt-4'>
               <h2>Nome</h2>
-              <h2 className='relative left-[7rem]'>Total Gasto</h2>
-              <h2 className='relative left-[5.8rem]'>Nº de Compras</h2>
+              <h2 className='relative left-[6.8rem]'>Total Gasto</h2>
+              <h2 className='relative left-[5.6rem]'>Nº de Compras</h2>
+              <h2 className='relative left-[5.7rem]'>Notas</h2>
               <h2 className='relative left-[2.5rem]'>Vendas Vinc.</h2>
               <h2 className=''>Opções</h2>
             </div>
@@ -73,6 +74,7 @@ export default function Clientes() {
                 <p className='text-[#656565] font-inter font-normal text-[1rem]'>Manoel Lopes</p>
                 <p className='text-[#303030] font-inter font-semibold'>R$1500,00</p>
                 <p className='text-[#656565] font-inter font-normal'>0</p>
+                <img src="/article_p.svg" alt="" className="relative left-9 w-[2rem]" />
                 <img src="/attachment.svg" alt="" />
                 <DropdownMenu>
                   <DropdownMenuTrigger><img src="/options.svg" alt="" /></DropdownMenuTrigger>
@@ -136,6 +138,18 @@ export default function Clientes() {
                   required
                 />
               </div>
+              <div className='relative w-full'>
+                <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
+                  TELEFONE
+                </label>
+                <input
+                  type="text"
+                  placeholder='Digite o Telefone'
+                  className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
+                  id="nome"
+                  required
+                />
+              </div>
             </div>
 
             <div className="flex gap-4">
@@ -188,6 +202,18 @@ export default function Clientes() {
                 <input
                   type="text"
                   placeholder='R. Das Flores, 105 - Centro'
+                  className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
+                  id="nome"
+                  required
+                />
+              </div>
+              <div className='relative w-full'>
+                <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
+                  TELEFONE
+                </label>
+                <input
+                  type="text"
+                  placeholder='Digite o Telefone'
                   className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
                   id="nome"
                   required

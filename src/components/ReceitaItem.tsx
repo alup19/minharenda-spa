@@ -228,18 +228,6 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
                       id="itensVendidos"
                     />
                   </div>
-                  <div className='relative w-full'>
-                    <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
-                      ANEXO
-                    </label>
-                    <input
-                      type="text"
-                      placeholder='Adicionar Anexo'
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                      id="anexo"
-                      {...register("anexo")}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
