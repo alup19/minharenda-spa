@@ -144,7 +144,7 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
               <h2 className='text-center text-[1.4rem] font-inter font-semibold'>Alterar Dados</h2>
             </div>
           </div>
-          <form className='container flex flex-col items-center'>
+          <form onSubmit={handleSubmit(atualizarReceita)} className='container flex flex-col items-center'>
             <div className='flex flex-col items-center my-8 gap-8 w-[35rem]'>
               <div className='relative w-full'>
                 <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
@@ -233,7 +233,7 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
             </div>
             <div className="flex gap-4">
               <button onClick={() => setOpenAlterarDados(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"> Cancelar</button>
-              <input type="submit" value="Confirmar" onClick={handleSubmit(atualizarReceita)} className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer" />
+              <input type="submit" value="Confirmar" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer" />
             </div>
           </form>
         </div>

@@ -1,4 +1,3 @@
-// src/Receitas.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -38,7 +37,6 @@ export default function Receitas() {
   const [openCriar, setOpenCriar] = useState(false);
   const [modo, setModo] = useState<"rapida" | "itens">("rapida");
 
-  // Itens (venda com estoque)
   const [itensVenda, setItensVenda] = useState<ItemLinha[]>([]);
   const [produtos, setProdutos] = useState<ProdutoOption[]>([]);
 
@@ -81,7 +79,6 @@ export default function Receitas() {
     if (openCriar && modo === "itens") getProdutos();
   }, [openCriar, modo]);
 
-  // ====== VENDA RÁPIDA (sem itens) ======
   async function incluirReceita(data: Inputs) {
     const payload: Inputs = {
       descricao: data.descricao,
@@ -118,11 +115,9 @@ export default function Receitas() {
     }
   }
 
-  // ====== VENDA COM ITENS (baixa estoque) ======
   async function incluirReceitaComItens() {
     if (!itensVenda.length) return toast.error("Adicione pelo menos um item.");
 
-    // valida os campos existentes do ItensEditor
     const invalido = itensVenda.some(
       (it) =>
         !it.produtoId ||
@@ -148,7 +143,6 @@ export default function Receitas() {
     };
 
     try {
-      // 1) Cria a receita (cabeçalho)
       const r1 = await fetch(`${apiUrl}/receitas`, {
         method: "POST",
         headers: {
@@ -164,7 +158,6 @@ export default function Receitas() {
       const rc = await r1.json();
       const receitaId = rc.id ?? rc.receita?.id;
 
-      // 2) Itens da receita
       const itensPayload = itensVenda.map((it) => {
         const qtdBase = Number(it.qtdTotalBase!);
         const subtotal = Number(it.subtotal || 0);
@@ -185,7 +178,6 @@ export default function Receitas() {
         return;
       }
 
-      // 3) Baixa em estoque (somente produtos existentes)
       await fetch(`${apiUrl}/estoque/saida/lote`, {
         method: "POST",
         headers: {
@@ -242,7 +234,6 @@ export default function Receitas() {
           </div>
 
           <div className="bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[1.44rem]">
-            {/* cabeçalho/filtros (mantive seu layout) */}
             <div className="flex flex-row justify-between">
               <div className="flex flex-row items-center gap-[1.125rem]">
                 <img src="/arrow_l.svg" alt="" />
@@ -283,7 +274,6 @@ export default function Receitas() {
         </div>
       </section>
 
-      {/* MODAL: Adicionar Receita */}
       <Modal open={openCriar} onClose={() => setOpenCriar(false)}>
         <div className="container w-[44rem]">
           <div className="flex items-center gap-2">
@@ -291,7 +281,6 @@ export default function Receitas() {
             <h2 className="text-[1.4rem] font-inter font-semibold">Adicionar Receita (Venda)</h2>
           </div>
 
-          {/* Abas */}
           <div className="mt-4 flex gap-3">
             <button
               className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
@@ -307,7 +296,6 @@ export default function Receitas() {
             </button>
           </div>
 
-          {/* Cabeçalho comum */}
           <form className="mt-4" onSubmit={handleSubmit(incluirReceita)}>
             <div className="grid grid-cols-2 gap-6">
               <div className="relative">
@@ -384,7 +372,7 @@ export default function Receitas() {
                   Confirmar
                 </button>
               ) : (
-                <button type="button" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90" onClick={incluirReceitaComItens}>
+                <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90" onClick={incluirReceitaComItens}>
                   Confirmar
                 </button>
               )}

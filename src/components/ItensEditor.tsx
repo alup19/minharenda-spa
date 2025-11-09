@@ -303,7 +303,7 @@ export default function ItensEditor({
                 </div>
 
                 {/* Quantidade Comprada (nº de pacotes) */}
-                <div className="relative w-40">
+                <div className="relative w-[18.5rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     QUANTIDADE COMPRADA
                   </label>

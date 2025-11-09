@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { Toaster } from 'sonner'
 import { useUsuarioStore } from './context/UsuarioContext.js'
@@ -7,13 +7,15 @@ import { useUsuarioStore } from './context/UsuarioContext.js'
 export default function Layout() {
   const { usuario } = useUsuarioStore()
   const navigate = useNavigate()
+  const location = useLocation();
 
   useEffect(() => {
     if (Object.keys(usuario).length === 0) {
       navigate("/login", { replace: true })
     }
+    console.log(location.pathname)
     if (localStorage.getItem("usuarioKey")) {
-      navigate("/")
+      navigate(location.pathname)
     }
   }, [])
 
