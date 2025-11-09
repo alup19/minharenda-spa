@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom'
 import { useNavigate } from "react-router-dom"
 import { useUsuarioStore } from '../context/UsuarioContext'
+import { useEffect } from 'react'
 
 import {
     DropdownMenu,
@@ -12,9 +13,24 @@ import {
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 export default function Titulo() {
-    const { usuario, deslogaUsuario } = useUsuarioStore()
+    const { usuario, logaUsuario, deslogaUsuario } = useUsuarioStore()
     const navigate = useNavigate()
+
+    useEffect(() => {
+        async function buscaUsuario(id: string) {
+            const response = await fetch(`${apiUrl}/usuarios/${id}`)
+            const dados = await response.json()
+            logaUsuario(dados)
+        }
+
+        if (localStorage.getItem("usuarioKey")) {
+            const idUsuario = localStorage.getItem("usuarioKey")
+            buscaUsuario(idUsuario as string)
+        }
+    }, [usuario.id]);
 
     function usuarioSair() {
         if (confirm("Confirma saída do sistema?")) {
@@ -40,11 +56,11 @@ export default function Titulo() {
             <img src="/logo3.png" className="w-[15.8125rem]" alt="" />
             <div className='flex flex-row gap-[3.12rem] font-inter text-[1.0625rem] font-normal text-[#2A2A2A]'>
                 <Link to={"/"}>visão geral</Link>
-                <Link to={"/estoque"}>estoque</Link>
+                <Link to={"/estoques"}>estoques</Link>
                 <Link to={"/insumos"}>insumos</Link>
                 <Link to={"/despesas"}>despesas</Link>
                 <Link to={"/receitas"}>receitas</Link>
-                <Link to={"/relatorio"}>relatórios</Link>
+                <Link to={"/relatorios"}>relatórios</Link>
                 <Link to={"/clientes"}>clientes</Link>
             </div>
             <div className='flex flex-row gap-[1.69rem] px-[1.1625rem] py-[0.575rem] border-[1.5px] border-[#2A2A2A] rounded-[0.9375rem]'>

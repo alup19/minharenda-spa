@@ -4,7 +4,7 @@ import Titulo from "./components/Titulo";
 import { parseQuantidade } from "./components/units.js";
 import type { Unidade } from "./components/units.js";
 import { toast } from "sonner";
-import Modal from "./components/Modal.js"; // se quiser usar depois
+// import Modal from "./components/Modal.js"; // se quiser usar depois
 // import { useUsuarioStore } from "./context/UsuarioContext.js"; // descomente se precisar do token
 
 const apiUrl = import.meta.env.VITE_API_URL;

@@ -3,10 +3,11 @@ import type { UsuarioType } from "./UsuarioType.js"
 export type ClienteType = {
     id: number
     nome: string
-    notas: string
     endereco: string
-    totalGasto: number
-    numCompras: number
+    telefone: string
+    notas: string
     usuarioId: string
     usuario: UsuarioType
+    createdAt: Date
+    updatedAt: Date
 }
