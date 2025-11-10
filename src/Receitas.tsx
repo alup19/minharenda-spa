@@ -16,11 +16,10 @@ type Inputs = {
   descricao: string;
   valor: number;
   categoria: string;
-  anexo: string;
-  createdAt: string | Date;
+  anexo?: string;
+  data: string | Date;
   usuarioId: string;
-  tagId: number;
-  clienteId: number;
+  clienteId?: number;
 };
 
 export default function Receitas() {
@@ -28,7 +27,7 @@ export default function Receitas() {
 
   const { register, handleSubmit, reset, setValue, getValues } = useForm<Inputs>({
     defaultValues: {
-      createdAt: new Date().toISOString().slice(0, 10),
+      data: new Date().toISOString().slice(0, 10),
       categoria: "Vendas",
     },
   });
@@ -79,16 +78,16 @@ export default function Receitas() {
     if (openCriar && modo === "itens") getProdutos();
   }, [openCriar, modo]);
 
+  // ✅ corrigido: back espera "data", não "createdAt"
   async function incluirReceita(data: Inputs) {
-    const payload: Inputs = {
+    const payload = {
       descricao: data.descricao,
       valor: Number(data.valor),
       categoria: data.categoria,
-      anexo: data.anexo,
-      createdAt: data.createdAt || new Date().toISOString().slice(0, 10),
+      anexo: data.anexo || undefined,
+      data: data.data || new Date().toISOString().slice(0, 10),
       usuarioId: usuario.id,
-      tagId: 1,
-      clienteId: Number(data.clienteId || 0),
+      clienteId: data.clienteId ? Number(data.clienteId) : undefined,
     };
 
     try {
@@ -136,9 +135,8 @@ export default function Receitas() {
       valor: totalItens,
       categoria: header.categoria || "Vendas",
       anexo: header.anexo,
-      createdAt: header.createdAt || new Date().toISOString().slice(0, 10),
+      data: header.data || new Date().toISOString().slice(0, 10),
       usuarioId: usuario.id,
-      tagId: 1,
       clienteId: Number(header.clienteId || 0) || undefined,
     };
 
@@ -225,7 +223,7 @@ export default function Receitas() {
               onClick={() => {
                 setOpenCriar(true);
                 setModo("rapida");
-                setValue("createdAt", new Date().toISOString().slice(0, 10));
+                setValue("data", new Date().toISOString().slice(0, 10));
               }}
               className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal"
             >
@@ -239,24 +237,6 @@ export default function Receitas() {
                 <img src="/arrow_l.svg" alt="" />
                 <h3 className="text-[1.5rem] font-inter font-semibold">Setembro</h3>
                 <img src="/arrow_r.svg" alt="" />
-              </div>
-              <div className="flex flex-row gap-[1.25rem]">
-                <div className="relative">
-                  <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">CLIENTE</label>
-                  <input
-                    type="text"
-                    placeholder="Filtrar por Cliente"
-                    className="border-2 border-[#4A4B51] rounded-xl font-inter pl-5 w-[14.6875rem h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-[#F5F5F5] outline-none focus:border-[#407B6A] transition-colors"
-                  />
-                </div>
-                <div className="relative">
-                  <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">CATEGORIA</label>
-                  <input
-                    type="text"
-                    placeholder="Selecionar Categoria"
-                    className="border-2 border-[#4A4B51] rounded-xl font-inter pl-5 w-[14.6875rem h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-[#F5F5F5] outline-none focus:border-[#407B6A] transition-colors"
-                  />
-                </div>
               </div>
             </div>
 
@@ -278,19 +258,26 @@ export default function Receitas() {
         <div className="container w-[44rem]">
           <div className="flex items-center gap-2">
             <img src="/tabela.svg" className="w-[1.5rem] h-[1.5rem]" alt="" />
-            <h2 className="text-[1.4rem] font-inter font-semibold">Adicionar Receita (Venda)</h2>
+            <h2 className="text-[1.4rem] font-inter font-semibold">
+              Adicionar Receita (Venda)
+            </h2>
           </div>
 
           <div className="mt-4 flex gap-3">
             <button
-              className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
+              className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"
+                }`}
               onClick={() => setModo("rapida")}
             >
               Venda rápida
             </button>
             <button
-              className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
-              onClick={() => { setModo("itens"); getProdutos(); }}
+              className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"
+                }`}
+              onClick={() => {
+                setModo("itens");
+                getProdutos();
+              }}
             >
               Com itens
             </button>
@@ -299,32 +286,60 @@ export default function Receitas() {
           <form className="mt-4" onSubmit={handleSubmit(incluirReceita)}>
             <div className="grid grid-cols-2 gap-6">
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">DESCRIÇÃO</label>
-                <input className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Venda balcão" {...register("descricao")} />
+                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
+                  DESCRIÇÃO
+                </label>
+                <input
+                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                  placeholder="Venda balcão"
+                  {...register("descricao")}
+                />
               </div>
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">DATA</label>
-                <input type="date" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" {...register("createdAt" as const)} />
+                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
+                  DATA
+                </label>
+                <input
+                  type="date"
+                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                  {...register("data")}
+                />
               </div>
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">CLIENTE (opcional)</label>
-                <input className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Selecionar Cliente" {...register("clienteId")} />
+                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
+                  CLIENTE (opcional)
+                </label>
+                <input
+                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                  placeholder="Selecionar Cliente"
+                  {...register("clienteId", { valueAsNumber: true })}
+                />
               </div>
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">CATEGORIA</label>
-                <input className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Vendas" {...register("categoria")} />
+                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
+                  CATEGORIA
+                </label>
+                <input
+                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                  placeholder="Vendas"
+                  {...register("categoria")}
+                />
               </div>
             </div>
 
             {modo === "rapida" && (
               <div className="mt-6 grid grid-cols-2 gap-6">
                 <div className="relative">
-                  <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">VALOR RECEBIDO</label>
-                  <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="R$" {...register("valor")} />
-                </div>
-                <div className="relative">
-                  <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">DESCONTO (opcional)</label>
-                  <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="R$ 0,00" />
+                  <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
+                    VALOR RECEBIDO
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                    placeholder="R$"
+                    {...register("valor", { valueAsNumber: true })}
+                  />
                 </div>
               </div>
             )}
@@ -333,23 +348,21 @@ export default function Receitas() {
               <div className="mt-6">
                 <h3 className="font-inter font-semibold mb-2">Itens vendidos</h3>
 
-                {/* Sem cadastro inline: apenas seleciona produtos já existentes */}
-                <ItensEditor
-                  itens={itensVenda}
-                  produtos={produtos}
-                  onChange={setItensVenda}
-                />
+                <ItensEditor itens={itensVenda} produtos={produtos} onChange={setItensVenda} />
 
                 {produtos.length === 0 && (
                   <p className="text-sm text-[#4A4B51] mt-2">
-                    Nenhum produto encontrado. Cadastre itens em <b>Estoque</b> para poder vendê-los aqui.
+                    Nenhum produto encontrado. Cadastre itens em <b>Estoque</b> para poder vendê-los
+                    aqui.
                   </p>
                 )}
 
                 <div className="mt-4 flex justify-end font-inter">
                   <div>
                     <div className="text-sm text-[#4A4B51]">Total</div>
-                    <div className="text-lg font-semibold">R$ {totalItens.toFixed(2)}</div>
+                    <div className="text-lg font-semibold">
+                      R$ {totalItens.toFixed(2)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -368,12 +381,19 @@ export default function Receitas() {
               </button>
 
               {modo === "rapida" ? (
-                <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90">
-                  Confirmar
+                <button
+                  type="submit"
+                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
+                >
+                  Salvar
                 </button>
               ) : (
-                <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90" onClick={incluirReceitaComItens}>
-                  Confirmar
+                <button
+                  type="button"
+                  onClick={incluirReceitaComItens}
+                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
+                >
+                  Salvar com itens
                 </button>
               )}
             </div>
