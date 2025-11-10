@@ -169,8 +169,6 @@ export default function ItensEditor({
                   NOME DO PRODUTO
                 </label>
                 <input
-                  value={novoNome}
-                  onChange={(e) => setNovoNome(e.target.value)}
                   placeholder="Ex.: Farofa Yoki"
                   className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                 />
@@ -180,8 +178,6 @@ export default function ItensEditor({
                   UNIDADE BASE
                 </label>
                 <select
-                  value={novaUnidade}
-                  onChange={(e) => setNovaUnidade(e.target.value as Unidade)}
                   className="w-[10rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                 >
                   <option value="UN">UN</option>
@@ -208,7 +204,6 @@ export default function ItensEditor({
         </div>
       )}
 
-      {/* Linhas de itens */}
       <div className="space-y-2">
         {itens.map((it, idx) => {
           const sel = produtos.find((p) => p.id === it.produtoId);
@@ -219,7 +214,6 @@ export default function ItensEditor({
               className="bg-[#F5F5F5] rounded-xl p-3 flex flex-col gap-3"
             >
               <div className="flex gap-3 flex-wrap items-end">
-                {/* Produto */}
                 <div className="relative grow min-w-[16rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     PRODUTO
@@ -276,8 +270,6 @@ export default function ItensEditor({
                       UNID.
                     </label>
                     <select
-                      value={it.unidadeSelecionada ?? sel?.unidadeBase ?? "UN"}
-                      onChange={(e) => setItem(idx, { unidadeSelecionada: e.target.value as Unidade })}
                       className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-3 py-2 outline-none focus:border-[#407B6A]"
                     >
                       <option value="UN">UN</option>
@@ -295,8 +287,6 @@ export default function ItensEditor({
                   <input
                     type="number"
                     step="0.01"
-                    value={it.custoUnitario ?? ""}
-                    onChange={(e) => setItem(idx, { custoUnitario: Number(e.target.value) })}
                     placeholder="R$"
                     className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                   />
@@ -310,8 +300,6 @@ export default function ItensEditor({
                   <input
                     type="number"
                     step="1"
-                    value={it.quantidadeComprada ?? ""}
-                    onChange={(e) => setItem(idx, { quantidadeComprada: Number(e.target.value) })}
                     placeholder="ex.: 5"
                     className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                   />
