@@ -13,7 +13,6 @@ import type { Unidade } from "./components/units.js";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-/** categorias fixas (iguais ao ENUM Categoria_Estoque) */
 const CATEGORIAS = [
   "ALIMENTOS",
   "BEBIDAS",
@@ -27,7 +26,7 @@ type Categoria = typeof CATEGORIAS[number];
 type InputsAdicionarCabecalho = {
   data?: string;
   anexo?: string;
-  categoria?: Categoria | ""; // seletor opcional
+  categoria?: Categoria | "";
 };
 
 type InputsProdutoRapido = {
@@ -41,22 +40,19 @@ export default function Estoque() {
   const { usuario } = useUsuarioStore();
   const [openAdicionarProduto, setOpenAdicionarProduto] = useState(false);
 
-  // Catálogo vindo da API (já com campos derivados)
   const [catalogo, setCatalogo] = useState<any[]>([]);
 
-  // Filtros
   const [filtroCategoria, setFiltroCategoria] = useState<Categoria | "">("");
   const [filtroNome, setFiltroNome] = useState<string>("");
 
-  // Itens do editor (compra atual)
   const [itens, setItens] = useState<ItemLinha[]>([]);
 
   const { register, handleSubmit, reset, watch } = useForm<InputsAdicionarCabecalho>();
-  const categoriaCabecalho = watch("categoria"); // valor selecionado na modal
+  const categoriaCabecalho = watch("categoria");
 
   async function getProdutos() {
     try {
-      const response = await fetch(`${apiUrl}/produtos`, {
+      const response = await fetch(`${apiUrl}/produtos/${usuario.id}`, {
         headers: usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {},
       });
       const dados = await response.json();
@@ -66,7 +62,6 @@ export default function Estoque() {
         nome: p.nome,
         unidadeBase: p.unidadeBase as Unidade,
 
-        // originais
         custoMedio: Number(p.custoMedio ?? 0),
         saldoBase: Number(p.saldoBase ?? 0),
         margemPadrao: p.margemPadrao ? Number(p.margemPadrao) : undefined,
@@ -74,7 +69,6 @@ export default function Estoque() {
         anexo: p.anexo ?? null,
         data: p.data ?? null,
 
-        // display
         precoMedioDisplay: Number(p.precoMedioDisplay ?? 0),
         unidadeDisplay:
           p.unidadeDisplay ??
@@ -98,7 +92,6 @@ export default function Estoque() {
     [itens]
   );
 
-  /** Itens filtrados por categoria E nome (client-side MVP) */
   const catalogoFiltrado = useMemo(() => {
     let base = catalogo;
     if (filtroCategoria) {
@@ -111,7 +104,6 @@ export default function Estoque() {
     return base;
   }, [catalogo, filtroCategoria, filtroNome]);
 
-  /** Utilitário: (re)calcular base/subtotal */
   function calcularBasesDoItem(i: ItemLinha) {
     const unid: Unidade = i.unidadeSelecionada ?? "UN";
     const qtdConteudoBase = parseQuantidade(i.qtdConteudoInput ?? "0", unid);
@@ -127,13 +119,11 @@ export default function Estoque() {
     return { qtdBase, custoUnitBase, subtotal };
   }
 
-  /** Cadastro rápido (inline no ItensEditor) */
   async function adicionarProduto(nome: string, unidadeBase: Unidade): Promise<ProdutoOption> {
     const payload: InputsProdutoRapido = {
       nome,
       unidadeBase,
       usuarioId: usuario?.id,
-      // se usuário já escolheu uma categoria no cabeçalho da modal, aplicamos no create
       categoria: (categoriaCabecalho as Categoria) || null,
     };
 
@@ -177,7 +167,6 @@ export default function Estoque() {
     return novo as ProdutoOption;
   }
 
-  /** Confirmar compra: PUT por item; aplica também anexo/data e (se selecionado) categoria */
   async function confirmarEntrada(cab: InputsAdicionarCabecalho) {
     if (!itens.length) {
       toast.error("Adicione pelo menos um item.");
@@ -207,17 +196,14 @@ export default function Estoque() {
           custoMedio: novoCusto,
         };
 
-        // ✅ aplica categoria (se informada)
         if (cab.categoria && cab.categoria.length > 0) {
           body.categoria = cab.categoria;
         }
-        // ✅ aplica anexo (link da NF) se informado
         if (cab.anexo && cab.anexo.trim().length > 0) {
           body.anexo = cab.anexo.trim();
         }
-        // ✅ aplica data (se informada) — o backend aceita Date
         if (cab.data && cab.data.length > 0) {
-          body.data = cab.data; // string yyyy-mm-dd; Prisma coerce no Zod
+          body.data = cab.data;
         }
 
         const put = await fetch(`${apiUrl}/produtos/${i.produtoId}`, {
@@ -270,7 +256,7 @@ export default function Estoque() {
             </div>
             <button
               onClick={() => {
-                setItens([]); // limpa editor a cada abertura
+                setItens([]);
                 setOpenAdicionarProduto(true);
               }}
               className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal"
@@ -280,9 +266,19 @@ export default function Estoque() {
           </div>
 
           <div className="bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[1.44rem]">
-            {/* Filtros */}
             <div className="flex flex-row gap-[1.25rem] items-center">
-              {/* Filtro por Categoria */}
+              <div className="relative">
+                <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">
+                  NOME
+                </label>
+                <input
+                  type="text"
+                  value={filtroNome}
+                  onChange={(e) => setFiltroNome(e.target.value)}
+                  placeholder="Filtrar por nome"
+                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors"
+                />
+              </div>
               <div className="relative">
                 <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">
                   CATEGORIA
@@ -301,19 +297,6 @@ export default function Estoque() {
                 </select>
               </div>
 
-              {/* Filtro por Nome */}
-              <div className="relative">
-                <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">
-                  NOME
-                </label>
-                <input
-                  type="text"
-                  value={filtroNome}
-                  onChange={(e) => setFiltroNome(e.target.value)}
-                  placeholder="Filtrar por nome"
-                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors"
-                />
-              </div>
             </div>
 
             <div className="flex flex-row justify-between font-inter text-[1rem] font-normal mt-4">
@@ -363,7 +346,6 @@ export default function Estoque() {
               />
             </div>
 
-            {/* CATEGORIA (ENUM) clicável */}
             <div className="relative">
               <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                 CATEGORIA

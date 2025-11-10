@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-/** categorias do ENUM Categoria_Estoque */
 const CATEGORIAS = [
   "ALIMENTOS",
   "BEBIDAS",
@@ -156,12 +155,10 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
             R$ {preco.toFixed(2)} /{unidadeDisplay}
           </p>
 
-          {/* Badge de categoria (ENUM) */}
           <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem] ">
             {categoriaBadge}
           </p>
 
-          {/* Ícone de anexo: abre modal com preview da imagem */}
           <button
             type="button"
             onClick={abrirPreview}
@@ -192,7 +189,6 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
         </div>
       </div>
 
-      {/* ALTERAR */}
       <Modal open={OpenAlterarProduto} onClose={() => setOpenAlterarProduto(false)}>
         <form className="container" onSubmit={handleSubmit(atualizarProduto)}>
           <div className="container flex flex-col items-start">
@@ -230,7 +226,6 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
               </select>
             </div>
 
-            {/* Categoria (Categoria_Estoque) */}
             <div className="relative">
               <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                 CATEGORIA
@@ -270,7 +265,6 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
         </form>
       </Modal>
 
-      {/* EXCLUIR */}
       <Modal open={OpenExcluirProduto} onClose={() => setOpenExcluirProduto(false)}>
         <div className="container">
           <div className="container flex flex-col items-start">
@@ -310,7 +304,6 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
         </div>
       </Modal>
 
-      {/* PREVIEW DO ANEXO */}
       <Modal open={openPreviewAnexo} onClose={() => setOpenPreviewAnexo(false)}>
         <div className="w-[80vw] max-w-[800px]">
           <h2 className="text-center text-[1.2rem] font-inter font-semibold mb-3">

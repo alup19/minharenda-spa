@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { parseQuantidade } from "./units";
 import type { Unidade } from "./units";
 
@@ -35,7 +35,6 @@ type Props = {
   produtos: ProdutoOption[];
   onChange: (next: ItemLinha[]) => void;
 
-  /** Cadastro rápido inline (se não for passado, a UI de cadastro não aparece) */
   onCadastrarProdutoRapido?: (
     nome: string,
     unidade: Unidade
@@ -146,7 +145,6 @@ export default function ItensEditor({
 
   return (
     <div className="w-full">
-      {/* Cadastro rápido inline — só aparece se o pai passar onCadastrarProdutoRapido */}
       {onCadastrarProdutoRapido && (
         <div className="mb-2">
           {!showNovoProduto ? (
@@ -194,9 +192,9 @@ export default function ItensEditor({
               <button
                 type="button"
                 onClick={() => setShowNovoProduto(false)}
-                className="text-[#292727] px-2 py-1"
+                className="text-[#c02424] px-2 py-1"
               >
-                cancelar
+                Cancelar
               </button>
             </div>
           )}
@@ -213,7 +211,6 @@ export default function ItensEditor({
               className="bg-[#F5F5F5] rounded-xl p-3 flex flex-col gap-3"
             >
               <div className="flex gap-3 flex-wrap items-end">
-                {/* PRODUTO */}
                 <div className="relative grow min-w-[16rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     PRODUTO
@@ -245,7 +242,6 @@ export default function ItensEditor({
                   )}
                 </div>
 
-                {/* QTD (conteúdo de UMA unidade) + unidade */}
                 <div className="flex items-end gap-2">
                   <div className="relative w-28">
                     <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
@@ -282,7 +278,6 @@ export default function ItensEditor({
                   </div>
                 </div>
 
-                {/* Custo de UMA unidade */}
                 <div className="relative w-36">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     CUSTO (1 unid.)
@@ -299,7 +294,6 @@ export default function ItensEditor({
                   />
                 </div>
 
-                {/* Quantidade Comprada (nº de pacotes) */}
                 <div className="relative w-[18.5rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     QUANTIDADE COMPRADA
@@ -316,7 +310,6 @@ export default function ItensEditor({
                   />
                 </div>
 
-                {/* Subtotal + Remover */}
                 <div className="flex items-end ml-auto">
                   <div className="min-w-24 text-right font-inter mr-3">
                     <div className="text-xs text-[#4A4B51]">Subtotal</div>
