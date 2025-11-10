@@ -45,7 +45,7 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
   const { register, handleSubmit, reset } = useForm<Inputs>();
 
   async function getProdutos() {
-    const response = await fetch(`${apiUrl}/produtos`, {
+    const response = await fetch(`${apiUrl}/produtos/${usuario.id}`, {
       headers: usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {},
     });
     const dados = await response.json();
