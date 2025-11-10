@@ -8,6 +8,8 @@ export type ProdutoType = {
     margemPadrao: number
     saldoBase: number
     custoMedio: number
+    anexo: String
+    data: Date | String
     createdAt: Date
     updatedAt: Date
     usuarioId: string

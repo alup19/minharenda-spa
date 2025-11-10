@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { parseQuantidade } from "./units";
 import type { Unidade } from "./units";
 
@@ -17,10 +17,10 @@ export interface ItemLinha {
   produtoId?: number;
 
   /** ----- Entrada por unidade ----- */
-  qtdConteudoInput?: string; // o que o usuário digita (ex.: "500", "950 g")
-  unidadeSelecionada?: Unidade; // pode trocar G/ML/UN para o conteúdo informado
-  custoUnitario?: number;   // preço de UMA unidade (ex.: R$ 3,00)
-  quantidadeComprada?: number; // número de pacotes/unidades (ex.: 5)
+  qtdConteudoInput?: string;    // ex.: "500", "950 g"
+  unidadeSelecionada?: Unidade; // UN | G | ML
+  custoUnitario?: number;       // preço de UMA unidade (ex.: R$ 3,00)
+  quantidadeComprada?: number;  // nº de pacotes/unidades (ex.: 5)
 
   /** ----- Calculados ----- */
   qtdTotalBase?: number;    // (qtdConteudoBase × quantidadeComprada)
@@ -35,7 +35,6 @@ type Props = {
   produtos: ProdutoOption[];
   onChange: (next: ItemLinha[]) => void;
 
-  /** Cadastro rápido inline (se não for passado, a UI de cadastro não aparece) */
   onCadastrarProdutoRapido?: (
     nome: string,
     unidade: Unidade
@@ -46,9 +45,6 @@ function toBaseNumber(input: string, u: Unidade) {
   // aceita "500", "500ml", "0,5l", "950 g", etc.
   const raw = String(input ?? "").trim().toLowerCase();
   if (!raw) return 0;
-
-  // Se o usuário incluiu sufixo, deixe o parser decidir;
-  // caso contrário, calcule usando a unidade escolhida.
   return parseQuantidade(/\d/.test(raw) ? raw : "0", u);
 }
 
@@ -134,8 +130,6 @@ export default function ItensEditor({
     setNovoNome("");
     setNovaUnidade("UN");
 
-    // adiciona na lista visual (quem controla 'produtos' é o pai)
-    // aqui só selecionamos o recém-criado na linha focada
     if (typeof idxParaSelecionar === "number") {
       setItem(idxParaSelecionar, {
         produtoId: criado.id,
@@ -151,7 +145,6 @@ export default function ItensEditor({
 
   return (
     <div className="w-full">
-      {/* Cadastro rápido inline — só aparece se o pai passar onCadastrarProdutoRapido */}
       {onCadastrarProdutoRapido && (
         <div className="mb-2">
           {!showNovoProduto ? (
@@ -199,16 +192,15 @@ export default function ItensEditor({
               <button
                 type="button"
                 onClick={() => setShowNovoProduto(false)}
-                className="text-[#292727] px-2 py-1"
+                className="text-[#c02424] px-2 py-1"
               >
-                cancelar
+                Cancelar
               </button>
             </div>
           )}
         </div>
       )}
 
-      {/* Linhas de itens */}
       <div className="space-y-2">
         {itens.map((it, idx) => {
           const sel = produtos.find((p) => p.id === it.produtoId);
@@ -219,7 +211,6 @@ export default function ItensEditor({
               className="bg-[#F5F5F5] rounded-xl p-3 flex flex-col gap-3"
             >
               <div className="flex gap-3 flex-wrap items-end">
-                {/* Produto */}
                 <div className="relative grow min-w-[16rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     PRODUTO
@@ -244,7 +235,6 @@ export default function ItensEditor({
                     ))}
                   </select>
 
-                  {/* hint aparece só se a UI de cadastro estiver ativa */}
                   {onCadastrarProdutoRapido && showNovoProduto && (
                     <div className="text-[0.8rem] text-[#407B6A] mt-1">
                       Após salvar acima, o novo produto aparecerá aqui.
@@ -252,7 +242,6 @@ export default function ItensEditor({
                   )}
                 </div>
 
-                {/* QTD (conteúdo de UMA unidade) + unidade */}
                 <div className="flex items-end gap-2">
                   <div className="relative w-28">
                     <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
@@ -277,7 +266,9 @@ export default function ItensEditor({
                     </label>
                     <select
                       value={it.unidadeSelecionada ?? sel?.unidadeBase ?? "UN"}
-                      onChange={(e) => setItem(idx, { unidadeSelecionada: e.target.value as Unidade })}
+                      onChange={(e) =>
+                        setItem(idx, { unidadeSelecionada: e.target.value as Unidade })
+                      }
                       className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-3 py-2 outline-none focus:border-[#407B6A]"
                     >
                       <option value="UN">UN</option>
@@ -287,7 +278,6 @@ export default function ItensEditor({
                   </div>
                 </div>
 
-                {/* Custo de UMA unidade */}
                 <div className="relative w-36">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     CUSTO (1 unid.)
@@ -296,13 +286,14 @@ export default function ItensEditor({
                     type="number"
                     step="0.01"
                     value={it.custoUnitario ?? ""}
-                    onChange={(e) => setItem(idx, { custoUnitario: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setItem(idx, { custoUnitario: Number(e.target.value || 0) })
+                    }
                     placeholder="R$"
                     className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                   />
                 </div>
 
-                {/* Quantidade Comprada (nº de pacotes) */}
                 <div className="relative w-[18.5rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     QUANTIDADE COMPRADA
@@ -311,13 +302,14 @@ export default function ItensEditor({
                     type="number"
                     step="1"
                     value={it.quantidadeComprada ?? ""}
-                    onChange={(e) => setItem(idx, { quantidadeComprada: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setItem(idx, { quantidadeComprada: Number(e.target.value || 0) })
+                    }
                     placeholder="ex.: 5"
                     className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                   />
                 </div>
 
-                {/* Subtotal + Remover */}
                 <div className="flex items-end ml-auto">
                   <div className="min-w-24 text-right font-inter mr-3">
                     <div className="text-xs text-[#4A4B51]">Subtotal</div>
