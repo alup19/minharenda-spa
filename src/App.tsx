@@ -61,18 +61,18 @@ export default function App() {
           <section className='flex flex-col gap-[1rem] bg-[#F5F5F5] rounded-[1.275rem] px-[1.5625rem] py-[1.4375rem]'>
             <div className='flex flex-row items-center gap-[0.75rem]'>
               <img src="/tabela.svg" alt="" className='w-[1.675rem]' />
-              <h3 className='font-inter text-[1.25rem] font-semibold'>Últimas Despesas</h3>
+              <h3 className='font-inter text-[1.25rem] font-semibold'>Últimas Receitas</h3>
             </div>
             <hr className='h-[0.1225rem] bg-[#D9D9D9]' />
             <div className='flex flex-col gap-[0.5rem]'>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -80,12 +80,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -93,12 +93,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -106,12 +106,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -119,12 +119,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -132,12 +132,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -145,12 +145,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -158,12 +158,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -171,12 +171,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
@@ -184,12 +184,12 @@ export default function App() {
               </div>
               <div className='flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]'>
                 <div className='flex flex-row gap-[0.81rem]'>
-                  <img src="/launch.svg" alt="" className='rotate-[180deg]' />
+                  <img src="/launch.svg" alt="" className='' />
                   <p className='text-[#656565] font-inter font-normal'>16 ago.</p>
                 </div>
                 <p className='font-inter font-semibold text-[#303030]'>R$100,00</p>
                 <div className='flex flex-row gap-[1.1875rem]'>
-                  <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem] ">
+                  <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] ">
                     Impostos e Taxas
                   </p>
                   <img src="/options.svg" alt="opções" />
