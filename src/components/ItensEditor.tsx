@@ -1,14 +1,13 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { parseQuantidade } from "./units";
 import type { Unidade } from "./units";
 
-/** Modo único para compras/estoque */
 export type ModoItens = "compra";
 
 export interface ProdutoOption {
   id: number;
   nome: string;
-  unidadeBase: Unidade;      // "UN" | "G" | "ML"
+  unidadeBase: Unidade;
   custoMedio?: number;
   margemPadrao?: number;
 }
@@ -16,14 +15,12 @@ export interface ProdutoOption {
 export interface ItemLinha {
   produtoId?: number;
 
-  /** ----- Entrada por unidade ----- */
-  qtdConteudoInput?: string;    // ex.: "500", "950 g"
-  unidadeSelecionada?: Unidade; // UN | G | ML
-  custoUnitario?: number;       // preço de UMA unidade (ex.: R$ 3,00)
-  quantidadeComprada?: number;  // nº de pacotes/unidades (ex.: 5)
+  qtdConteudoInput?: string;
+  unidadeSelecionada?: Unidade;
+  custoUnitario?: number;
+  quantidadeComprada?: number;
 
-  /** ----- Calculados ----- */
-  qtdTotalBase?: number;    // (qtdConteudoBase × quantidadeComprada)
+  qtdTotalBase?: number;    // (qtdConteudo × quantidadeComprada)
   custoUnitBase?: number;   // (subtotal / qtdTotalBase)
   subtotal?: number;        // (custoUnitario × quantidadeComprada)
 
@@ -42,18 +39,13 @@ type Props = {
 };
 
 function toBaseNumber(input: string, u: Unidade) {
-  // aceita "500", "500ml", "0,5l", "950 g", etc.
+  // formataçao p aceitar 500, 500ml, 0,5l, 950 g
   const raw = String(input ?? "").trim().toLowerCase();
   if (!raw) return 0;
   return parseQuantidade(/\d/.test(raw) ? raw : "0", u);
 }
 
-export default function ItensEditor({
-  itens,
-  produtos,
-  onChange,
-  onCadastrarProdutoRapido,
-}: Props) {
+export default function ItensEditor({ itens, produtos, onChange, onCadastrarProdutoRapido }: Props) {
   const [showNovoProduto, setShowNovoProduto] = useState(false);
   const [novoNome, setNovoNome] = useState("");
   const [novaUnidade, setNovaUnidade] = useState<Unidade>("UN");
@@ -64,7 +56,6 @@ export default function ItensEditor({
 
     const prod = produtos.find((p) => p.id === next[idx].produtoId);
 
-    // unidade default: a do produto (se houver) ou a selecionada atual
     const unidadeRef: Unidade =
       patch.unidadeSelecionada ??
       next[idx].unidadeSelecionada ??
@@ -73,7 +64,6 @@ export default function ItensEditor({
 
     next[idx].unidadeSelecionada = unidadeRef;
 
-    // conteúdo por unidade → base
     const qtdConteudoBase = toBaseNumber(next[idx].qtdConteudoInput || "", unidadeRef);
 
     const qtdComprada = Number(next[idx].quantidadeComprada || 0);
@@ -88,16 +78,7 @@ export default function ItensEditor({
     next[idx].subtotal = subtotal || undefined;
     next[idx].custoUnitBase = custoUnitBase;
 
-    // validações
-    next[idx].erro = !next[idx].produtoId
-      ? (onCadastrarProdutoRapido ? "Selecione ou cadastre um produto" : "Selecione um produto")
-      : qtdConteudoBase <= 0
-      ? "Informe o conteúdo (QTD) da unidade"
-      : custoUnit <= 0
-      ? "Informe o custo de uma unidade"
-      : qtdComprada <= 0
-      ? "Informe a quantidade comprada"
-      : undefined;
+    next[idx].erro = !next[idx].produtoId ? (onCadastrarProdutoRapido ? "Selecione ou cadastre um produto" : "Selecione um produto") : qtdConteudoBase <= 0 ? "Informe o conteúdo (QTD) da unidade" : custoUnit <= 0 ? "Informe o custo de uma unidade" : qtdComprada <= 0 ? "Informe a quantidade comprada" : undefined;
 
     onChange(next);
   }
@@ -138,66 +119,36 @@ export default function ItensEditor({
     }
   }
 
-  const totalGeral = useMemo(
-    () => itens.reduce((s, it) => s + (Number(it.subtotal) || 0), 0),
-    [itens]
-  );
 
   return (
     <div className="w-full">
       {onCadastrarProdutoRapido && (
         <div className="mb-2">
           {!showNovoProduto ? (
-            <button
-              type="button"
-              className="text-[0.85rem] text-[#407B6A] underline"
-              onClick={() => setShowNovoProduto(true)}
-            >
-              + Cadastrar novo produto
-            </button>
+            <button type="button" className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90" onClick={() => setShowNovoProduto(true)}>+ Cadastrar Produto no Estoque</button>
           ) : (
             <div className="flex flex-wrap items-end gap-3 bg-[#F5F5F5] p-3 rounded-xl">
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
-                  NOME DO PRODUTO
-                </label>
-                <input
-                  value={novoNome}
-                  onChange={(e) => setNovoNome(e.target.value)}
-                  placeholder="Ex.: Farofa Yoki"
-                  className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                />
+                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">NOME DO PRODUTO</label>
+                <input value={novoNome} onChange={(e) => setNovoNome(e.target.value)} placeholder="Ex.: Farofa Yoki" className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"/>
               </div>
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
-                  UNIDADE BASE
-                </label>
-                <select
-                  value={novaUnidade}
-                  onChange={(e) => setNovaUnidade(e.target.value as Unidade)}
-                  className="w-[10rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                >
+                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">UNIDADE BASE</label>
+                <select value={novaUnidade} onChange={(e) => setNovaUnidade(e.target.value as Unidade)} className="w-[10rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]">
                   <option value="UN">UN</option>
                   <option value="G">G</option>
                   <option value="ML">ML</option>
                 </select>
               </div>
-              <button
-                type="button"
-                onClick={() => cadastrarRapido()}
-                className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90"
-              >
+              <button type="button" onClick={() => cadastrarRapido()} className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90">
                 Salvar produto
               </button>
-              <button
-                type="button"
-                onClick={() => setShowNovoProduto(false)}
-                className="text-[#c02424] px-2 py-1"
-              >
+              <button type="button" onClick={() => setShowNovoProduto(false)} className="text-[#c02424] px-2 py-1">
                 Cancelar
               </button>
             </div>
           )}
+          <button onClick={addLinha} className="text-white bg-[#308021] rounded-md px-4 py-2 ml-6 text-[0.95rem] font-bold font-inter hover:opacity-90" type="button">+ Adicionar Item no Estoque</button>
         </div>
       )}
 
@@ -206,17 +157,14 @@ export default function ItensEditor({
           const sel = produtos.find((p) => p.id === it.produtoId);
 
           return (
-            <div
-              key={idx}
-              className="bg-[#F5F5F5] rounded-xl p-3 flex flex-col gap-3"
-            >
+            <div key={idx} className="bg-[#F5F5F5] font-inter rounded-xl p-3 flex flex-col gap-3">
               <div className="flex gap-3 flex-wrap items-end">
                 <div className="relative grow min-w-[16rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     PRODUTO
                   </label>
                   <select
-                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                    className="w-full border-2 border-[#4A4B51] rounded-xl  bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                     value={it.produtoId ?? ""}
                     onChange={(e) =>
                       setItem(idx, {
@@ -236,9 +184,7 @@ export default function ItensEditor({
                   </select>
 
                   {onCadastrarProdutoRapido && showNovoProduto && (
-                    <div className="text-[0.8rem] text-[#407B6A] mt-1">
-                      Após salvar acima, o novo produto aparecerá aqui.
-                    </div>
+                    <div className="text-[0.8rem] text-[#407B6A] mt-1">Após salvar acima, o novo produto aparecerá aqui.</div>
                   )}
                 </div>
 
@@ -248,16 +194,16 @@ export default function ItensEditor({
                       QTD
                     </label>
                     <input
+                      className="w-full border-2 border-[#4A4B51] rounded-xl  bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                       value={it.qtdConteudoInput ?? ""}
                       onChange={(e) => setItem(idx, { qtdConteudoInput: e.target.value })}
                       placeholder={
                         (it.unidadeSelecionada || sel?.unidadeBase || "UN") === "UN"
                           ? "1"
                           : (it.unidadeSelecionada || sel?.unidadeBase) === "G"
-                          ? "950"
-                          : "500"
+                            ? "950"
+                            : "500"
                       }
-                      className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                     />
                   </div>
                   <div className="relative w-24">
@@ -269,8 +215,7 @@ export default function ItensEditor({
                       onChange={(e) =>
                         setItem(idx, { unidadeSelecionada: e.target.value as Unidade })
                       }
-                      className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-3 py-2 outline-none focus:border-[#407B6A]"
-                    >
+                      className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-3 py-2 outline-none focus:border-[#407B6A]">
                       <option value="UN">UN</option>
                       <option value="G">G</option>
                       <option value="ML">ML</option>
@@ -290,7 +235,7 @@ export default function ItensEditor({
                       setItem(idx, { custoUnitario: Number(e.target.value || 0) })
                     }
                     placeholder="R$"
-                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                    className="w-full border-2 border-[#4A4B51] rounded-xl  bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                   />
                 </div>
 
@@ -306,7 +251,7 @@ export default function ItensEditor({
                       setItem(idx, { quantidadeComprada: Number(e.target.value || 0) })
                     }
                     placeholder="ex.: 5"
-                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                   />
                 </div>
 
@@ -318,16 +263,11 @@ export default function ItensEditor({
                     </div>
                     {it.qtdTotalBase ? (
                       <div className="text-[10px] text-[#656565]">
-                        Qtde total base: {it.qtdTotalBase}
+                        Quantidade: {it.qtdTotalBase}
                       </div>
                     ) : null}
                   </div>
-                  <button
-                    onClick={() => remove(idx)}
-                    className="self-end text-[#c02424] hover:opacity-80 px-2 py-1"
-                    title="Remover"
-                    type="button"
-                  >
+                  <button onClick={() => remove(idx)} className="self-center font-inter text-[#c02424] hover:opacity-80 px-2 py-1" title="Remover" type="button">
                     Remover
                   </button>
                 </div>
@@ -337,21 +277,6 @@ export default function ItensEditor({
             </div>
           );
         })}
-      </div>
-
-      <button
-        onClick={addLinha}
-        className="mt-3 text-[#407B6A] underline"
-        type="button"
-      >
-        + Adicionar item
-      </button>
-
-      <div className="mt-4 flex justify-end font-inter">
-        <div>
-          <div className="text-sm text-[#4A4B51]">Total</div>
-          <div className="text-lg font-semibold">R$ {totalGeral.toFixed(2)}</div>
-        </div>
       </div>
     </div>
   );

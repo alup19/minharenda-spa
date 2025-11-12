@@ -78,7 +78,6 @@ export default function Receitas() {
     if (openCriar && modo === "itens") getProdutos();
   }, [openCriar, modo]);
 
-  // ✅ corrigido: back espera "data", não "createdAt"
   async function incluirReceita(data: Inputs) {
     const payload = {
       descricao: data.descricao,
@@ -225,8 +224,7 @@ export default function Receitas() {
                 setModo("rapida");
                 setValue("data", new Date().toISOString().slice(0, 10));
               }}
-              className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal"
-            >
+              className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal">
               Adicionar
             </button>
           </div>
@@ -264,21 +262,16 @@ export default function Receitas() {
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button
-              className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"
-                }`}
+            <button className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
               onClick={() => setModo("rapida")}
             >
               Venda rápida
             </button>
-            <button
-              className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"
-                }`}
+            <button className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
               onClick={() => {
                 setModo("itens");
                 getProdutos();
-              }}
-            >
+              }}>
               Com itens
             </button>
           </div>
@@ -375,24 +368,16 @@ export default function Receitas() {
                   setOpenCriar(false);
                   setItensVenda([]);
                 }}
-                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
-              >
+                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
                 Cancelar
               </button>
 
               {modo === "rapida" ? (
-                <button
-                  type="submit"
-                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
-                >
+                <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
                   Salvar
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={incluirReceitaComItens}
-                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
-                >
+                <button type="button" onClick={incluirReceitaComItens} className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
                   Salvar com itens
                 </button>
               )}

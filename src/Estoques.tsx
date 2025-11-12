@@ -259,8 +259,7 @@ export default function Estoque() {
                 setItens([]);
                 setOpenAdicionarProduto(true);
               }}
-              className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal"
-            >
+              className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal">
               Adicionar
             </button>
           </div>
@@ -286,8 +285,7 @@ export default function Estoque() {
                 <select
                   value={filtroCategoria}
                   onChange={(e) => setFiltroCategoria(e.target.value as Categoria | "")}
-                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 pr-8 w-[16rem] h-[2.75rem] bg-white outline-none focus:border-[#407B6A]"
-                >
+                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 pr-8 w-[16rem] h-[2.75rem] bg-white outline-none focus:border-[#407B6A]">
                   <option value="">Todas</option>
                   {CATEGORIAS.map((c) => (
                     <option key={c} value={c}>
@@ -341,7 +339,7 @@ export default function Estoque() {
               <input
                 type="url"
                 {...register("anexo")}
-                placeholder="https://... (link da NF)"
+                placeholder="Link da NF"
                 className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
               />
             </div>
@@ -353,8 +351,7 @@ export default function Estoque() {
               <select
                 {...register("categoria")}
                 className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                defaultValue=""
-              >
+                defaultValue="">
                 <option value="">Sem categoria</option>
                 {CATEGORIAS.map((c) => (
                   <option key={c} value={c}>
@@ -375,10 +372,6 @@ export default function Estoque() {
               onCadastrarProdutoRapido={adicionarProduto}
             />
 
-            <p className="text-sm text-[#4A4B51] mt-2">
-              O custo médio será atualizado automaticamente ao confirmar.
-            </p>
-
             <div className="mt-4 flex justify-end font-inter">
               <div>
                 <div className="text-sm text-[#4A4B51]">Total</div>
@@ -388,19 +381,8 @@ export default function Estoque() {
           </div>
 
           <div className="mt-6 flex gap-4">
-            <button
-              type="button"
-              onClick={() => setOpenAdicionarProduto(false)}
-              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
-            >
-              Confirmar
-            </button>
+            <button type="button" onClick={() => setOpenAdicionarProduto(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"> Cancelar</button>
+            <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90">Confirmar</button>
           </div>
         </form>
       </Modal>
