@@ -2,7 +2,8 @@ import { useState } from "react";
 import { parseQuantidade } from "./units";
 import type { Unidade } from "./units";
 
-export type ModoItens = "compra";
+/** modos possíveis do editor */
+export type ModoItens = "compra" | "venda";
 
 export interface ProdutoOption {
   id: number;
@@ -10,89 +11,138 @@ export interface ProdutoOption {
   unidadeBase: Unidade;
   custoMedio?: number;
   margemPadrao?: number;
+  saldoBase?: number; // usado no modo venda para limitar pela quantidade em estoque
 }
 
 export interface ItemLinha {
   produtoId?: number;
 
-  qtdConteudoInput?: string;
+  // CAMPOS USADOS NO MODO COMPRA
+  qtdConteudoInput?: string; // conteúdo de 1 unidade (ex.: 950g, 500ml, 1 un)
   unidadeSelecionada?: Unidade;
-  custoUnitario?: number;
-  quantidadeComprada?: number;
+  custoUnitario?: number; // no modo compra: custo de 1 un; no modo venda: preço de 1 un
+  quantidadeComprada?: number; // tanto no modo compra quanto venda
 
-  qtdTotalBase?: number;    // (qtdConteudo × quantidadeComprada)
-  custoUnitBase?: number;   // (subtotal / qtdTotalBase)
-  subtotal?: number;        // (custoUnitario × quantidadeComprada)
+  // CAMPOS COMUNS (base / totais)
+  qtdTotalBase?: number; // quantidade total em unidade base (UN, g, ml)
+  subtotal?: number; // valor total da linha (R$)
+  custoUnitBase?: number; // custo/ preço por unidade base (R$/g, R$/ml, etc.)
 
   erro?: string;
 }
 
-type Props = {
+interface Props {
   itens: ItemLinha[];
   produtos: ProdutoOption[];
-  onChange: (next: ItemLinha[]) => void;
-
+  onChange: (itens: ItemLinha[]) => void;
+  modo?: ModoItens;
   onCadastrarProdutoRapido?: (
     nome: string,
     unidade: Unidade
   ) => Promise<ProdutoOption>;
-};
+}
 
 function toBaseNumber(input: string, u: Unidade) {
-  // formataçao p aceitar 500, 500ml, 0,5l, 950 g
   const raw = String(input ?? "").trim().toLowerCase();
   if (!raw) return 0;
   return parseQuantidade(/\d/.test(raw) ? raw : "0", u);
 }
 
-export default function ItensEditor({ itens, produtos, onChange, onCadastrarProdutoRapido }: Props) {
+export default function ItensEditor({
+  itens,
+  produtos,
+  onChange,
+  modo = "compra",
+  onCadastrarProdutoRapido,
+}: Props) {
   const [showNovoProduto, setShowNovoProduto] = useState(false);
   const [novoNome, setNovoNome] = useState("");
   const [novaUnidade, setNovaUnidade] = useState<Unidade>("UN");
+
+  const botaoAdicionarTexto =
+    modo === "compra" ? "Adicionar item comprado" : "Adicionar item vendido";
+
+  function addLinha() {
+    const nova: ItemLinha = {
+      quantidadeComprada: 1,
+    };
+    onChange([...itens, nova]);
+  }
 
   function setItem(idx: number, patch: Partial<ItemLinha>) {
     const next = [...itens];
     next[idx] = { ...next[idx], ...patch };
 
     const prod = produtos.find((p) => p.id === next[idx].produtoId);
-
     const unidadeRef: Unidade =
-      patch.unidadeSelecionada ??
-      next[idx].unidadeSelecionada ??
-      prod?.unidadeBase ??
-      "UN";
+      next[idx].unidadeSelecionada ?? prod?.unidadeBase ?? "UN";
 
     next[idx].unidadeSelecionada = unidadeRef;
 
-    const qtdConteudoBase = toBaseNumber(next[idx].qtdConteudoInput || "", unidadeRef);
+    if (modo === "compra") {
+      // Para UN, o conteúdo é sempre 1 unidade (não precisa de campo)
+      const qtdConteudoBase =
+        unidadeRef === "UN"
+          ? 1
+          : toBaseNumber(next[idx].qtdConteudoInput || "", unidadeRef);
 
-    const qtdComprada = Number(next[idx].quantidadeComprada || 0);
-    const custoUnit = Number(next[idx].custoUnitario || 0);
+      const qtdComprada = Number(next[idx].quantidadeComprada || 0);
+      const custoUnit = Number(next[idx].custoUnitario || 0);
 
-    const qtdTotalBase = Math.max(0, qtdConteudoBase * qtdComprada);
-    const subtotal = Math.max(0, +(custoUnit * qtdComprada).toFixed(2));
-    const custoUnitBase =
-      qtdTotalBase > 0 ? +(subtotal / qtdTotalBase).toFixed(6) : undefined;
+      const qtdTotalBase = Math.max(0, qtdConteudoBase * qtdComprada);
+      const subtotal = Math.max(0, +(custoUnit * qtdComprada).toFixed(2));
+      const custoUnitBase =
+        qtdTotalBase > 0 ? +(subtotal / qtdTotalBase).toFixed(6) : undefined;
 
-    next[idx].qtdTotalBase = qtdTotalBase || undefined;
-    next[idx].subtotal = subtotal || undefined;
-    next[idx].custoUnitBase = custoUnitBase;
+      next[idx].qtdTotalBase = qtdTotalBase || undefined;
+      next[idx].subtotal = subtotal || undefined;
+      next[idx].custoUnitBase = custoUnitBase;
 
-    next[idx].erro = !next[idx].produtoId ? (onCadastrarProdutoRapido ? "Selecione ou cadastre um produto" : "Selecione um produto") : qtdConteudoBase <= 0 ? "Informe o conteúdo (QTD) da unidade" : custoUnit <= 0 ? "Informe o custo de uma unidade" : qtdComprada <= 0 ? "Informe a quantidade comprada" : undefined;
+      next[idx].erro = !next[idx].produtoId
+        ? onCadastrarProdutoRapido
+          ? "Selecione ou cadastre um produto"
+          : "Selecione um produto"
+        : qtdConteudoBase <= 0 && unidadeRef !== "UN"
+          ? "Informe o conteúdo (QTD) da unidade"
+          : custoUnit <= 0
+            ? "Informe o custo de uma unidade"
+            : qtdComprada <= 0
+              ? "Informe a quantidade comprada"
+              : undefined;
+    } else {
+      // MODO VENDA: VALOR R$ = valor por unidade
+      const qtdVendida = Number(next[idx].quantidadeComprada || 0);
+      const precoUnit = Number(next[idx].custoUnitario || 0); // valor de cada unidade
+
+      const qtdTotalBase = Math.max(0, qtdVendida); // usamos a QTD como base
+      const subtotal = Math.max(0, +(precoUnit * qtdVendida).toFixed(2));
+      const custoUnitBase =
+        qtdTotalBase > 0 && subtotal > 0
+          ? +(subtotal / qtdTotalBase).toFixed(4)
+          : undefined;
+
+      next[idx].qtdTotalBase = qtdTotalBase || undefined;
+      next[idx].subtotal = subtotal || undefined;
+      next[idx].custoUnitBase = custoUnitBase;
+
+      const estoqueDisponivel =
+        prod && prod.saldoBase != null ? Number(prod.saldoBase) : undefined;
+
+      let erro: string | undefined;
+      if (!next[idx].produtoId) erro = "Selecione um produto";
+      else if (qtdVendida <= 0) erro = "Informe a quantidade vendida";
+      else if (precoUnit <= 0) erro = "Informe o valor por unidade";
+      else if (
+        estoqueDisponivel != null &&
+        qtdVendida > estoqueDisponivel
+      ) {
+        erro = `Quantidade em estoque: ${estoqueDisponivel}`;
+      }
+
+      next[idx].erro = erro;
+    }
 
     onChange(next);
-  }
-
-  function addLinha() {
-    onChange([
-      ...itens,
-      {
-        qtdConteudoInput: "",
-        unidadeSelecionada: "UN",
-        custoUnitario: undefined,
-        quantidadeComprada: undefined,
-      },
-    ]);
   }
 
   function remove(idx: number) {
@@ -119,165 +169,249 @@ export default function ItensEditor({ itens, produtos, onChange, onCadastrarProd
     }
   }
 
-
   return (
-    <div className="w-full">
+    <div className="mt-4">
       {onCadastrarProdutoRapido && (
-        <div className="mb-2">
-          {!showNovoProduto ? (
-            <button type="button" className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90" onClick={() => setShowNovoProduto(true)}>+ Cadastrar Produto no Estoque</button>
-          ) : (
-            <div className="flex flex-wrap items-end gap-3 bg-[#F5F5F5] p-3 rounded-xl">
+        <div className="mb-4 border border-dashed border-[#CCCCCC] rounded-xl p-3">
+          <button
+            type="button"
+            className="text-sm text-[#308021] font-semibold"
+            onClick={() => setShowNovoProduto((v) => !v)}
+          >
+            {showNovoProduto ? "Fechar cadastro rápido" : "Cadastrar novo produto"}
+          </button>
+
+          {showNovoProduto && (
+            <div className="mt-3 flex gap-3 items-center flex-wrap">
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">NOME DO PRODUTO</label>
-                <input value={novoNome} onChange={(e) => setNovoNome(e.target.value)} placeholder="Ex.: Farofa Yoki" className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"/>
+                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                  NOME DO PRODUTO
+                </label>
+                <input
+                  type="text"
+                  value={novoNome}
+                  onChange={(e) => setNovoNome(e.target.value)}
+                  placeholder="Ex.: Farofa Yoki"
+                  className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                />
               </div>
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">UNIDADE BASE</label>
-                <select value={novaUnidade} onChange={(e) => setNovaUnidade(e.target.value as Unidade)} className="w-[10rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]">
+                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                  BASE
+                </label>
+                <select
+                  value={novaUnidade}
+                  onChange={(e) =>
+                    setNovaUnidade(e.target.value as Unidade)
+                  }
+                  className="border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                >
                   <option value="UN">UN</option>
                   <option value="G">G</option>
                   <option value="ML">ML</option>
                 </select>
               </div>
-              <button type="button" onClick={() => cadastrarRapido()} className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90">
+              <button
+                type="button"
+                onClick={() => cadastrarRapido()}
+                className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90"
+              >
                 Salvar produto
-              </button>
-              <button type="button" onClick={() => setShowNovoProduto(false)} className="text-[#c02424] px-2 py-1">
-                Cancelar
               </button>
             </div>
           )}
         </div>
       )}
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-3">
         {itens.map((it, idx) => {
-          const sel = produtos.find((p) => p.id === it.produtoId);
+          const prod = produtos.find((p) => p.id === it.produtoId);
+          const unidade = it.unidadeSelecionada ?? prod?.unidadeBase ?? "UN";
+
+          const estoque =
+            prod && prod.saldoBase != null ? Number(prod.saldoBase) : undefined;
+          const estoqueDisplay =
+            estoque == null
+              ? "-"
+              : Number.isInteger(estoque)
+                ? estoque.toString()
+                : estoque.toFixed(3);
 
           return (
-            <div key={idx} className="bg-[#F5F5F5] font-inter rounded-xl p-3 flex flex-col gap-3">
-              <div className="flex gap-3 flex-wrap items-end">
-                <div className="relative grow min-w-[16rem]">
+            <div
+              key={idx}
+              className="border border-[#D0D0D0] rounded-xl px-4 py-3 flex flex-col gap-2 bg-[#F5F5F5]"
+            >
+              <div className="flex flex-wrap gap-3 items-end">
+                {/* Produto */}
+                <div className="relative">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     PRODUTO
                   </label>
                   <select
-                    className="w-full border-2 border-[#4A4B51] rounded-xl  bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
+                    className="w-[16rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                     value={it.produtoId ?? ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const id = Number(e.target.value || 0);
+                      const p = produtos.find((pp) => pp.id === id);
                       setItem(idx, {
-                        produtoId: Number(e.target.value) || undefined,
-                        unidadeSelecionada:
-                        produtos.find((p) => p.id === Number(e.target.value))
-                        ?.unidadeBase ?? it.unidadeSelecionada ?? "UN",
-                      })
-                    }
+                        produtoId: id || undefined,
+                        unidadeSelecionada: p?.unidadeBase ?? unidade,
+                      });
+                    }}
                   >
-                    <option value="">Selecionar</option>
+                    <option value="">Selecione...</option>
                     {produtos.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.nome}
                       </option>
                     ))}
                   </select>
-
-                  {onCadastrarProdutoRapido && showNovoProduto && (
-                    <div className="text-[0.8rem] text-[#407B6A] mt-1">Após salvar acima, o novo produto aparecerá aqui.</div>
-                  )}
                 </div>
 
-                <div className="flex items-end gap-2">
-                  <div className="relative w-28">
-                    <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
-                      QTD
-                    </label>
-                    <input
-                      className="w-full border-2 border-[#4A4B51] rounded-xl  bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                      value={it.qtdConteudoInput ?? ""}
-                      onChange={(e) => setItem(idx, { qtdConteudoInput: e.target.value })}
-                      placeholder={
-                        (it.unidadeSelecionada || sel?.unidadeBase || "UN") === "UN"
-                        ? "1"
-                        : (it.unidadeSelecionada || sel?.unidadeBase) === "G"
-                        ? "950"
-                        : "500"
-                      }
-                    />
-                  </div>
-                  <div className="relative w-24">
-                    <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
-                      UNID.
-                    </label>
-                    <select
-                      value={it.unidadeSelecionada ?? sel?.unidadeBase ?? "UN"}
-                      onChange={(e) =>
-                        setItem(idx, { unidadeSelecionada: e.target.value as Unidade })
-                      }
-                      className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-3 py-2 outline-none focus:border-[#407B6A]">
-                      <option value="UN">UN</option>
-                      <option value="G">G</option>
-                      <option value="ML">ML</option>
-                    </select>
-                  </div>
-                </div>
+                {modo === "compra" && (
+                  <>
+                    {/* Conteúdo de 1 unidade — só aparece para G e ML */}
+                    {unidade !== "UN" && (
+                      <div className="flex gap-2 items-end">
+                        <div className="relative">
+                          <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                            CONTEÚDO (1 unid.)
+                          </label>
+                          <input
+                            type="text"
+                            className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                            placeholder={
+                              unidade === "G"
+                                ? "950g"
+                                : unidade === "ML"
+                                  ? "1000 ML"
+                                  : "1un"
+                            }
+                            value={it.qtdConteudoInput ?? ""}
+                            onChange={(e) =>
+                              setItem(idx, {
+                                qtdConteudoInput: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="w-[4rem] border-2 border-[#4A4B51] rounded-xl bg-[#E9E9E9] px-4 py-2 flex items-center justify-center text-[#4A4B51]">
+                          {unidade}
+                        </div>
+                      </div>
+                    )}
 
-                <div className="relative w-36">
+                    {/* Custo por unidade */}
+                    <div className="relative w-32">
+                      <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                        CUSTO R$
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                        value={it.custoUnitario ?? ""}
+                        onChange={(e) =>
+                          setItem(idx, {
+                            custoUnitario: Number(e.target.value || 0),
+                          })
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Quantidade (comprada ou vendida) */}
+                <div className="relative w-[12rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
-                    CUSTO (1 unid.)
+                    QTD COMPRADA
                   </label>
                   <input
                     type="number"
                     step="0.01"
-                    value={it.custoUnitario ?? ""}
-                    onChange={(e) =>
-                      setItem(idx, { custoUnitario: Number(e.target.value || 0) })
-                    }
-                    placeholder="R$"
-                    className="w-full border-2 border-[#4A4B51] rounded-xl  bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                  />
-                </div>
-
-                <div className="relative w-[18.5rem]">
-                  <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
-                    QUANTIDADE COMPRADA
-                  </label>
-                  <input
-                    type="number"
-                    step="1"
+                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                     value={it.quantidadeComprada ?? ""}
                     onChange={(e) =>
-                      setItem(idx, { quantidadeComprada: Number(e.target.value || 0) })
+                      setItem(idx, {
+                        quantidadeComprada: Number(e.target.value || 0),
+                      })
                     }
-                    placeholder="ex.: 5"
-                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                   />
                 </div>
 
-                <div className="flex items-end ml-auto">
-                  <div className="min-w-24 text-right font-inter mr-3">
-                    <div className="text-xs text-[#4A4B51]">Subtotal</div>
-                    <div className="font-semibold">
-                      R$ {Number(it.subtotal || 0).toFixed(2)}
+                {modo === "venda" && (
+                  <>
+                    {/* Valor por unidade em R$ */}
+                    <div className="relative w-36">
+                      <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                        VALOR R$
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
+                        value={it.custoUnitario ?? ""}
+                        onChange={(e) =>
+                          setItem(idx, {
+                            custoUnitario: Number(e.target.value || 0),
+                          })
+                        }
+                      />
                     </div>
-                    {it.qtdTotalBase ? (
-                      <div className="text-[10px] text-[#656565]">
-                        Quantidade: {it.qtdTotalBase}
-                      </div>
-                    ) : null}
-                  </div>
-                  <button onClick={() => remove(idx)} className="self-center font-inter text-[#c02424] hover:opacity-80 px-2 py-1" title="Remover" type="button">
-                    Remover
-                  </button>
+                  </>
+                )}
+
+                <button type="button" onClick={() => remove(idx)} className="ml-auto text-sm text-red-600 font-semibold">Remover</button>
+              </div>
+
+              {/* Linha de totais / infos adicionais */}
+              <div className="flex items-center justify-between mt-1 text-sm">
+                <div className="text-[#4A4B51]">
+                  {modo === "compra" ? (
+                    <>
+                      {it.custoUnitBase != null && (
+                        <>
+                          Valor por {unidade}:{" "}
+                          <span className="font-semibold">
+                            R$ {it.custoUnitBase.toFixed(2)}
+                          </span>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      Quantidade estoque:{" "}
+                      <span className="font-semibold">
+                        {estoqueDisplay} {unidade}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <div className="text-[#4A4B51]">
+                  Subtotal:{" "}
+                  <span className="font-semibold">
+                    R$ {(Number(it.subtotal) || 0).toFixed(2)}
+                  </span>
                 </div>
               </div>
 
-              {it.erro && <p className="text-[#c02424] text-xs">{it.erro}</p>}
+              {it.erro && (
+                <div className="text-xs text-red-600 mt-1">{it.erro}</div>
+              )}
             </div>
           );
         })}
-        <button onClick={addLinha} className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90" type="button">+ Adicionar Item no Estoque</button>
       </div>
+
+      <button
+        type="button"
+        onClick={addLinha}
+        className="mt-3 text-[#308021] text-sm font-semibold"
+      >
+        {botaoAdicionarTexto}
+      </button>
     </div>
   );
 }

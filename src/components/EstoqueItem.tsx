@@ -32,15 +32,24 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 type Inputs = {
   nome: string;
-  unidadeBase: "UN" | "G" | "ML";
   categoria?: string;
 };
 
-export default function EstoqueItem({ produto, produtos, setProdutos }: listaProdutoProps) {
+export default function EstoqueItem({
+  produto,
+  produtos,
+  setProdutos,
+}: listaProdutoProps) {
   const { usuario } = useUsuarioStore();
+
   const [OpenAlterarProduto, setOpenAlterarProduto] = useState(false);
   const [OpenExcluirProduto, setOpenExcluirProduto] = useState(false);
   const [openPreviewAnexo, setOpenPreviewAnexo] = useState(false);
+
+  // Modal de alteração de quantidade (saída)
+  const [openAlterarQuantidade, setOpenAlterarQuantidade] = useState(false);
+  const [qtdRemover, setQtdRemover] = useState<string>("");
+
   const [imgErro, setImgErro] = useState(false);
   const { register, handleSubmit, reset } = useForm<Inputs>();
 
@@ -56,7 +65,6 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
     if (OpenAlterarProduto) {
       reset({
         nome: produto.nome,
-        unidadeBase: (produto as any).unidadeBase ?? "UN",
         categoria: (produto as any).categoria ?? "",
       });
     }
@@ -64,17 +72,21 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
 
   async function atualizarProduto(data: Inputs) {
     try {
+      const body: any = {
+        nome: data.nome,
+        categoria:
+          data.categoria && data.categoria.length > 0
+            ? data.categoria
+            : null,
+      };
+
       const resp = await fetch(`${apiUrl}/produtos/${produto.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
         },
-        body: JSON.stringify({
-          nome: data.nome,
-          unidadeBase: data.unidadeBase,
-          categoria: data.categoria && data.categoria.length > 0 ? data.categoria : null,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (resp.ok) {
@@ -92,42 +104,50 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
     }
   }
 
-  async function excluirProduto() {
+  // Arquivar / inativar produto (soft delete)
+  async function arquivarProduto() {
     try {
       const resp = await fetch(`${apiUrl}/produtos/${produto.id}`, {
-        method: "DELETE",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
         },
+        body: JSON.stringify({ ativo: false }),
       });
 
       if (resp.ok) {
         const restante = produtos.filter((x) => x.id !== produto.id);
         setProdutos(restante);
-        toast.success("Produto excluído com sucesso!");
+        toast.success("Produto arquivado. Ele não aparecerá mais no estoque.");
         setOpenExcluirProduto(false);
       } else {
         const t = await resp.text();
         console.error(t);
-        toast.error("Erro... Produto não foi excluído.");
+        toast.error("Erro... Produto não foi arquivado.");
       }
     } catch (e) {
       console.error(e);
-      toast.error("Erro... Produto não foi excluído.");
+      toast.error("Erro... Produto não foi arquivado.");
     }
   }
 
+  // Dados vindos da API para exibição
   const preco = Number((produto as any).precoMedioDisplay ?? 0);
   const unidadeDisplay = (produto as any).unidadeDisplay ?? "un";
   const saldoDisplay = Number((produto as any).saldoDisplay ?? 0);
+
+  // Dados em unidade base para cálculo
+  const unidadeBase = (produto as any).unidadeBase as string | undefined;
+  const saldoBase = Number((produto as any).saldoBase ?? 0);
+  const custoMedio = Number((produto as any).custoMedio ?? 0);
 
   const categoriaBadge =
     (produto as any).categoria?.toString().replaceAll("_", " ") ?? "-";
 
   const anexoUrl = useMemo(() => {
     const url = (produto as any).anexo as string | null;
-    return (url && url.trim().length > 0) ? url.trim() : null;
+    return url && url.trim().length > 0 ? url.trim() : null;
   }, [produto]);
 
   function abrirPreview() {
@@ -137,6 +157,62 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
     }
     setImgErro(false);
     setOpenPreviewAnexo(true);
+  }
+
+  const unidadeInputLabel =
+    unidadeBase === "G" ? "g" : unidadeBase === "ML" ? "ml" : "un";
+
+  async function onSubmitAlterarQuantidade(e: React.FormEvent) {
+    e.preventDefault();
+
+    const valorStr = qtdRemover.replace(",", ".").trim();
+    const qtdDigitada = Number(valorStr);
+
+    if (!qtdDigitada || isNaN(qtdDigitada) || qtdDigitada <= 0) {
+      toast.error("Informe uma quantidade válida para remover.");
+      return;
+    }
+
+    // valor já em unidade base (g/ml/un)
+    const qtdBaseRemover = +qtdDigitada.toFixed(6);
+
+    if (qtdBaseRemover > saldoBase) {
+      toast.error("Você não pode remover mais do que o saldo atual.");
+      return;
+    }
+
+    const novoSaldoBase = +(saldoBase - qtdBaseRemover).toFixed(6);
+    const novoCustoMedio = novoSaldoBase > 0 ? custoMedio : 0;
+
+    try {
+      const body: any = {
+        saldoBase: novoSaldoBase,
+        custoMedio: novoCustoMedio,
+      };
+
+      const resp = await fetch(`${apiUrl}/produtos/${produto.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (resp.ok) {
+        toast.success("Quantidade atualizada com sucesso!");
+        setOpenAlterarQuantidade(false);
+        setQtdRemover("");
+        getProdutos();
+      } else {
+        const t = await resp.text();
+        console.error(t);
+        toast.error("Erro ao atualizar quantidade do produto.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar quantidade do produto.");
+    }
   }
 
   return (
@@ -163,7 +239,9 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
             type="button"
             onClick={abrirPreview}
             title={anexoUrl ? "Visualizar anexo" : "Sem anexo"}
-            className={`inline-flex ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}
+            className={`inline-flex ${
+              anexoUrl ? "" : "opacity-40 cursor-not-allowed"
+            }`}
           >
             <img src="/attachment.svg" alt="Anexo" />
           </button>
@@ -175,21 +253,33 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
             <DropdownMenuContent className="font-inter">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => setOpenAlterarQuantidade(true)}
+              >
+                Alterar Quantidade
+              </DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => setOpenAlterarProduto(true)}>
                 Alterar Dados
               </DropdownMenuItem>
+
               <DropdownMenuItem
                 onClick={() => setOpenExcluirProduto(true)}
                 className="text-[#c02424]"
               >
-                Excluir
+                Arquivar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      <Modal open={OpenAlterarProduto} onClose={() => setOpenAlterarProduto(false)}>
+      {/* Modal ALTERAR PRODUTO – sem poder mudar unidade base */}
+      <Modal
+        open={OpenAlterarProduto}
+        onClose={() => setOpenAlterarProduto(false)}
+      >
         <form className="container" onSubmit={handleSubmit(atualizarProduto)}>
           <div className="container flex flex-col items-start">
             <div className="flex flex-row items-center gap-[0.7rem] justify-center">
@@ -200,40 +290,24 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
             </div>
           </div>
 
-          <div className="my-6 grid grid-cols-2 gap-4">
+          <div className="mt-4 flex flex-col gap-3">
             <div className="relative">
-              <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
-                NOME
+              <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                NOME DO PRODUTO
               </label>
               <input
-                className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                 {...register("nome")}
+                className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
               />
             </div>
 
             <div className="relative">
-              <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
-                UNIDADE BASE
-              </label>
-              <select
-                className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                {...register("unidadeBase")}
-                defaultValue={(produto as any).unidadeBase ?? "UN"}
-              >
-                <option value="UN">UN</option>
-                <option value="G">G</option>
-                <option value="ML">ML</option>
-              </select>
-            </div>
-
-            <div className="relative">
-              <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
+              <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                 CATEGORIA
               </label>
               <select
-                className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                 {...register("categoria")}
-                defaultValue={(produto as any).categoria ?? ""}
+                className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
               >
                 <option value="">Sem categoria</option>
                 {CATEGORIAS.map((c) => (
@@ -245,108 +319,135 @@ export default function EstoqueItem({ produto, produtos, setProdutos }: listaPro
             </div>
           </div>
 
-          <div className="container flex flex-col items-center">
-            <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setOpenAlterarProduto(false)}
-                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-              >
-                Confirmar
-              </button>
-            </div>
+          <div className="mt-6 flex gap-4 justify-end">
+            <button
+              type="button"
+              onClick={() => setOpenAlterarProduto(false)}
+              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
+            >
+              Salvar alterações
+            </button>
           </div>
         </form>
       </Modal>
 
-      <Modal open={OpenExcluirProduto} onClose={() => setOpenExcluirProduto(false)}>
-        <div className="container">
-          <div className="container flex flex-col items-start">
-            <div className="flex flex-row items-center gap-[0.7rem] justify-center">
-              <img src="/tabela.svg" className="w-[1.5rem] h-[1.5rem]" alt="" />
-              <h2 className="text-center text-[1.4rem] font-inter font-semibold">
-                Excluir Item do Estoque
-              </h2>
-            </div>
-          </div>
+      {/* Modal ARQUIVAR PRODUTO */}
+      <Modal
+        open={OpenExcluirProduto}
+        onClose={() => setOpenExcluirProduto(false)}
+      >
+        <div className="container flex flex-col gap-4 font-inter">
+          <h2 className="text-[1.3rem] font-semibold">
+            Arquivar produto do estoque?
+          </h2>
+          <p className="text-sm text-[#4A4B51]">
+            {produto.nome} – {saldoDisplay} {unidadeDisplay}
+          </p>
+          <p className="text-xs text-[#4A4B51]">
+            Ele não será excluído das vendas já realizadas, apenas deixará de
+            aparecer no estoque e nas próximas entradas.
+          </p>
 
-          <div className="container flex flex-col items-center">
-            <div className="flex flex-col items-center my-6">
-              <p className="font-inter">
-                Você tem certeza que deseja apagar este item do estoque?
-              </p>
-              <p className="font-inter">
-                Após confirmar, essa ação será irreversível.
-              </p>
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                onClick={() => setOpenExcluirProduto(false)}
-                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={excluirProduto}
-                className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-              >
-                Confirmar
-              </button>
-            </div>
+          <div className="mt-4 flex gap-4 justify-end">
+            <button
+              type="button"
+              onClick={() => setOpenExcluirProduto(false)}
+              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={arquivarProduto}
+              className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
+            >
+              Arquivar
+            </button>
           </div>
         </div>
       </Modal>
 
+      {/* Modal PREVIEW ANEXO */}
       <Modal open={openPreviewAnexo} onClose={() => setOpenPreviewAnexo(false)}>
-        <div className="w-[80vw] max-w-[800px]">
-          <h2 className="text-center text-[1.2rem] font-inter font-semibold mb-3">
+        <div className="flex flex-col items-center gap-3">
+          <h2 className="font-inter font-semibold text-[1.1rem]">
             Anexo do produto
           </h2>
-
           {anexoUrl && !imgErro ? (
-            <div className="w-full h-[65vh] bg-white flex items-center justify-center rounded-lg overflow-hidden border">
-              <img
-                src={anexoUrl}
-                alt="Anexo"
-                className="max-w-full max-h-full object-contain"
-                onError={() => setImgErro(true)}
-              />
-            </div>
+            <img
+              src={anexoUrl}
+              alt="Anexo"
+              className="max-h-[60vh] max-w-full rounded-lg"
+              onError={() => setImgErro(true)}
+            />
           ) : (
-            <div className="w-full h-[50vh] bg-white flex flex-col gap-3 items-center justify-center rounded-lg border">
-              <p className="font-inter text-[#4A4B51] px-6 text-center">
-                Não foi possível exibir a imagem do anexo.
-              </p>
-              {anexoUrl && (
-                <a
-                  href={anexoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-[#308021] text-white rounded-md font-inter hover:opacity-90"
-                >
-                  Abrir em nova guia
-                </a>
-              )}
-            </div>
+            <p className="text-sm text-[#4A4B51]">
+              Não foi possível carregar a imagem.
+            </p>
           )}
+        </div>
+      </Modal>
 
-          <div className="mt-4 flex justify-end">
+      {/* Modal ALTERAR QUANTIDADE (saída) */}
+      <Modal
+        open={openAlterarQuantidade}
+        onClose={() => setOpenAlterarQuantidade(false)}
+      >
+        <form
+          className="container flex flex-col items-center gap-4 font-inter"
+          onSubmit={onSubmitAlterarQuantidade}
+        >
+          <h2 className="text-[1.3rem] font-semibold">
+            Alterar Quantidade do Estoque
+          </h2>
+          <div className="flex flex-row gap-8">
+            <p className="text-[1rem] text-[#4A4B51]">
+              Produto: <strong>{produto.nome}</strong>
+            </p>
+            <p className="text-[1rem] text-[#4A4B51]">
+              Estoque atual:{" "}
+              <strong>
+                {saldoDisplay} {unidadeDisplay}
+              </strong>
+            </p>
+          </div>
+          <div className="relative mt-2">
+            <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+              QUANTIDADE A REMOVER ({unidadeInputLabel})
+            </label>
+            <input
+              type="number"
+              step="0.001"
+              min={0}
+              value={qtdRemover}
+              onChange={(e) => setQtdRemover(e.target.value)}
+              className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+              placeholder="Ex: 400"
+            />
+          </div>
+
+          <div className="mt-2 flex gap-4 justify-end">
             <button
               type="button"
-              onClick={() => setOpenPreviewAnexo(false)}
-              className="px-5 py-2 bg-[#292727] text-white rounded-md font-inter hover:opacity-90"
+              onClick={() => setOpenAlterarQuantidade(false)}
+              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[0.95rem] hover:bg-[#3a3939] font-bold font-inter"
             >
-              Fechar
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="text-white bg-[#c08324] rounded-md px-6 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90"
+            >
+              Confirmar saída
             </button>
           </div>
-        </div>
+        </form>
       </Modal>
     </section>
   );

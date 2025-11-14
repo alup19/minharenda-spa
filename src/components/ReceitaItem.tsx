@@ -2,7 +2,7 @@ import { toast } from 'sonner'
 import type { ReceitaType } from "../utils/ReceitaType";
 import { useUsuarioStore } from '../context/UsuarioContext';
 import Modal from "./Modal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from 'react-hook-form';
 
 import {
@@ -14,11 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
 
-
 interface listaReceitaProps {
-  receita: ReceitaType;
+  receita: ReceitaType & {
+    itens?: {
+      id: number;
+      qtdBase: number | string;
+      produto?: { id: number; nome: string; unidadeBase?: string };
+    }[];
+  };
   receitas: ReceitaType[];
   setReceitas: React.Dispatch<React.SetStateAction<ReceitaType[]>>;
+  clientes: { id: number; nome: string }[];
 }
 
 const apiUrl = import.meta.env.VITE_API_URL
@@ -26,40 +32,41 @@ const apiUrl = import.meta.env.VITE_API_URL
 type Inputs = {
   descricao: string
   valor: number
-  categoria: string
-  anexo: string
-  createdAt: Date
-  usuarioId: string
-  tagId: number
-  clienteId: number
+  data: string
+  clienteId?: number
 }
 
-export default function ReceitaItem({ receita, receitas, setReceitas }: listaReceitaProps) {
+export default function ReceitaItem({ receita, receitas, setReceitas, clientes }: listaReceitaProps) {
   const { usuario } = useUsuarioStore()
-  const [OpenAlterarDados, setOpenAlterarDados] = useState(false)
-  const [OpenExcluirReceita, setOpenExcluirReceita] = useState(false)
-  const { register, handleSubmit, reset, setFocus } = useForm<Inputs>()
+  const [openAlterarDados, setOpenAlterarDados] = useState(false)
+  const [openExcluirReceita, setOpenExcluirReceita] = useState(false)
+  const [openItens, setOpenItens] = useState(false)
 
-  async function getReceitas() {
-    const response = await fetch(`${apiUrl}/receitas`)
-    const dados = await response.json()
-    setReceitas(dados)
+  const { register, handleSubmit, reset } = useForm<Inputs>()
+
+  function abrirModalAlterar() {
+    const dataRef: any = (receita as any).data ?? (receita as any).createdAt;
+    const iso = dataRef ? new Date(dataRef).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+
+    reset({
+      descricao: receita.descricao ?? "",
+      valor: Number(receita.valor ?? 0),
+      data: iso,
+      clienteId: (receita as any).clienteId ?? receita.cliente?.id ?? undefined,
+    });
+
+    setOpenAlterarDados(true);
   }
 
-  useEffect(() => {
-      getReceitas()
-    }, [OpenAlterarDados, setFocus("descricao")])
-
   async function atualizarReceita(data: Inputs) {
-    const receitaAtualizada: Inputs = {
+    const payload = {
       descricao: data.descricao,
       valor: Number(data.valor),
-      categoria: data.categoria,
-      anexo: data.anexo,
-      createdAt: data.createdAt,
+      categoria: (receita as any).categoria ?? undefined,
+      anexo: (receita as any).anexo ?? undefined,
+      data: data.data,
       usuarioId: usuario.id,
-      tagId: 1, // depois tem que alterar
-      clienteId: Number(data.clienteId)
+      clienteId: data.clienteId ? Number(data.clienteId) : null,
     }
 
     const response = await fetch(`${apiUrl}/receitas/${receita.id}`, {
@@ -68,77 +75,176 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
         "Content-Type": "application/json",
         "Authorization": `Bearer ${usuario.token}`
       },
-      body: JSON.stringify(receitaAtualizada)
+      body: JSON.stringify(payload)
     })
 
     if (response.status === 200) {
+      const atualizado = await response.json()
+
+      setReceitas(prev =>
+        prev.map((r: any) => (r.id === receita.id ? { ...r, ...atualizado } : r))
+      )
+
       toast.success("Receita atualizada com sucesso!")
-      reset()
-      getReceitas
       setOpenAlterarDados(false)
     } else {
-      console.log(receitaAtualizada)
+      console.log(payload)
       toast.error("Erro... Não foi possível atualizar esta receita")
     }
   }
 
   async function excluirReceita() {
-
-    const response = await fetch(`${apiUrl}/receitas/${receita.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${usuario.token}`
-        },
+    const response = await fetch(`${apiUrl}/receitas/${receita.id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${usuario.token}`,
       },
-    )
+    });
 
-    if (response.status == 200) {
-      const receitas2 = receitas.filter(x => x.id != receita.id)
-      setReceitas(receitas2)
-      toast.success("Receita excluída com sucesso")
+    if (response.ok) {
+      const receitas2 = receitas.filter((x) => x.id !== receita.id);
+      setReceitas(receitas2);
+      setOpenExcluirReceita(false);
+      toast.success("Receita excluída com sucesso");
     } else {
-      setOpenExcluirReceita(false)
-      toast.error("Erro... Receita não foi excluída")
+      setOpenExcluirReceita(false);
+      toast.error("Erro... Receita não foi excluída");
     }
   }
 
-  function dataDMA(data: string) {
-    if (data == null) {
-      return "Data invalida"
+  function dataDMA(data: string | Date | null | undefined) {
+    if (!data) {
+      return "Data inválida"
     }
 
-    const ano = data.substring(0, 4)
-    const mes = data.substring(5, 7)
-    const dia = data.substring(8, 10)
-    return dia + "/" + mes + "/" + ano
+    const d = new Date(data)
+    if (Number.isNaN(d.getTime())) return "Data inválida"
+
+    const dia = String(d.getDate()).padStart(2, "0")
+    const mes = String(d.getMonth() + 1).padStart(2, "0")
+    const ano = d.getFullYear()
+    return `${dia}/${mes}/${ano}`
   }
+
+  const dataRef: any = (receita as any).data ?? (receita as any).createdAt;
+  const itens = (receita as any).itens ?? [];
 
   return (
     <section>
       <div key={receita.id} className='flex flex-col gap-[0.44rem]'>
         <div className='bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] flex flex-row justify-between items-center'>
-          <p className='text-[#656565] font-inter font-normal text-[1rem]'>{dataDMA(receita.createdAt.toString())}</p>
-          <p className='text-[#303030] font-inter font-semibold'>{Number(receita.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}</p>
-          <p className='text-[#656565] font-inter font-normal'>{receita.cliente?.nome ?? "Sem cliente"}</p>
-          <p className='text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem] '>{receita.categoria}</p>
-          <img src="/attachment.svg" alt="" />
+          <p className='text-[#656565] font-inter font-normal text-[1rem]'>
+            {dataDMA(dataRef)}
+          </p>
+
+          <p className='text-[#303030] font-inter font-semibold'>
+            {Number(receita.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}
+          </p>
+
+          <p className='text-[#656565] font-inter font-normal'>
+            {receita.cliente?.nome ?? "Sem cliente"}
+          </p>
+
+          <p className='text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem] '>
+            {(receita as any).categoria ?? "Vendas"}
+          </p>
+
+          {/* Itens vendidos */}
+          <button
+            type="button"
+            onClick={() => setOpenItens(true)}
+            className="flex items-center justify-center"
+            title={itens.length ? "Ver itens vendidos" : "Nenhum item vinculado"}
+          >
+            <img src="/attachment.svg" alt="Itens vendidos" />
+          </button>
+
           <DropdownMenu>
-            <DropdownMenuTrigger><img src="/options.svg" alt="" /></DropdownMenuTrigger>
+            <DropdownMenuTrigger><img src="/options.svg" alt="Opções" /></DropdownMenuTrigger>
             <DropdownMenuContent className="font-inter">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setOpenAlterarDados(true)}>Alterar Dados</DropdownMenuItem>
+              <DropdownMenuItem onClick={abrirModalAlterar}>Alterar Dados</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpenExcluirReceita(true)} className="text-[#c02424]">Excluir</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-      <Modal open={OpenAlterarDados} onClose={() => setOpenAlterarDados(false)}>
+
+      <Modal open={openItens} onClose={() => setOpenItens(false)}>
         <div className="container">
           <div className="container flex flex-col items-start">
+            <div className="flex flex-row items-center gap-[0.7rem] justify-center">
+              <img src="/tabela.svg" className="w-[1.5rem] h-[1.5rem]" alt="" />
+              <h2 className="text-center text-[1.4rem] font-inter font-semibold">
+                Itens vendidos
+              </h2>
+            </div>
+          </div>
 
+          <div className="mt-6">
+            {!itens || itens.length === 0 ? (
+              <p className="font-inter text-[#4A4B51]">
+                Nenhum item vinculado a esta receita.
+              </p>
+            ) : (
+              <div className="font-inter text-sm">
+                <div className="grid grid-cols-5 gap-2 font-semibold mb-2">
+                  <span>Produto</span>
+                  <span>Quantidade</span>
+                  <span>Unidades</span>
+                  <span>Valor Unitário</span>
+                  <span>Valor Total</span>
+                </div>
+
+                {itens.map((it: any) => {
+                  const quantidadeBase = Number(it.qtdBase ?? 0);
+
+                  const valorTotal = Number(
+                    it.subtotal ??
+                    (it.precoUnit && it.qtdBase
+                      ? Number(it.precoUnit) * Number(it.qtdBase)
+                      : 0)
+                  );
+
+                  const valorUnitario =
+                    quantidadeBase > 0 ? valorTotal / quantidadeBase : 0;
+
+                  return (
+                    <div
+                      key={it.id}
+                      className="grid grid-cols-5 gap-2 py-1 border-b border-[#E2E2E2]"
+                    >
+                      <span>{it.produto?.nome ?? `ID ${it.produtoId}`}</span>
+                      <span>{quantidadeBase}</span>
+                      <span>{it.produto?.unidadeBase ?? "-"}</span>
+                      <span>R$ {valorUnitario.toFixed(2)}</span>
+                      <span>R$ {valorTotal.toFixed(2)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-center mt-6">
+            <button
+              type="button"
+              onClick={() => setOpenItens(false)}
+              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+
+      {/* MODAL ALTERAR RECEITA */}
+      <Modal open={openAlterarDados} onClose={() => setOpenAlterarDados(false)}>
+        <div className="container">
+          <div className="container flex flex-col items-start">
             <div className='flex flex-row items-center gap-[0.7rem] justify-center'>
               <img src="/tabela.svg" className='w-[1.5rem] h-[1.5rem]' alt="" />
               <h2 className='text-center text-[1.4rem] font-inter font-semibold'>Alterar Dados</h2>
@@ -170,7 +276,7 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
                       placeholder='R$800,00'
                       className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
                       id="valor"
-                      {...register("valor")}
+                      {...register("valor", { valueAsNumber: true })}
                       required
                     />
                   </div>
@@ -180,10 +286,9 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
                     </label>
                     <input
                       type="date"
-                      placeholder='Vendi duas camisetas M do Senac'
                       className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
                       id="data"
-                      {...register("createdAt")}
+                      {...register("data")}
                       required
                     />
                   </div>
@@ -193,56 +298,44 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
                     <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                       CLIENTE
                     </label>
-                    <input
-                      type="number"
-                      placeholder='Selecionar Cliente'
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
+                    <select
+                      className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
                       id="cliente"
-                      {...register("clienteId")}
-                      required
-                    />
-                  </div>
-                  <div className='relative w-full'>
-                    <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
-                      CATEGORIA
-                    </label>
-                    <input
-                      type="text"
-                      placeholder='Selecionar Categoria'
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                      id="categoria"
-                      {...register("categoria")}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className='flex flex-row justify-between gap-12 w-[35rem]'>
-                  <div className='relative w-full'>
-                    <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
-                      ITENS VENDIDOS
-                    </label>
-                    <input
-                      type="number"
-                      placeholder='Selecionar Itens e Qtd'
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                      id="itensVendidos"
-                    />
+                      {...register("clienteId", { valueAsNumber: true })}
+                    >
+                      <option value="">Sem cliente</option>
+                      {clientes.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.nome}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
             </div>
             <div className="flex gap-4">
-              <button onClick={() => setOpenAlterarDados(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"> Cancelar</button>
-              <input type="submit" value="Confirmar" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer" />
+              <button
+                type="button"
+                onClick={() => setOpenAlterarDados(false)}
+                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <input
+                type="submit"
+                value="Confirmar"
+                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
+              />
             </div>
           </form>
         </div>
       </Modal>
 
-      <Modal open={OpenExcluirReceita} onClose={() => setOpenExcluirReceita(false)}>
+      {/* MODAL EXCLUIR RECEITA */}
+      <Modal open={openExcluirReceita} onClose={() => setOpenExcluirReceita(false)}>
         <div className="container">
           <div className="container flex flex-col items-start">
-
             <div className='flex flex-row items-center gap-[0.7rem] justify-center'>
               <img src="/tabela.svg" className='w-[1.5rem] h-[1.5rem]' alt="" />
               <h2 className='text-center text-[1.4rem] font-inter font-semibold'>Excluir Receita</h2>
@@ -259,8 +352,18 @@ export default function ReceitaItem({ receita, receitas, setReceitas }: listaRec
             </div>
 
             <div className="flex gap-4">
-              <button onClick={() => setOpenExcluirReceita(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"> Cancelar</button>
-              <button onClick={excluirReceita} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar</button>
+              <button
+                onClick={() => setOpenExcluirReceita(false)}
+                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={excluirReceita}
+                className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
+              >
+                Confirmar
+              </button>
             </div>
           </div>
         </div>

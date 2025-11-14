@@ -33,6 +33,7 @@ export default function Receitas() {
   });
 
   const [receitas, setReceitas] = useState<any[]>([]);
+  const [clientes, setClientes] = useState<any[]>([]);
   const [openCriar, setOpenCriar] = useState(false);
   const [modo, setModo] = useState<"rapida" | "itens">("rapida");
 
@@ -57,9 +58,22 @@ export default function Receitas() {
     }
   }
 
+  async function getClientes() {
+    try {
+      const r = await fetch(`${apiUrl}/clientes/${usuario.id}`, {
+        headers: { Authorization: `Bearer ${usuario.token}` },
+      });
+      const data = await r.json();
+      setClientes(Array.isArray(data) ? data : data.clientes ?? []);
+    } catch (e) {
+      console.error(e);
+      toast.error("Não foi possível carregar clientes.");
+    }
+  }
+
   async function getProdutos() {
     try {
-      const r = await fetch(`${apiUrl}/produtos`, {
+      const r = await fetch(`${apiUrl}/produtos/${usuario.id}`, {
         headers: { Authorization: `Bearer ${usuario.token}` },
       });
       const data = await r.json();
@@ -72,6 +86,7 @@ export default function Receitas() {
 
   useEffect(() => {
     getReceitas();
+    getClientes();
   }, []);
 
   useEffect(() => {
@@ -103,6 +118,7 @@ export default function Receitas() {
         toast.success("Receita criada com sucesso!");
         reset();
         setOpenCriar(false);
+        setItensVenda([]);
         getReceitas();
       } else {
         toast.error("Erro ao criar receita.");
@@ -124,8 +140,18 @@ export default function Receitas() {
         it.subtotal == null ||
         Number.isNaN(Number(it.subtotal))
     );
-    if (invalido) {
-      return toast.error("Verifique Produto, Quantidade e Preço dos itens.");
+    const invalidoEstoque = itensVenda.some((it) => {
+      const prod = produtos.find((p) => p.id === it.produtoId);
+      if (!prod || prod.saldoBase == null || it.qtdTotalBase == null) return false;
+
+      return Number(it.qtdTotalBase) > Number(prod.saldoBase);
+    });
+
+    if (invalido || invalidoEstoque) {
+      toast.error(
+        "Verifique os itens: campos obrigatórios e quantidade não pode ser maior que o estoque."
+      );
+      return;
     }
 
     const header = getValues();
@@ -158,7 +184,8 @@ export default function Receitas() {
       const itensPayload = itensVenda.map((it) => {
         const qtdBase = Number(it.qtdTotalBase!);
         const subtotal = Number(it.subtotal || 0);
-        const precoUnit = qtdBase > 0 ? Number((subtotal / qtdBase).toFixed(6)) : 0;
+        const precoUnit =
+          qtdBase > 0 ? Number((subtotal / qtdBase).toFixed(6)) : 0;
         return { produtoId: it.produtoId!, qtdBase, precoUnit, subtotal };
       });
 
@@ -175,18 +202,27 @@ export default function Receitas() {
         return;
       }
 
-      await fetch(`${apiUrl}/estoque/saida/lote`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${usuario.token}`,
-        },
-        body: JSON.stringify({
-          origem: "RECEITA",
-          origemId: receitaId,
-          itens: itensPayload.map(({ produtoId, qtdBase }) => ({ produtoId, qtdBase })),
-        }),
-      });
+      // Baixa de estoque: diminuir saldoBase de cada produto
+      for (const it of itensPayload) {
+        const prod = (produtos as any[]).find((p) => p.id === it.produtoId);
+        const saldoAtual = Number(prod?.saldoBase ?? 0);
+        const novoSaldo = Math.max(0, saldoAtual - it.qtdBase);
+
+        try {
+          await fetch(`${apiUrl}/produtos/${it.produtoId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${usuario.token}`,
+            },
+            body: JSON.stringify({
+              saldoBase: novoSaldo,
+            }),
+          });
+        } catch (err) {
+          console.error("Erro ao baixar estoque do produto", it.produtoId, err);
+        }
+      }
 
       toast.success("Venda com itens registrada!");
       setOpenCriar(false);
@@ -205,6 +241,7 @@ export default function Receitas() {
       receita={r}
       receitas={receitas}
       setReceitas={setReceitas}
+      clientes={clientes}
     />
   ));
 
@@ -216,7 +253,9 @@ export default function Receitas() {
           <div className="flex flex-row items-center justify-between">
             <div className="flex flex-row items-center gap-[0.7rem] justify-center">
               <img src="/tabela.svg" className="w-[2rem] h-[2rem]" alt="" />
-              <h2 className="text-center text-[2rem] font-inter font-semibold">Receitas</h2>
+              <h2 className="text-center text-[2rem] font-inter font-semibold">
+                Receitas
+              </h2>
             </div>
             <button
               onClick={() => {
@@ -224,20 +263,13 @@ export default function Receitas() {
                 setModo("rapida");
                 setValue("data", new Date().toISOString().slice(0, 10));
               }}
-              className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal">
+              className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal"
+            >
               Adicionar
             </button>
           </div>
 
           <div className="bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[1.44rem]">
-            <div className="flex flex-row justify-between">
-              <div className="flex flex-row items-center gap-[1.125rem]">
-                <img src="/arrow_l.svg" alt="" />
-                <h3 className="text-[1.5rem] font-inter font-semibold">Setembro</h3>
-                <img src="/arrow_r.svg" alt="" />
-              </div>
-            </div>
-
             <div className="flex flex-row justify-between font-inter text-[1rem] font-normal mt-4">
               <h2>Data da Receita</h2>
               <h2 className="relative right-4">Valor</h2>
@@ -252,6 +284,7 @@ export default function Receitas() {
         </div>
       </section>
 
+      {/* MODAL CRIAR RECEITA */}
       <Modal open={openCriar} onClose={() => setOpenCriar(false)}>
         <div className="container w-[44rem]">
           <div className="flex items-center gap-2">
@@ -262,16 +295,27 @@ export default function Receitas() {
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
+            <button
+              className={`px-3 py-1 rounded ${modo === "rapida"
+                  ? "bg-[#E8F5EA] text-[#407B6A]"
+                  : "bg-[#F5F5F5]"
+                }`}
               onClick={() => setModo("rapida")}
+              type="button"
             >
               Venda rápida
             </button>
-            <button className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
+            <button
+              className={`px-3 py-1 rounded ${modo === "itens"
+                  ? "bg-[#E8F5EA] text-[#407B6A]"
+                  : "bg-[#F5F5F5]"
+                }`}
               onClick={() => {
                 setModo("itens");
                 getProdutos();
-              }}>
+              }}
+              type="button"
+            >
               Com itens
             </button>
           </div>
@@ -302,11 +346,17 @@ export default function Receitas() {
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                   CLIENTE (opcional)
                 </label>
-                <input
+                <select
                   className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                  placeholder="Selecionar Cliente"
                   {...register("clienteId", { valueAsNumber: true })}
-                />
+                >
+                  <option value="">Sem cliente</option>
+                  {clientes.map((c: any) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nome}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="relative">
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
@@ -339,14 +389,21 @@ export default function Receitas() {
 
             {modo === "itens" && (
               <div className="mt-6">
-                <h3 className="font-inter font-semibold mb-2">Itens vendidos</h3>
+                <h3 className="font-inter font-semibold mb-2">
+                  Itens vendidos
+                </h3>
 
-                <ItensEditor itens={itensVenda} produtos={produtos} onChange={setItensVenda} />
+                <ItensEditor
+                  modo="venda"
+                  itens={itensVenda}
+                  produtos={produtos}
+                  onChange={setItensVenda}
+                />
 
                 {produtos.length === 0 && (
                   <p className="text-sm text-[#4A4B51] mt-2">
-                    Nenhum produto encontrado. Cadastre itens em <b>Estoque</b> para poder vendê-los
-                    aqui.
+                    Nenhum produto encontrado. Cadastre itens em <b>Estoque</b>{" "}
+                    para poder vendê-los aqui.
                   </p>
                 )}
 
@@ -368,16 +425,24 @@ export default function Receitas() {
                   setOpenCriar(false);
                   setItensVenda([]);
                 }}
-                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
+                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
+              >
                 Cancelar
               </button>
 
               {modo === "rapida" ? (
-                <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
+                <button
+                  type="submit"
+                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
+                >
                   Salvar
                 </button>
               ) : (
-                <button type="button" onClick={incluirReceitaComItens} className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
+                <button
+                  type="button"
+                  onClick={incluirReceitaComItens}
+                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
+                >
                   Salvar com itens
                 </button>
               )}

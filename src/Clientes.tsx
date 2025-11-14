@@ -13,7 +13,7 @@ type Inputs = {
   endereco: string
   telefone: string
   notas: string
-  usuarioId: string,
+  usuarioId: string
 };
 
 export default function Clientes() {
@@ -28,11 +28,36 @@ export default function Clientes() {
 
   async function getClientes() {
     try {
-      const cliente = await fetch(`${apiUrl}/clientes/${usuario.id}`, {
-        headers: { Authorization: `Bearer ${usuario.token}` },
+      const resp = await fetch(`${apiUrl}/clientes/${usuario.id}`, {
+        headers: {
+          Authorization: `Bearer ${usuario.token}`,
+        },
       });
-      const data = await cliente.json();
-      setClientes(Array.isArray(data) ? data : data.clientes ?? []);
+
+      if (!resp.ok) {
+        throw new Error("Erro ao buscar clientes");
+      }
+
+      const data = await resp.json();
+      const raw = Array.isArray(data) ? data : data.clientes ?? [];
+
+      // Garante que todo cliente tenha totalGasto e totalCompras
+      const mapeados = raw.map((c: any) => {
+        const receitas = Array.isArray(c.receitas) ? c.receitas : [];
+
+        const totalCompras = c.totalCompras ?? receitas.length;
+
+        const totalGasto =
+          c.totalGasto ??
+          receitas.reduce((sum: number, r: any) => {
+            const valor = r.valorTotal ?? r.valor ?? 0; // ajuste aqui conforme o model de Receita
+            return sum + Number(valor);
+          }, 0);
+
+        return { ...c, totalGasto, totalCompras };
+      });
+
+      setClientes(mapeados);
     } catch (error) {
       console.error(error);
       toast.error("Não foi possível carregar clientes.");
@@ -40,8 +65,11 @@ export default function Clientes() {
   }
 
   useEffect(() => {
-    getClientes();
-  }, [usuario.id]);
+    if (usuario?.id) {
+      getClientes();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usuario?.id]);
 
   async function incluirCliente(data: Inputs) {
     const payload: Inputs = {
@@ -53,7 +81,7 @@ export default function Clientes() {
     };
 
     try {
-      const cliente = await fetch(`${apiUrl}/clientes`, {
+      const resp = await fetch(`${apiUrl}/clientes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -62,7 +90,7 @@ export default function Clientes() {
         body: JSON.stringify(payload),
       });
 
-      if (cliente.status === 201) {
+      if (resp.status === 201) {
         toast.success("Cliente criado com sucesso!");
         reset();
         setOpenAdicionarCliente(false);
@@ -76,7 +104,6 @@ export default function Clientes() {
     }
   }
 
-  /** 🔍 Filtros e Ordenação */
   const clientesFiltrados = useMemo(() => {
     let base = [...clientes];
 
@@ -204,6 +231,7 @@ export default function Clientes() {
                   {...register("nome")}
                 />
               </div>
+
               <div className='relative w-full'>
                 <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                   NOTAS
@@ -213,10 +241,10 @@ export default function Clientes() {
                   placeholder='Bom pagador.'
                   className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
                   id="notas"
-                  required
                   {...register("notas")}
                 />
               </div>
+
               <div className='relative w-full'>
                 <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                   ENDEREÇO
@@ -226,10 +254,10 @@ export default function Clientes() {
                   placeholder='R. Das Flores, 105 - Centro'
                   className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
                   id="endereco"
-                  required
                   {...register("endereco")}
                 />
               </div>
+
               <div className='relative w-full'>
                 <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                   TELEFONE
@@ -239,15 +267,25 @@ export default function Clientes() {
                   placeholder='Digite o Telefone'
                   className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
                   id="telefone"
-                  required
                   {...register("telefone")}
                 />
               </div>
             </div>
 
             <div className="flex gap-4">
-              <button onClick={() => setOpenAdicionarCliente(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"> Cancelar</button>
-              <button type='submit' className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar</button>
+              <button
+                type="button"
+                onClick={() => setOpenAdicionarCliente(false)}
+                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type='submit'
+                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
+              >
+                Confirmar
+              </button>
             </div>
           </form>
         </div>
