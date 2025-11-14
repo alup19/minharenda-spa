@@ -2,12 +2,25 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo3.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>minha Renda</title>
+    <title>MinhaRenda | Mais que gestão, apoio de verdade.</title>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <script>
+      const fullTitle = "MinhaRenda | Mais que gestão, apoio de verdade.";
+      let currentIndex = 0;
+
+      function animateTitle() {
+        document.title = fullTitle.slice(currentIndex) + " " + fullTitle.slice(0, currentIndex);
+        currentIndex = (currentIndex + 1) % fullTitle.length;
+      }
+
+      setInterval(animateTitle, 250);
+    </script>
   </body>
 </html>
