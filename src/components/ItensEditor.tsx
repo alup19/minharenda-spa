@@ -148,7 +148,6 @@ export default function ItensEditor({ itens, produtos, onChange, onCadastrarProd
               </button>
             </div>
           )}
-          <button onClick={addLinha} className="text-white bg-[#308021] rounded-md px-4 py-2 ml-6 text-[0.95rem] font-bold font-inter hover:opacity-90" type="button">+ Adicionar Item no Estoque</button>
         </div>
       )}
 
@@ -170,8 +169,8 @@ export default function ItensEditor({ itens, produtos, onChange, onCadastrarProd
                       setItem(idx, {
                         produtoId: Number(e.target.value) || undefined,
                         unidadeSelecionada:
-                          produtos.find((p) => p.id === Number(e.target.value))
-                            ?.unidadeBase ?? it.unidadeSelecionada ?? "UN",
+                        produtos.find((p) => p.id === Number(e.target.value))
+                        ?.unidadeBase ?? it.unidadeSelecionada ?? "UN",
                       })
                     }
                   >
@@ -199,10 +198,10 @@ export default function ItensEditor({ itens, produtos, onChange, onCadastrarProd
                       onChange={(e) => setItem(idx, { qtdConteudoInput: e.target.value })}
                       placeholder={
                         (it.unidadeSelecionada || sel?.unidadeBase || "UN") === "UN"
-                          ? "1"
-                          : (it.unidadeSelecionada || sel?.unidadeBase) === "G"
-                            ? "950"
-                            : "500"
+                        ? "1"
+                        : (it.unidadeSelecionada || sel?.unidadeBase) === "G"
+                        ? "950"
+                        : "500"
                       }
                     />
                   </div>
@@ -277,6 +276,7 @@ export default function ItensEditor({ itens, produtos, onChange, onCadastrarProd
             </div>
           );
         })}
+        <button onClick={addLinha} className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90" type="button">+ Adicionar Item no Estoque</button>
       </div>
     </div>
   );
