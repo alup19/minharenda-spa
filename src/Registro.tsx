@@ -31,11 +31,11 @@ function formatarCPF(value: string) {
 }
 
 function formatarCelular(valor: string) {
-  const digitos = valor.replace(/\D/g, '').slice(0, 11) // até 11
+  const digitos = valor.replace(/\D/g, '').slice(0, 11)
   const ddd = digitos.slice(0, 2)
-  const d1 = digitos.slice(2, 3)     // primeiro dígito (geralmente 9)
-  const bloco1 = digitos.slice(3, 7)     // quatro dígitos
-  const bloco2 = digitos.slice(7, 11)    // quatro dígitos
+  const d1 = digitos.slice(2, 3)
+  const bloco1 = digitos.slice(3, 7)
+  const bloco2 = digitos.slice(7, 11)
 
   let saida = ''
   if (ddd) {

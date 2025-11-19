@@ -56,7 +56,7 @@ export default function Titulo() {
             <img src="/logo3.png" className="w-[15.8125rem]" alt="" />
             <div className='flex flex-row gap-[3.12rem] font-inter text-[1.0625rem] font-normal text-[#2A2A2A]'>
                 <Link to={"/"}>visão geral</Link>
-                <Link to={"/estoques"}>estoques</Link>
+                <Link to={"/estoques"}>estoque</Link>
                 <Link to={"/insumos"}>insumos</Link>
                 <Link to={"/despesas"}>despesas</Link>
                 <Link to={"/receitas"}>receitas</Link>

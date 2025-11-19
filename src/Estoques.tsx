@@ -326,7 +326,7 @@ export default function Estoque() {
                   value={filtroNome}
                   onChange={(e) => setFiltroNome(e.target.value)}
                   placeholder="Filtrar por nome"
-                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors"
+                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] bg-[#F5F5F5] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium outline-none focus:border-[#407B6A] transition-colors"
                 />
               </div>
               <div className="relative">
@@ -338,7 +338,7 @@ export default function Estoque() {
                   onChange={(e) =>
                     setFiltroCategoria(e.target.value as Categoria | "")
                   }
-                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 pr-8 w-[16rem] h-[2.75rem] bg-white outline-none focus:border-[#407B6A]"
+                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 pr-8 w-[16rem] h-[2.75rem] bg-[#F5F5F5] outline-none focus:border-[#407B6A]"
                 >
                   <option value="">Todas</option>
                   {CATEGORIAS.map((c) => (

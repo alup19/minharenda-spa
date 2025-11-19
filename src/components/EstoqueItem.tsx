@@ -143,7 +143,7 @@ export default function EstoqueItem({
   const custoMedio = Number((produto as any).custoMedio ?? 0);
 
   const categoriaBadge =
-    (produto as any).categoria?.toString().replaceAll("_", " ") ?? "-";
+    (produto as any).categoria?.toString().replaceAll("_", " ") ?? "SEM CATEGORIA";
 
   const anexoUrl = useMemo(() => {
     const url = (produto as any).anexo as string | null;

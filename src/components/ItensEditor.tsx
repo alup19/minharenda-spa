@@ -98,17 +98,6 @@ export default function ItensEditor({
       next[idx].subtotal = subtotal || undefined;
       next[idx].custoUnitBase = custoUnitBase;
 
-      next[idx].erro = !next[idx].produtoId
-        ? onCadastrarProdutoRapido
-          ? "Selecione ou cadastre um produto"
-          : "Selecione um produto"
-        : qtdConteudoBase <= 0 && unidadeRef !== "UN"
-          ? "Informe o conteúdo (QTD) da unidade"
-          : custoUnit <= 0
-            ? "Informe o custo de uma unidade"
-            : qtdComprada <= 0
-              ? "Informe a quantidade comprada"
-              : undefined;
     } else {
       // MODO VENDA: VALOR R$ = valor por unidade
       const qtdVendida = Number(next[idx].quantidadeComprada || 0);
@@ -172,19 +161,19 @@ export default function ItensEditor({
   return (
     <div className="mt-4">
       {onCadastrarProdutoRapido && (
-        <div className="mb-4 border border-dashed border-[#CCCCCC] rounded-xl p-3">
+        <div className="border-[#CCCCCC] rounded-xl mb-4">
           <button
             type="button"
-            className="text-sm text-[#308021] font-semibold"
+            className="text-white bg-[#308021] rounded-md px-6 py-2 text-[0.9rem] font-semibold font-inter hover:opacity-90 mr-6"
             onClick={() => setShowNovoProduto((v) => !v)}
           >
             {showNovoProduto ? "Fechar cadastro rápido" : "Cadastrar novo produto"}
           </button>
 
           {showNovoProduto && (
-            <div className="mt-3 flex gap-3 items-center flex-wrap">
+            <div className="mt-6 flex gap-3 items-center flex-wrap border border-[#D0D0D0] rounded-xl px-4 py-5 bg-[#F5F5F5]">
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                   NOME DO PRODUTO
                 </label>
                 <input
@@ -192,11 +181,11 @@ export default function ItensEditor({
                   value={novoNome}
                   onChange={(e) => setNovoNome(e.target.value)}
                   placeholder="Ex.: Farofa Yoki"
-                  className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                  className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                 />
               </div>
               <div className="relative">
-                <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
+                <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                   BASE
                 </label>
                 <select
@@ -204,7 +193,7 @@ export default function ItensEditor({
                   onChange={(e) =>
                     setNovaUnidade(e.target.value as Unidade)
                   }
-                  className="border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                  className="border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                 >
                   <option value="UN">UN</option>
                   <option value="G">G</option>
@@ -243,13 +232,12 @@ export default function ItensEditor({
               className="border border-[#D0D0D0] rounded-xl px-4 py-3 flex flex-col gap-2 bg-[#F5F5F5]"
             >
               <div className="flex flex-wrap gap-3 items-end">
-                {/* Produto */}
                 <div className="relative">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     PRODUTO
                   </label>
                   <select
-                    className="w-[16rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                    className="w-[16rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                     value={it.produtoId ?? ""}
                     onChange={(e) => {
                       const id = Number(e.target.value || 0);
@@ -271,7 +259,6 @@ export default function ItensEditor({
 
                 {modo === "compra" && (
                   <>
-                    {/* Conteúdo de 1 unidade — só aparece para G e ML */}
                     {unidade !== "UN" && (
                       <div className="flex gap-2 items-end">
                         <div className="relative">
@@ -280,7 +267,7 @@ export default function ItensEditor({
                           </label>
                           <input
                             type="text"
-                            className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                            className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                             placeholder={
                               unidade === "G"
                                 ? "950g"
@@ -310,7 +297,7 @@ export default function ItensEditor({
                       <input
                         type="number"
                         step="0.01"
-                        className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                        className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                         value={it.custoUnitario ?? ""}
                         onChange={(e) =>
                           setItem(idx, {
@@ -330,7 +317,7 @@ export default function ItensEditor({
                   <input
                     type="number"
                     step="0.01"
-                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
+                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                     value={it.quantidadeComprada ?? ""}
                     onChange={(e) =>
                       setItem(idx, {
@@ -396,10 +383,6 @@ export default function ItensEditor({
                   </span>
                 </div>
               </div>
-
-              {it.erro && (
-                <div className="text-xs text-red-600 mt-1">{it.erro}</div>
-              )}
             </div>
           );
         })}
@@ -408,7 +391,7 @@ export default function ItensEditor({
       <button
         type="button"
         onClick={addLinha}
-        className="mt-3 text-[#308021] text-sm font-semibold"
+        className="text-white bg-[#308021] rounded-md px-6 py-2 mt-5 text-[0.9rem] font-semibold font-inter hover:opacity-90"
       >
         {botaoAdicionarTexto}
       </button>

@@ -39,25 +39,24 @@ export default function Clientes() {
       }
 
       const data = await resp.json();
-      const raw = Array.isArray(data) ? data : data.clientes ?? [];
+      const clientesBrutos = Array.isArray(data) ? data : data.clientes ?? [];
 
-      // Garante que todo cliente tenha totalGasto e totalCompras
-      const mapeados = raw.map((c: any) => {
-        const receitas = Array.isArray(c.receitas) ? c.receitas : [];
+      const clientesComTotais = clientesBrutos.map((cliente: any) => {
+        const receitas = Array.isArray(cliente.receitas) ? cliente.receitas : [];
 
-        const totalCompras = c.totalCompras ?? receitas.length;
+        const totalCompras = cliente.totalCompras ?? receitas.length;
 
         const totalGasto =
-          c.totalGasto ??
-          receitas.reduce((sum: number, r: any) => {
-            const valor = r.valorTotal ?? r.valor ?? 0; // ajuste aqui conforme o model de Receita
-            return sum + Number(valor);
+          cliente.totalGasto ??
+          receitas.reduce((soma: number, receita: any) => {
+            const valor = receita.valorTotal ?? receita.valor ?? 0;
+            return soma + Number(valor);
           }, 0);
 
-        return { ...c, totalGasto, totalCompras };
+        return { ...cliente, totalGasto, totalCompras };
       });
 
-      setClientes(mapeados);
+      setClientes(clientesComTotais);
     } catch (error) {
       console.error(error);
       toast.error("Não foi possível carregar clientes.");
@@ -68,7 +67,6 @@ export default function Clientes() {
     if (usuario?.id) {
       getClientes();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario?.id]);
 
   async function incluirCliente(data: Inputs) {
@@ -114,16 +112,16 @@ export default function Clientes() {
 
     switch (filtroOrdem) {
       case "gasto_maior":
-        base.sort((a, b) => (b.totalGasto ?? 0) - (a.totalGasto ?? 0));
+        base.sort((clienteA, clienteB) => (clienteB.totalGasto ?? 0) - (clienteA.totalGasto ?? 0));
         break;
       case "gasto_menor":
-        base.sort((a, b) => (a.totalGasto ?? 0) - (b.totalGasto ?? 0));
+        base.sort((clienteA, clienteB) => (clienteA.totalGasto ?? 0) - (clienteB.totalGasto ?? 0));
         break;
       case "compras_maior":
-        base.sort((a, b) => (b.totalCompras ?? 0) - (a.totalCompras ?? 0));
+        base.sort((clienteA, clienteB) => (clienteB.totalCompras ?? 0) - (clienteA.totalCompras ?? 0));
         break;
       case "compras_menor":
-        base.sort((a, b) => (a.totalCompras ?? 0) - (b.totalCompras ?? 0));
+        base.sort((clienteA, clienteB) => (clienteA.totalCompras ?? 0) - (clienteB.totalCompras ?? 0));
         break;
     }
 
@@ -131,12 +129,7 @@ export default function Clientes() {
   }, [clientes, filtroNome, filtroOrdem]);
 
   const listaClientes = clientesFiltrados.map((cliente: any) => (
-    <ClienteItem
-      key={cliente.id}
-      cliente={cliente}
-      clientes={clientes}
-      setClientes={setClientes}
-    />
+    <ClienteItem key={cliente.id} cliente={cliente} clientes={clientes} setClientes={setClientes}/>
   ));
 
   return (
@@ -149,15 +142,10 @@ export default function Clientes() {
               <img src="/tabela.svg" className='w-[2rem] h-[2rem]' alt="" />
               <h2 className='text-center text-[2rem] font-inter font-semibold'>Clientes</h2>
             </div>
-            <button
-              onClick={() => setOpenAdicionarCliente(true)}
-              className='flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal'
-            >
-              Adicionar
+            <button onClick={() => setOpenAdicionarCliente(true)} className='flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal'>Adicionar
             </button>
           </div>
 
-          {/* FILTROS */}
           <div className='bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[1.44rem]'>
             <div className='flex flex-row gap-[1.25rem] items-center'>
               <div className='relative'>
@@ -169,7 +157,7 @@ export default function Clientes() {
                   value={filtroNome}
                   onChange={(e) => setFiltroNome(e.target.value)}
                   placeholder="Filtrar por nome"
-                  className='border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-white outline-none focus:border-[#407B6A] transition-colors'
+                  className='border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-[#F5F5F5] outline-none focus:border-[#407B6A] transition-colors'
                 />
               </div>
 
@@ -177,11 +165,7 @@ export default function Clientes() {
                 <label className='absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide'>
                   FILTRAR POR
                 </label>
-                <select
-                  value={filtroOrdem}
-                  onChange={(e) => setFiltroOrdem(e.target.value)}
-                  className='border-2 border-[#4A4B51] rounded-xl font-inter pl-4 pr-8 w-[16rem] h-[2.75rem] bg-white outline-none focus:border-[#407B6A]'
-                >
+                <select value={filtroOrdem} onChange={(e) => setFiltroOrdem(e.target.value)} className='border-2 border-[#4A4B51] rounded-xl font-inter pl-4 pr-8 w-[16rem] h-[2.75rem] bg-[#F5F5F5] outline-none focus:border-[#407B6A]'>
                   <option value="">Nenhum</option>
                   <option value="gasto_maior">Total Gasto Maior</option>
                   <option value="gasto_menor">Total Gasto Menor</option>
@@ -191,7 +175,6 @@ export default function Clientes() {
               </div>
             </div>
 
-            {/* Cabeçalho da tabela */}
             <div className='flex flex-row justify-between font-inter text-[1rem] font-normal mt-4'>
               <h2>Nome</h2>
               <h2 className='relative left-[6.8rem]'>Total Gasto</h2>
@@ -206,7 +189,6 @@ export default function Clientes() {
         </div>
       </section >
 
-      {/* MODAL ADICIONAR CLIENTE */}
       <Modal open={openAdicionarCliente} onClose={() => setOpenAdicionarCliente(false)}>
         <div className="container">
           <div className="container flex flex-col items-start">
@@ -273,19 +255,8 @@ export default function Clientes() {
             </div>
 
             <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setOpenAdicionarCliente(false)}
-                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type='submit'
-                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-              >
-                Confirmar
-              </button>
+              <button type="button" onClick={() => setOpenAdicionarCliente(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">Cancelar</button>
+              <button type='submit' className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar</button>
             </div>
           </form>
         </div>
