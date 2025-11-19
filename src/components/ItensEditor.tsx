@@ -11,22 +11,22 @@ export interface ProdutoOption {
   unidadeBase: Unidade;
   custoMedio?: number;
   margemPadrao?: number;
-  saldoBase?: number; // usado no modo venda para limitar pela quantidade em estoque
+  saldoBase?: number;
 }
 
 export interface ItemLinha {
   produtoId?: number;
 
   // CAMPOS USADOS NO MODO COMPRA
-  qtdConteudoInput?: string; // conteúdo de 1 unidade (ex.: 950g, 500ml, 1 un)
+  qtdConteudoInput?: string;
   unidadeSelecionada?: Unidade;
-  custoUnitario?: number; // no modo compra: custo de 1 un; no modo venda: preço de 1 un
-  quantidadeComprada?: number; // tanto no modo compra quanto venda
+  custoUnitario?: number;
+  quantidadeComprada?: number;
 
   // CAMPOS COMUNS (base / totais)
-  qtdTotalBase?: number; // quantidade total em unidade base (UN, g, ml)
-  subtotal?: number; // valor total da linha (R$)
-  custoUnitBase?: number; // custo/ preço por unidade base (R$/g, R$/ml, etc.)
+  qtdTotalBase?: number; 
+  subtotal?: number;
+  custoUnitBase?: number;
 
   erro?: string;
 }
@@ -48,13 +48,7 @@ function toBaseNumber(input: string, u: Unidade) {
   return parseQuantidade(/\d/.test(raw) ? raw : "0", u);
 }
 
-export default function ItensEditor({
-  itens,
-  produtos,
-  onChange,
-  modo = "compra",
-  onCadastrarProdutoRapido,
-}: Props) {
+export default function ItensEditor({ itens, produtos, onChange, modo = "compra", onCadastrarProdutoRapido, }: Props) {
   const [showNovoProduto, setShowNovoProduto] = useState(false);
   const [novoNome, setNovoNome] = useState("");
   const [novaUnidade, setNovaUnidade] = useState<Unidade>("UN");
@@ -63,62 +57,50 @@ export default function ItensEditor({
     modo === "compra" ? "Adicionar item comprado" : "Adicionar item vendido";
 
   function addLinha() {
-    const nova: ItemLinha = {
-      quantidadeComprada: 1,
-    };
+    const nova: ItemLinha = {quantidadeComprada: 1,};
     onChange([...itens, nova]);
   }
 
-  function setItem(idx: number, patch: Partial<ItemLinha>) {
-    const next = [...itens];
-    next[idx] = { ...next[idx], ...patch };
+  function setItem(indiceLinha: number, patch: Partial<ItemLinha>) {
+    const itensAtualizados = [...itens];
+    itensAtualizados[indiceLinha] = { ...itensAtualizados[indiceLinha], ...patch };
 
-    const prod = produtos.find((p) => p.id === next[idx].produtoId);
+    const prod = produtos.find((p) => p.id === itensAtualizados[indiceLinha].produtoId);
     const unidadeRef: Unidade =
-      next[idx].unidadeSelecionada ?? prod?.unidadeBase ?? "UN";
+      itensAtualizados[indiceLinha].unidadeSelecionada ?? prod?.unidadeBase ?? "UN";
 
-    next[idx].unidadeSelecionada = unidadeRef;
+    itensAtualizados[indiceLinha].unidadeSelecionada = unidadeRef;
 
     if (modo === "compra") {
-      // Para UN, o conteúdo é sempre 1 unidade (não precisa de campo)
-      const qtdConteudoBase =
-        unidadeRef === "UN"
-          ? 1
-          : toBaseNumber(next[idx].qtdConteudoInput || "", unidadeRef);
+      const qtdConteudoBase = unidadeRef === "UN" ? 1 : toBaseNumber(itensAtualizados[indiceLinha].qtdConteudoInput || "", unidadeRef);
 
-      const qtdComprada = Number(next[idx].quantidadeComprada || 0);
-      const custoUnit = Number(next[idx].custoUnitario || 0);
+      const qtdComprada = Number(itensAtualizados[indiceLinha].quantidadeComprada || 0);
+      const custoUnit = Number(itensAtualizados[indiceLinha].custoUnitario || 0);
 
       const qtdTotalBase = Math.max(0, qtdConteudoBase * qtdComprada);
       const subtotal = Math.max(0, +(custoUnit * qtdComprada).toFixed(2));
-      const custoUnitBase =
-        qtdTotalBase > 0 ? +(subtotal / qtdTotalBase).toFixed(6) : undefined;
+      const custoUnitBase = qtdTotalBase > 0 ? +(subtotal / qtdTotalBase).toFixed(6) : undefined;
 
-      next[idx].qtdTotalBase = qtdTotalBase || undefined;
-      next[idx].subtotal = subtotal || undefined;
-      next[idx].custoUnitBase = custoUnitBase;
+      itensAtualizados[indiceLinha].qtdTotalBase = qtdTotalBase || undefined;
+      itensAtualizados[indiceLinha].subtotal = subtotal || undefined;
+      itensAtualizados[indiceLinha].custoUnitBase = custoUnitBase;
 
     } else {
-      // MODO VENDA: VALOR R$ = valor por unidade
-      const qtdVendida = Number(next[idx].quantidadeComprada || 0);
-      const precoUnit = Number(next[idx].custoUnitario || 0); // valor de cada unidade
+      const qtdVendida = Number(itensAtualizados[indiceLinha].quantidadeComprada || 0);
+      const precoUnit = Number(itensAtualizados[indiceLinha].custoUnitario || 0);
 
-      const qtdTotalBase = Math.max(0, qtdVendida); // usamos a QTD como base
+      const qtdTotalBase = Math.max(0, qtdVendida);
       const subtotal = Math.max(0, +(precoUnit * qtdVendida).toFixed(2));
-      const custoUnitBase =
-        qtdTotalBase > 0 && subtotal > 0
-          ? +(subtotal / qtdTotalBase).toFixed(4)
-          : undefined;
+      const custoUnitBase = qtdTotalBase > 0 && subtotal > 0 ? +(subtotal / qtdTotalBase).toFixed(4) : undefined;
 
-      next[idx].qtdTotalBase = qtdTotalBase || undefined;
-      next[idx].subtotal = subtotal || undefined;
-      next[idx].custoUnitBase = custoUnitBase;
+      itensAtualizados[indiceLinha].qtdTotalBase = qtdTotalBase || undefined;
+      itensAtualizados[indiceLinha].subtotal = subtotal || undefined;
+      itensAtualizados[indiceLinha].custoUnitBase = custoUnitBase;
 
-      const estoqueDisponivel =
-        prod && prod.saldoBase != null ? Number(prod.saldoBase) : undefined;
+      const estoqueDisponivel = prod && prod.saldoBase != null ? Number(prod.saldoBase) : undefined;
 
       let erro: string | undefined;
-      if (!next[idx].produtoId) erro = "Selecione um produto";
+      if (!itensAtualizados[indiceLinha].produtoId) erro = "Selecione um produto";
       else if (qtdVendida <= 0) erro = "Informe a quantidade vendida";
       else if (precoUnit <= 0) erro = "Informe o valor por unidade";
       else if (
@@ -128,16 +110,16 @@ export default function ItensEditor({
         erro = `Quantidade em estoque: ${estoqueDisponivel}`;
       }
 
-      next[idx].erro = erro;
+      itensAtualizados[indiceLinha].erro = erro;
     }
 
-    onChange(next);
+    onChange(itensAtualizados);
   }
 
-  function remove(idx: number) {
-    const next = [...itens];
-    next.splice(idx, 1);
-    onChange(next);
+  function remove(indiceLinha: number) {
+    const itensAtualizados = [...itens];
+    itensAtualizados.splice(indiceLinha, 1);
+    onChange(itensAtualizados);
   }
 
   async function cadastrarRapido(idxParaSelecionar?: number) {
@@ -162,11 +144,7 @@ export default function ItensEditor({
     <div className="mt-4">
       {onCadastrarProdutoRapido && (
         <div className="border-[#CCCCCC] rounded-xl mb-4">
-          <button
-            type="button"
-            className="text-white bg-[#308021] rounded-md px-6 py-2 text-[0.9rem] font-semibold font-inter hover:opacity-90 mr-6"
-            onClick={() => setShowNovoProduto((v) => !v)}
-          >
+          <button type="button" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[0.9rem] font-semibold font-inter hover:opacity-90 mr-6" onClick={() => setShowNovoProduto((v) => !v)}>
             {showNovoProduto ? "Fechar cadastro rápido" : "Cadastrar novo produto"}
           </button>
 
@@ -190,23 +168,14 @@ export default function ItensEditor({
                 </label>
                 <select
                   value={novaUnidade}
-                  onChange={(e) =>
-                    setNovaUnidade(e.target.value as Unidade)
-                  }
-                  className="border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                >
+                  onChange={(e) => setNovaUnidade(e.target.value as Unidade)}
+                  className="border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]">
                   <option value="UN">UN</option>
                   <option value="G">G</option>
                   <option value="ML">ML</option>
                 </select>
               </div>
-              <button
-                type="button"
-                onClick={() => cadastrarRapido()}
-                className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90"
-              >
-                Salvar produto
-              </button>
+              <button type="button" onClick={() => cadastrarRapido()} className="text-white bg-[#308021] rounded-md px-4 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90">Salvar produto</button>
             </div>
           )}
         </div>
@@ -217,14 +186,9 @@ export default function ItensEditor({
           const prod = produtos.find((p) => p.id === it.produtoId);
           const unidade = it.unidadeSelecionada ?? prod?.unidadeBase ?? "UN";
 
-          const estoque =
-            prod && prod.saldoBase != null ? Number(prod.saldoBase) : undefined;
+          const estoque = prod && prod.saldoBase != null ? Number(prod.saldoBase) : undefined;
           const estoqueDisplay =
-            estoque == null
-              ? "-"
-              : Number.isInteger(estoque)
-                ? estoque.toString()
-                : estoque.toFixed(3);
+            estoque == null ? "-" : Number.isInteger(estoque) ? estoque.toString() : estoque.toFixed(3);
 
           return (
             <div
@@ -242,12 +206,8 @@ export default function ItensEditor({
                     onChange={(e) => {
                       const id = Number(e.target.value || 0);
                       const p = produtos.find((pp) => pp.id === id);
-                      setItem(idx, {
-                        produtoId: id || undefined,
-                        unidadeSelecionada: p?.unidadeBase ?? unidade,
-                      });
-                    }}
-                  >
+                      setItem(idx, { produtoId: id || undefined, unidadeSelecionada: p?.unidadeBase ?? unidade, });
+                    }}>
                     <option value="">Selecione...</option>
                     {produtos.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -268,18 +228,10 @@ export default function ItensEditor({
                           <input
                             type="text"
                             className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                            placeholder={
-                              unidade === "G"
-                                ? "950g"
-                                : unidade === "ML"
-                                  ? "1000 ML"
-                                  : "1un"
-                            }
+                            placeholder={ unidade === "G" ? "950g" : unidade === "ML" ? "1000 ML" : "1un" }
                             value={it.qtdConteudoInput ?? ""}
                             onChange={(e) =>
-                              setItem(idx, {
-                                qtdConteudoInput: e.target.value,
-                              })
+                              setItem(idx, {qtdConteudoInput: e.target.value,})
                             }
                           />
                         </div>
@@ -289,7 +241,6 @@ export default function ItensEditor({
                       </div>
                     )}
 
-                    {/* Custo por unidade */}
                     <div className="relative w-32">
                       <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                         CUSTO R$
@@ -300,16 +251,13 @@ export default function ItensEditor({
                         className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                         value={it.custoUnitario ?? ""}
                         onChange={(e) =>
-                          setItem(idx, {
-                            custoUnitario: Number(e.target.value || 0),
-                          })
+                          setItem(idx, {custoUnitario: Number(e.target.value || 0),})
                         }
                       />
                     </div>
                   </>
                 )}
 
-                {/* Quantidade (comprada ou vendida) */}
                 <div className="relative w-[12rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     QTD COMPRADA
@@ -320,16 +268,13 @@ export default function ItensEditor({
                     className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                     value={it.quantidadeComprada ?? ""}
                     onChange={(e) =>
-                      setItem(idx, {
-                        quantidadeComprada: Number(e.target.value || 0),
-                      })
+                      setItem(idx, {quantidadeComprada: Number(e.target.value || 0),})
                     }
                   />
                 </div>
 
                 {modo === "venda" && (
                   <>
-                    {/* Valor por unidade em R$ */}
                     <div className="relative w-36">
                       <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                         VALOR R$
@@ -340,9 +285,7 @@ export default function ItensEditor({
                         className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                         value={it.custoUnitario ?? ""}
                         onChange={(e) =>
-                          setItem(idx, {
-                            custoUnitario: Number(e.target.value || 0),
-                          })
+                          setItem(idx, {custoUnitario: Number(e.target.value || 0),})
                         }
                       />
                     </div>
@@ -352,48 +295,29 @@ export default function ItensEditor({
                 <button type="button" onClick={() => remove(idx)} className="ml-auto text-sm text-red-600 font-semibold">Remover</button>
               </div>
 
-              {/* Linha de totais / infos adicionais */}
               <div className="flex items-center justify-between mt-1 text-sm">
                 <div className="text-[#4A4B51]">
                   {modo === "compra" ? (
                     <>
                       {it.custoUnitBase != null && (
-                        <>
-                          Valor por {unidade}:{" "}
-                          <span className="font-semibold">
-                            R$ {it.custoUnitBase.toFixed(2)}
-                          </span>
-                        </>
+                        <>Valor por {unidade}:{" "}<span className="font-semibold">R$ {it.custoUnitBase.toFixed(2)}</span></>
                       )}
                     </>
                   ) : (
                     <>
-                      Quantidade estoque:{" "}
-                      <span className="font-semibold">
-                        {estoqueDisplay} {unidade}
-                      </span>
+                      Quantidade estoque:{" "}<span className="font-semibold">{estoqueDisplay} {unidade}</span>
                     </>
                   )}
                 </div>
 
-                <div className="text-[#4A4B51]">
-                  Subtotal:{" "}
-                  <span className="font-semibold">
-                    R$ {(Number(it.subtotal) || 0).toFixed(2)}
-                  </span>
-                </div>
+                <div className="text-[#4A4B51]">Subtotal:{" "} <span className="font-semibold">R$ {(Number(it.subtotal) || 0).toFixed(2)}</span></div>
               </div>
             </div>
           );
         })}
       </div>
 
-      <button
-        type="button"
-        onClick={addLinha}
-        className="text-white bg-[#308021] rounded-md px-6 py-2 mt-5 text-[0.9rem] font-semibold font-inter hover:opacity-90"
-      >
-        {botaoAdicionarTexto}
+      <button type="button" onClick={addLinha} className="text-white bg-[#308021] rounded-md px-6 py-2 mt-5 text-[0.9rem] font-semibold font-inter hover:opacity-90"> {botaoAdicionarTexto}
       </button>
     </div>
   );

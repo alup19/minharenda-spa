@@ -42,8 +42,8 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
     const anexoUrl = useMemo(() => {
         const url = (despesa as any).anexo as string | null | undefined;
         if (!url) return null;
-        const t = url.trim();
-        return t.length > 0 ? t : null;
+        const urlTrim = url.trim();
+        return urlTrim.length > 0 ? urlTrim : null;
     }, [despesa]);
 
     function abrirPreview() {
@@ -63,14 +63,12 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
         setDespesas(Array.isArray(dados) ? dados : dados.despesas ?? [])
     }
 
-    // Recarrega lista quando fecha modal de alteração
     useEffect(() => {
         if (!OpenAlterarDespesa) {
             getDespesas()
         }
     }, [OpenAlterarDespesa])
 
-    // Foca no campo descrição quando abrir modal
     useEffect(() => {
         if (OpenAlterarDespesa) {
             setFocus("descricao")
@@ -95,9 +93,7 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
 
     async function atualizarDespesa(data: Inputs) {
         const dataISO =
-            typeof data.data === "string"
-                ? data.data
-                : new Date(data.data).toISOString().slice(0, 10)
+            typeof data.data === "string" ? data.data : new Date(data.data).toISOString().slice(0, 10)
 
         const payloadAtualizado: Inputs = {
             descricao: data.descricao,
@@ -118,10 +114,10 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
         })
 
         if (response.status === 200) {
-            const atualizado = await response.json()
+            const despesaAtualizada  = await response.json()
 
-            setDespesas(prev =>
-                prev.map((d: any) => (d.id === despesa.id ? { ...d, ...atualizado } : d))
+            setDespesas(despesasAnteriores =>
+                despesasAnteriores.map((despesaLista: any) => (despesaLista.id === despesa.id ? { ...despesaLista, ...despesaAtualizada  } : despesaLista))
             )
 
             toast.success("Despesa atualizada com sucesso!")
@@ -144,8 +140,8 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
             },
         )
         if (response.status === 200) {
-            const novas = despesas.filter(x => x.id !== despesa.id)
-            setDespesas(novas)
+            const despesasRestantes = despesas.filter(despesaLista => despesaLista.id !== despesa.id)
+            setDespesas(despesasRestantes)
             setOpenExcluirDespesas(false)
             toast.success("Despesa excluída com sucesso")
         } else {
@@ -170,45 +166,22 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
         <section>
             <div key={despesa.id} className="flex flex-col gap-[0.44rem]">
                 <div className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] flex flex-row justify-between items-center">
-                    <p className="text-[#656565] font-inter font-normal text-[1rem]">
-                        {dataDMA(despesa.data as any)}
-                    </p>
-                    <p className="text-[#303030] font-inter font-semibold">
-                        {Number(despesa.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}
-                    </p>
-                    <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem]">
-                        {despesa.categoria}
-                    </p>
-                    <button
-                        type="button"
-                        onClick={abrirPreview}
-                        title={anexoUrl ? "Visualizar anexo" : "Sem anexo"}
-                        className={`inline-flex ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}
-                    >
-                        <img src="/attachment.svg" alt="Anexo" />
-                    </button>
+                    <p className="text-[#656565] font-inter font-normal text-[1rem]">{dataDMA(despesa.data as any)}</p>
+                    <p className="text-[#303030] font-inter font-semibold">{Number(despesa.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}</p>
+                    <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem]">{despesa.categoria}</p>
+                    <button type="button" onClick={abrirPreview} title={anexoUrl ? "Visualizar anexo" : "Sem anexo"} className={`inline-flex ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}><img src="/attachment.svg" alt="Anexo" /></button>
                     <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <img src="/options.svg" alt="opções" />
-                        </DropdownMenuTrigger>
+                        <DropdownMenuTrigger><img src="/options.svg" alt="opções" /></DropdownMenuTrigger>
                         <DropdownMenuContent className="font-inter">
                             <DropdownMenuLabel>Ações</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={abrirModalAlterar}>
-                                Alterar Dados
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => setOpenExcluirDespesas(true)}
-                                className="text-[#c02424]"
-                            >
-                                Excluir
-                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={abrirModalAlterar}>Alterar Dados</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setOpenExcluirDespesas(true)} className="text-[#c02424]">Excluir</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
             </div>
 
-            {/* MODAL ALTERAR */}
             <Modal open={OpenAlterarDespesa} onClose={() => setOpenAlterarDespesas(false)}>
                 <div className="container">
                     <div className="container flex flex-col items-start">
@@ -293,81 +266,45 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                         </div>
 
                         <div className="flex gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setOpenAlterarDespesas(false)}
-                                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-                            >
-                                Cancelar
+                            <button type="button" onClick={() => setOpenAlterarDespesas(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">Cancelar
                             </button>
-                            <button
-                                type="submit"
-                                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-                            >
-                                Confirmar
+                            <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar
                             </button>
                         </div>
                     </form>
                 </div>
             </Modal>
 
-            {/* MODAL EXCLUIR */}
             <Modal open={OpenExcluirDespesa} onClose={() => setOpenExcluirDespesas(false)}>
                 <div className="container">
                     <div className="container flex flex-col items-start">
                         <div className="flex flex-row items-center gap-[0.7rem] justify-center">
                             <img src="/tabela.svg" className="w-[1.5rem] h-[1.5rem]" alt="" />
-                            <h2 className="text-center text-[1.4rem] font-inter font-semibold">
-                                Excluir Despesa
-                            </h2>
+                            <h2 className="text-center text-[1.4rem] font-inter font-semibold">Excluir Despesa</h2>
                         </div>
                     </div>
 
                     <div className="container flex flex-col items-center">
                         <div className="flex flex-col items-center my-6">
-                            <p className="font-inter">
-                                Você tem certeza que deseja apagar esta despesa?
-                            </p>
-                            <p className="font-inter">
-                                Após confirmar, essa ação será irreversível.
-                            </p>
+                            <p className="font-inter">Você tem certeza que deseja apagar esta despesa?</p>
+                            <p className="font-inter">Após confirmar, essa ação será irreversível.</p>
                         </div>
 
                         <div className="flex gap-4">
-                            <button
-                                onClick={() => setOpenExcluirDespesas(false)}
-                                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={excluirDespesa}
-                                className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-                            >
-                                Confirmar
-                            </button>
+                            <button onClick={() => setOpenExcluirDespesas(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer" >Cancelar</button>
+                            <button onClick={excluirDespesa} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar</button>
                         </div>
                     </div>
                 </div>
             </Modal>
 
-            {/* MODAL PREVIEW ANEXO */}
             <Modal open={openPreviewAnexo} onClose={() => setOpenPreviewAnexo(false)}>
                 <div className="flex flex-col items-center gap-3">
-                    <h2 className="font-inter font-semibold text-[1.1rem]">
-                        Anexo da despesa
-                    </h2>
+                    <h2 className="font-inter font-semibold text-[1.1rem]">Anexo da despesa</h2>
                     {anexoUrl && !imgErro ? (
-                        <img
-                            src={anexoUrl}
-                            alt="Anexo"
-                            className="max-h-[60vh] max-w-full rounded-lg"
-                            onError={() => setImgErro(true)}
-                        />
+                        <img src={anexoUrl} alt="Anexo" className="max-h-[60vh] max-w-full rounded-lg" onError={() => setImgErro(true)}/>
                     ) : (
-                        <p className="text-sm text-[#4A4B51]">
-                            Não foi possível carregar a imagem.
-                        </p>
+                        <p className="text-sm text-[#4A4B51]">Não foi possível carregar a imagem.</p>
                     )}
                 </div>
             </Modal>

@@ -9,18 +9,15 @@ export function toBase(qtd: number, u: Unidade) {
   return qtd;
 }
 
-// aceita "950", "950g", "0,95kg", "1 kg", "500 ml", etc.
 export function parseQuantidade(input: string | number, unidadeBase: Unidade): number {
   const raw = String(input).trim().toLowerCase().replace(',', '.');
   const n   = parseFloat(raw.replace(/[^\d.]/g, "")) || 0;
 
   if (unidadeBase === "UN") return n;
-  // Se o usuário digitou com sufixo, tenta converter
   if (raw.includes("kg")) return toBase(n, "KG");
   if (raw.includes("g"))  return toBase(n, "G");
   if (raw.includes("l") && !raw.includes("ml")) return toBase(n, "L");
   if (raw.includes("ml")) return toBase(n, "ML");
 
-  // Sem sufixo: já considero na base cadastrada do produto
   return toBase(n, unidadeBase);
 }
