@@ -65,7 +65,8 @@ export default function Insumos() {
           let custoMedio = Number(produto.custoMedio ?? 0);
           let precoMedioDisplay = produto.precoMedioDisplay ?? (unidadeBase === "G" || unidadeBase === "ML" ? +(custoMedio * 1000).toFixed(6) : custoMedio);
 
-          return { id: produto.id, nome: produto.nome, unidadeBase, saldoBase, custoMedio, saldoDisplay, unidadeDisplay, precoMedioDisplay, categoria: produto.categoria ?? null,
+          return {
+            id: produto.id, nome: produto.nome, unidadeBase, saldoBase, custoMedio, saldoDisplay, unidadeDisplay, precoMedioDisplay, categoria: produto.categoria ?? null,
           };
         });
 
@@ -82,7 +83,7 @@ export default function Insumos() {
     }
   }, [usuario?.id]);
 
-  function atualizarLinhaInsumo( linhaIndex: number, dadosParciais: Partial<LinhaInsumo>) {
+  function atualizarLinhaInsumo(linhaIndex: number, dadosParciais: Partial<LinhaInsumo>) {
     const linhasAtualizadas = [...linhasInsumos];
 
     linhasAtualizadas[linhaIndex] = { ...linhasAtualizadas[linhaIndex], ...dadosParciais, };
@@ -90,7 +91,7 @@ export default function Insumos() {
     const produtoSelecionado = produtos.find((produto) => produto.id === linhasAtualizadas[linhaIndex].produtoId);
 
     const unidadeProduto: Unidade = produtoSelecionado?.unidadeBase ?? "UN";
-    const quantidadeBase = parseQuantidade( linhasAtualizadas[linhaIndex].qtdInput || "0", unidadeProduto);
+    const quantidadeBase = parseQuantidade(linhasAtualizadas[linhaIndex].qtdInput || "0", unidadeProduto);
 
     linhasAtualizadas[linhaIndex].qtdBase = quantidadeBase || undefined;
 
@@ -100,7 +101,7 @@ export default function Insumos() {
   }
 
   function adicionarLinhaInsumo() {
-    setLinhasInsumos((linhasAnteriores) => [ ...linhasAnteriores, { produtoId: undefined, qtdInput: "" },
+    setLinhasInsumos((linhasAnteriores) => [...linhasAnteriores, { produtoId: undefined, qtdInput: "" },
     ]);
   }
 
@@ -171,7 +172,8 @@ export default function Insumos() {
             "Content-Type": "application/json",
             ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
           },
-          body: JSON.stringify({ nome: nomeFinal, unidadeBase: "UN", usuarioId: usuario.id, categoria: null,
+          body: JSON.stringify({
+            nome: nomeFinal, unidadeBase: "UN", usuarioId: usuario.id, categoria: null,
           }),
         });
 
@@ -216,7 +218,7 @@ export default function Insumos() {
         const produto = produtos.find((produto) => produto.id === linhaInsumo.produtoId);
         if (!produto) continue;
 
-        const novoSaldoBase = Math.max(0,produto.saldoBase - linhaInsumo.qtdBase);
+        const novoSaldoBase = Math.max(0, produto.saldoBase - linhaInsumo.qtdBase);
 
         await fetch(`${apiUrl}/produtos/${linhaInsumo.produtoId}`, {
           method: "PUT",
@@ -224,7 +226,7 @@ export default function Insumos() {
             "Content-Type": "application/json",
             ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
           },
-          body: JSON.stringify({saldoBase: novoSaldoBase,}),
+          body: JSON.stringify({ saldoBase: novoSaldoBase, }),
         });
       }
 
@@ -262,7 +264,7 @@ export default function Insumos() {
           </div>
         </div>
 
-        <div className="w-[40rem] flex flex-col gap-[1.44rem]">
+        <div className="w-[32rem] flex flex-col gap-[1.44rem]">
           <div className="flex flex-row items-center gap-[0.7rem]">
             <img src="/tabela.svg" className="w-[2rem] h-[2rem]" alt="" />
             <h2 className="text-[2rem] font-inter font-semibold">Insumos</h2>
@@ -293,42 +295,45 @@ export default function Insumos() {
                     value={linhaInsumo.qtdInput ?? ""}
                     onChange={(event) =>
                       atualizarLinhaInsumo(linhaIndex, { qtdInput: event.target.value, })
-                    }/>
+                    } />
 
-                  <button type="button" onClick={() => removerLinhaInsumo(linhaIndex)} className="text-[#D13B3B] font-inter text-[0.95rem]">Remover</button>
+                  <button type="button" onClick={() => removerLinhaInsumo(linhaIndex)} className="text-[#D13B3B] font-inter font-semibold text-[0.95rem]">Remover</button>
 
-                  {linhaInsumo.erro && (
-                    <span className="text-xs text-red-500 ml-2">{linhaInsumo.erro}</span>
-                  )}
                 </div>
               );
             })}
 
-            <button type="button" onClick={adicionarLinhaInsumo} className="mt-2 text-[#407B6A] font-inter text-[0.95rem] underline" >+ Adicionar insumo</button>
+            <button type="button" onClick={adicionarLinhaInsumo} className="text-white bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] rounded-md px-6 my-3 py-2 text-[1rem] font-bold font-inter hover:opacity-90" >+ Adicionar insumo</button>
 
-            <div className="mt-5 flex flex-row gap-[0.75rem]">
-              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[9rem] h-[2.5rem] bg-white outline-none"
+            <div className="flex flex-row gap-[0.75rem]">
+              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[15rem] h-[2.5rem] bg-white outline-none"
                 placeholder="Margem %"
                 type="number"
                 value={margemPercentual}
                 onChange={(event) =>
                   setMargemPercentual(
-                    event.target.value === "" ? "" : Number(event.target.value))}/>
+                    event.target.value === "" ? "" : Number(event.target.value))} />
 
-              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[9rem] h-[2.5rem] bg-white outline-none"
-                placeholder="Unidades"
+              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[15rem] h-[2.5rem] bg-white outline-none"
+                placeholder="Unidades Produzidas"
                 type="number"
                 value={unidadesProduzidas}
                 onChange={(event) =>
                   setUnidadesProduzidas(
-                    event.target.value === "" ? "" : Number(event.target.value))}/>
+                    event.target.value === "" ? "" : Number(event.target.value))} />
             </div>
+            <div className="flex flex-col gap-[0.75rem] mt-3">
+              <div className="flex flex-row justify-between font-inter text-[#656565] bg-[#E2E2E2] rounded-[0.9375rem] py-[0.875rem] px-[1.0625rem]">
+                <h3>Custo Total:</h3>
+                <p className="text-[#3a3a3a] font-medium">R$ {custoTotalInsumos.toFixed(2)}</p>
+              </div>
+              <div className="flex flex-row justify-between font-inter text-[#656565] bg-[#E2E2E2] rounded-[0.9375rem] py-[0.875rem] px-[1.0625rem]">
+                <h3>Preço unitário com {margemPercentual}% de margem:</h3>
+                <p className="text-[#3a3a3a] font-medium">R$ {precoUnitarioSugerido.toFixed(2)}</p>
+              </div>
+            </div>
+            <button type="button" onClick={() => setOpenModalProdutoFinal(true)} className="text-white bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] rounded-md px-6 my-3 py-2 text-[1rem] font-bold font-inter hover:opacity-90">Acrescentar Produtos no Estoque</button>
 
-            <div className="mt-4 bg-white rounded-[0.9375rem] px-4 py-3 font-inter">
-              <p>Custo total: R$ {custoTotalInsumos.toFixed(2)}</p>
-              <p>Preço unitário sugerido: R$ {precoUnitarioSugerido.toFixed(2)}</p>
-              <button type="button" onClick={() => setOpenModalProdutoFinal(true)} className="mt-3 flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[16rem] h-[2.7rem] text-[1rem] font-roboto font-normal">Acrescentar Produtos no Estoque</button>
-            </div>
           </div>
         </div>
       </section>
@@ -337,7 +342,7 @@ export default function Insumos() {
         <div className="container flex flex-col gap-4 font-inter">
           <h2 className="text-[1.3rem] font-semibold">Nome do produto que será criado no estoque</h2>
 
-          <input className="border-2 border-[#4A4B51] rounded-xl px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Ex: Panetone" value={nomeProdutoFinal} onChange={(event) => setNomeProdutoFinal(event.target.value)}/>
+          <input className="border-2 border-[#4A4B51] rounded-xl px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Ex: Panetone" value={nomeProdutoFinal} onChange={(event) => setNomeProdutoFinal(event.target.value)} />
 
           <div className="mt-4 flex gap-4 justify-end">
             <button type="button" onClick={() => setOpenModalProdutoFinal(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">Cancelar</button>

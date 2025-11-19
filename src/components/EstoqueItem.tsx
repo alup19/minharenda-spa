@@ -238,7 +238,7 @@ export default function EstoqueItem({ produto, produtos, setProdutos,}: listaPro
             <DropdownMenuContent className="font-inter">
               <DropdownMenuLabel>Ações</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setOpenAlterarQuantidade(true)}>Alterar Quantidade</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setOpenAlterarQuantidade(true)}>Remover Quantidade</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpenAlterarProduto(true)}>Alterar Dados</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpenExcluirProduto(true)} className="text-[#c02424]">Arquivar</DropdownMenuItem>
             </DropdownMenuContent>

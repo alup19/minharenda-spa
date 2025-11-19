@@ -167,7 +167,7 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
             <div key={despesa.id} className="flex flex-col gap-[0.44rem]">
                 <div className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] flex flex-row justify-between items-center">
                     <p className="text-[#656565] font-inter font-normal text-[1rem]">{dataDMA(despesa.data as any)}</p>
-                    <p className="text-[#303030] font-inter font-semibold">{Number(despesa.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}</p>
+                    <p className="text-[#303030] font-inter font-semibold">R$ {Number(despesa.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}</p>
                     <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem]">{despesa.categoria}</p>
                     <button type="button" onClick={abrirPreview} title={anexoUrl ? "Visualizar anexo" : "Sem anexo"} className={`inline-flex ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}><img src="/attachment.svg" alt="Anexo" /></button>
                     <DropdownMenu>
