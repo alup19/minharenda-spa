@@ -86,8 +86,10 @@ export default function Estoque() {
   }
 
   useEffect(() => {
-    getProdutos();
-  }, [openAdicionarProduto]);
+    if (usuario?.id) {
+      getProdutos();
+    }
+  }, [usuario?.id, openAdicionarProduto]);
 
   const total = useMemo(
     () => itens.reduce((soma, item) => soma + (Number(item.subtotal) || 0), 0), [itens]
@@ -252,9 +254,16 @@ export default function Estoque() {
     }
   }
 
-  const listaProdutos = catalogoFiltrado.map((produto: any) => (
-    <EstoqueItem key={produto.id} produto={produto} produtos={catalogoFiltrado as any} setProdutos={setCatalogo as any}/>
-  ));
+  const listaProdutos = catalogoFiltrado.length > 0
+    ? catalogoFiltrado.map((produto: any) => (
+      <EstoqueItem
+        key={produto.id}
+        produto={produto}
+        produtos={catalogoFiltrado as any}
+        setProdutos={setCatalogo as any}
+      />
+    ))
+    : <p>Não há produtos para exibir.</p>;
 
   return (
     <>
@@ -280,7 +289,7 @@ export default function Estoque() {
                   value={filtroNome}
                   onChange={(event) => setFiltroNome(event.target.value)}
                   placeholder="Filtrar por nome"
-                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] bg-[#F5F5F5] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium outline-none focus:border-[#407B6A] transition-colors"/>
+                  className="border-2 border-[#4A4B51] rounded-xl font-inter pl-4 w-[18rem] bg-[#F5F5F5] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium outline-none focus:border-[#407B6A] transition-colors" />
               </div>
               <div className="relative">
                 <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">
@@ -321,7 +330,7 @@ export default function Estoque() {
               <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                 ANEXO (NF)
               </label>
-              <input type="url" {...register("anexo")} placeholder="Link da NF" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"/>
+              <input type="url" {...register("anexo")} placeholder="Link da NF" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" />
             </div>
 
             <div className="relative">
@@ -342,7 +351,7 @@ export default function Estoque() {
           <div className="mt-8">
             <h3 className="font-inter font-semibold mb-2">Itens comprados</h3>
 
-            <ItensEditor modo="compra" itens={itens} produtos={produtosParaSelect} onChange={setItens} onCadastrarProdutoRapido={cadastrarProdutoRapido}/>
+            <ItensEditor modo="compra" itens={itens} produtos={produtosParaSelect} onChange={setItens} onCadastrarProdutoRapido={cadastrarProdutoRapido} />
 
             <div className="mt-4 flex justify-end font-inter">
               <div>

@@ -177,7 +177,7 @@ export default function Insumos() {
         });
 
         if (responseCriarProdutoFinal.status !== 201) {
-          
+
           toast.error("Erro ao criar produto final.");
           return;
         }

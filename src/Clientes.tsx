@@ -126,9 +126,16 @@ export default function Clientes() {
     return base;
   }, [clientes, filtroNome, filtroOrdem]);
 
-  const listaClientes = clientesFiltrados.map((cliente: any) => (
-    <ClienteItem key={cliente.id} cliente={cliente} clientes={clientes} setClientes={setClientes}/>
-  ));
+  const listaClientes = clientesFiltrados.length > 0
+    ? clientesFiltrados.map((cliente: any) => (
+      <ClienteItem
+        key={cliente.id}
+        cliente={cliente}
+        clientes={clientes}
+        setClientes={setClientes}
+      />
+    ))
+    : <p>Não há clientes para exibir.</p>;
 
   return (
     <>

@@ -88,9 +88,11 @@ export default function Receitas() {
   }
 
   useEffect(() => {
-    getReceitas();
-    getClientes();
-  }, []);
+    if (usuario?.id) {
+      getClientes();
+      getReceitas();
+    }
+  }, [usuario?.id]);
 
   useEffect(() => {
     if (openCriar && modo === "itens") getProdutos();
@@ -241,15 +243,17 @@ export default function Receitas() {
     }
   }
 
-  const listaReceitas = receitas.map((receita: any) => (
-    <ReceitaItem
-      key={receita.id}
-      receita={receita}
-      receitas={receitas}
-      setReceitas={setReceitas}
-      clientes={clientes}
-    />
-  ));
+  const listaReceitas = receitas.length > 0
+    ? receitas.map((receita: any) => (
+      <ReceitaItem
+        key={receita.id}
+        receita={receita}
+        receitas={receitas}
+        setReceitas={setReceitas}
+        clientes={clientes}
+      />
+    ))
+    : <p>Não há receitas para exibir.</p>;
 
   return (
     <>
@@ -262,7 +266,7 @@ export default function Receitas() {
               <h2 className="text-center text-[2rem] font-inter font-semibold">Receitas</h2>
             </div>
             <button
-              onClick={() => { setOpenCriar(true); setModo("rapida"); setValue("data", new Date().toISOString().slice(0, 10));}}
+              onClick={() => { setOpenCriar(true); setModo("rapida"); setValue("data", new Date().toISOString().slice(0, 10)); }}
               className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal">Adicionar</button>
           </div>
 
@@ -289,8 +293,8 @@ export default function Receitas() {
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button className={`px-3 py-1 rounded ${ modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`} onClick={() => setModo("rapida")} type="button">Venda rápida</button>
-            <button className={`px-3 py-1 rounded ${ modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]" }`} onClick={() => { setModo("itens"); getProdutos(); }} type="button">Com itens</button>
+            <button className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`} onClick={() => setModo("rapida")} type="button">Venda rápida</button>
+            <button className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`} onClick={() => { setModo("itens"); getProdutos(); }} type="button">Com itens</button>
           </div>
 
           <form className="mt-4" onSubmit={handleSubmit(incluirReceita)}>
@@ -302,7 +306,7 @@ export default function Receitas() {
                 <input
                   className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
                   placeholder="Venda balcão"
-                  {...register("descricao")}/>
+                  {...register("descricao")} />
               </div>
               <div className="relative">
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
@@ -311,7 +315,7 @@ export default function Receitas() {
                 <input
                   type="date"
                   className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                  {...register("data")}/>
+                  {...register("data")} />
               </div>
               <div className="relative">
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
@@ -357,7 +361,7 @@ export default function Receitas() {
               <div className="mt-6">
                 <h3 className="font-inter font-semibold mb-2">Itens vendidos</h3>
 
-                <ItensEditor modo="venda" itens={itensVenda} produtos={produtos} onChange={setItensVenda}/>
+                <ItensEditor modo="venda" itens={itensVenda} produtos={produtos} onChange={setItensVenda} />
 
                 {produtos.length === 0 && (
                   <p className="text-sm text-[#4A4B51] mt-2">

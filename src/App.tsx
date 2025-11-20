@@ -66,12 +66,12 @@ export default function App() {
   }, [usuario]);
 
   const listaReceitas = receitas.length > 0 ? receitas.map((receita) => (
-  <UltimasReceitas key={receita.id} receita={receita} receitas={receitas} setReceitas={setReceitas} clientes={clientes} />
-)) : <p>Não há receitas para exibir.</p>;
+    <UltimasReceitas key={receita.id} receita={receita} receitas={receitas} setReceitas={setReceitas} clientes={clientes} />
+  )) : <p>Não há receitas para exibir.</p>;
 
   const listaDespesas = despesas.length > 0 ? despesas.map((despesa) => (
-  <UltimasDespesas key={despesa.id} despesa={despesa} despesas={despesas} setDespesas={setDespesas} />
-)) : <p>Não há despesas para exibir.</p>;
+    <UltimasDespesas key={despesa.id} despesa={despesa} despesas={despesas} setDespesas={setDespesas} />
+  )) : <p>Não há despesas para exibir.</p>;
 
   return (
     <>

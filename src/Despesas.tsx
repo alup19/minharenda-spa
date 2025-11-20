@@ -41,8 +41,10 @@ export default function Despesas() {
   }
 
   useEffect(() => {
-    getDespesas();
-  }, [usuario.id]);
+    if (usuario?.id) {
+      getDespesas();
+    }
+  }, [usuario?.id]);
 
   async function incluirDespesa(data: Inputs) {
     const dataISO =
@@ -79,14 +81,16 @@ export default function Despesas() {
     }
   }
 
-  const listaDespesas = despesas.map((despesa: any) => (
-    <DespesaItem
-      key={despesa.id}
-      despesa={despesa}
-      despesas={despesas}
-      setDespesas={setDespesas}
-    />
-  ));
+  const listaDespesas = despesas.length > 0
+    ? despesas.map((despesa: any) => (
+      <DespesaItem
+        key={despesa.id}
+        despesa={despesa}
+        despesas={despesas}
+        setDespesas={setDespesas}
+      />
+    ))
+    : <p>Não há despesas para exibir.</p>;
 
   return (
     <>
@@ -153,7 +157,7 @@ export default function Despesas() {
                 <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                   DESCRIÇÃO
                 </label>
-                <input type="text" placeholder="Ex.: Luz, aluguel, frete, marketing..." className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" required {...register("descricao")}/>
+                <input type="text" placeholder="Ex.: Luz, aluguel, frete, marketing..." className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" required {...register("descricao")} />
               </div>
 
               <div className="flex flex-col gap-8">
@@ -162,14 +166,14 @@ export default function Despesas() {
                     <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                       VALOR
                     </label>
-                    <input type="number" step="0.01" inputMode="decimal" placeholder="R$ 0,00" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" required {...register("valor", { valueAsNumber: true })}/>
+                    <input type="number" step="0.01" inputMode="decimal" placeholder="R$ 0,00" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" required {...register("valor", { valueAsNumber: true })} />
                   </div>
 
                   <div className="relative w-full">
                     <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                       DATA
                     </label>
-                    <input type="date" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" required {...register("data")}/>
+                    <input type="date" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" required {...register("data")} />
                   </div>
                 </div>
 
@@ -186,7 +190,7 @@ export default function Despesas() {
                     <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                       ANEXO (NF)
                     </label>
-                    <input type="url" placeholder="Link / upload" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" {...register("anexo")}/>
+                    <input type="url" placeholder="Link / upload" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" {...register("anexo")} />
                   </div>
                 </div>
               </div>
