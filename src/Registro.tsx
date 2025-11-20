@@ -79,16 +79,10 @@ export default function Registro() {
           senha: data.senha
         })
       })
-
-    console.log(response);
-
     if (response.status == 201) {
       toast.success("Conta criada com sucesso!")
-
       navigate("/login")
     } else {
-      console.log(response.statusText);
-
       toast.error("Erro... Não foi possivel criar sua conta")
     }
   }

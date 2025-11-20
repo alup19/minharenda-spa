@@ -81,7 +81,6 @@ export default function Estoque() {
 
       setCatalogo(produtosMapeados.filter((produto) => produto.ativo !== false));
     } catch (error) {
-      console.error(error);
       toast.error("Não foi possível carregar produtos.");
     }
   }
@@ -141,8 +140,6 @@ export default function Estoque() {
     });
 
     if (responseCreateProduct.status !== 201) {
-      const responseText = await responseCreateProduct.text();
-      console.error( "Erro ao criar produto:", responseCreateProduct.status, responseText);
       toast.error("Erro ao criar produto.");
       throw new Error("Criar produto falhou");
     }
@@ -241,12 +238,6 @@ export default function Estoque() {
         );
 
         if (!responseUpdateProduct.ok) {
-          const responseText = await responseUpdateProduct.text();
-          console.error(
-            "PUT produto falhou:",
-            responseUpdateProduct.status,
-            responseText
-          );
           toast.error("Falha ao atualizar um dos produtos.");
         }
       }
@@ -257,7 +248,6 @@ export default function Estoque() {
       setOpenAdicionarProduto(false);
       getProdutos();
     } catch (error) {
-      console.error(error);
       toast.error("Erro ao atualizar estoque.");
     }
   }

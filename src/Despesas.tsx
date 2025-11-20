@@ -36,7 +36,6 @@ export default function Despesas() {
       const data = await resp.json();
       setDespesas(Array.isArray(data) ? data : data.despesas ?? []);
     } catch (error) {
-      console.error(error);
       toast.error("Não foi possível carregar despesas.");
     }
   }
@@ -69,16 +68,13 @@ export default function Despesas() {
 
       if (resp.status === 201) {
         toast.success("Despesa criada com sucesso!");
-        reset({ data: new Date().toISOString().slice(0, 10) });
+        reset();
         setOpenAdicionarDespesas(false);
         getDespesas();
       } else {
-        console.log(payloadDespesa);
         toast.error("Erro ao criar despesa.");
       }
     } catch (error) {
-      console.error(error);
-      console.log(payloadDespesa);
       toast.error("Erro ao criar despesa.");
     }
   }

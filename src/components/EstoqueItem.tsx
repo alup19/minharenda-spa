@@ -83,12 +83,9 @@ export default function EstoqueItem({ produto, produtos, setProdutos,}: listaPro
         setOpenAlterarProduto(false);
         getProdutos();
       } else {
-        const t = await resp.text();
-        console.error(t);
         toast.error("Erro ao atualizar produto.");
       }
     } catch (e) {
-      console.error(e);
       toast.error("Erro ao atualizar produto.");
     }
   }
@@ -110,12 +107,9 @@ export default function EstoqueItem({ produto, produtos, setProdutos,}: listaPro
         toast.success("Produto arquivado. Ele não aparecerá mais no estoque.");
         setOpenExcluirProduto(false);
       } else {
-        const t = await resp.text();
-        console.error(t);
         toast.error("Erro... Produto não foi arquivado.");
       }
     } catch (e) {
-      console.error(e);
       toast.error("Erro... Produto não foi arquivado.");
     }
   }
@@ -193,12 +187,9 @@ export default function EstoqueItem({ produto, produtos, setProdutos,}: listaPro
         setQtdRemover("");
         getProdutos();
       } else {
-        const t = await resp.text();
-        console.error(t);
         toast.error("Erro ao atualizar quantidade do produto.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("Erro ao atualizar quantidade do produto.");
     }
   }

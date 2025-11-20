@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { useUsuarioStore } from './context/UsuarioContext.js'
 import { toast } from 'sonner'
+import { useEffect } from 'react'
 
 type Inputs = {
   email: string
@@ -17,12 +18,20 @@ export default function Login() {
 
   const navigate = useNavigate()
 
+  useEffect(() => {
+    const check = () => {
+      const token = localStorage.getItem("usuarioKey")
+      if (token) navigate("/")
+    }
+    setTimeout(check, 0)
+  }, [navigate])
+
   async function fazerLogin(data: Inputs) {
     const response = await fetch(`${apiUrl}/login`, {
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-        body: JSON.stringify({ email: data.email, senha: data.senha })
-      })
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify({ email: data.email, senha: data.senha })
+    })
 
     if (response.status == 200) {
       const dados = await response.json()
@@ -50,9 +59,6 @@ export default function Login() {
       </div>
 
       <div className='min-w-[55vw] min-h-[100vh] flex items-center justify-center relative'>
-        {/* <Link to={"/"} className='absolute text-center top-12 right-[6rem] w-[11.62rem] px-8 py-3 bg-[#E8F5EA] text-[#407B6A] font-roboto text-[1.125rem] font-medium rounded-[4.3125rem] hover:bg-[#C8E6C9] transition-colors'>
-          Voltar
-        </Link> */}
         <div>
           <div className='w-[27.5rem] h-[29.43rem] flex flex-col gap-3'>
             <div className='flex flex-col'>

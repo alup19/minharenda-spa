@@ -59,7 +59,6 @@ export default function Receitas() {
       const data = await responseReceitas.json();
       setReceitas(Array.isArray(data) ? data : data.receitas ?? []);
     } catch (error) {
-      console.error(error);
       toast.error("Não foi possível carregar receitas.");
     }
   }
@@ -72,7 +71,6 @@ export default function Receitas() {
       const data = await responseClientes.json();
       setClientes(Array.isArray(data) ? data : data.clientes ?? []);
     } catch (error) {
-      console.error(error);
       toast.error("Não foi possível carregar clientes.");
     }
   }
@@ -85,7 +83,6 @@ export default function Receitas() {
       const data = await responseProdutos.json();
       setProdutos(Array.isArray(data) ? data : data.produtos ?? []);
     } catch (error) {
-      console.error(error);
       toast.error("Não foi possível carregar produtos do estoque.");
     }
   }
@@ -130,7 +127,6 @@ export default function Receitas() {
         toast.error("Erro ao criar receita.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("Erro ao criar receita.");
     }
   }
@@ -231,7 +227,7 @@ export default function Receitas() {
             }),
           });
         } catch (error) {
-          console.error("Erro ao baixar estoque do produto", item.produtoId, error);
+          toast.error("Erro ao baixar estoque do produto");
         }
       }
 
@@ -241,7 +237,6 @@ export default function Receitas() {
       setItensVenda([]);
       getReceitas();
     } catch (error) {
-      console.error(error);
       toast.error("Erro ao registrar a venda com itens.");
     }
   }

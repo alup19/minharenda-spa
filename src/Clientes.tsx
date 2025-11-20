@@ -58,7 +58,6 @@ export default function Clientes() {
 
       setClientes(clientesComTotais);
     } catch (error) {
-      console.error(error);
       toast.error("Não foi possível carregar clientes.");
     }
   }
@@ -97,7 +96,6 @@ export default function Clientes() {
         toast.error("Erro ao criar cliente.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("Erro ao criar cliente.");
     }
   }

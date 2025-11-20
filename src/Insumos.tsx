@@ -72,7 +72,6 @@ export default function Insumos() {
 
       setProdutos(produtosMapeados);
     } catch (error) {
-      console.error(error);
       toast.error("Não foi possível carregar os produtos do estoque.");
     }
   }
@@ -178,8 +177,7 @@ export default function Insumos() {
         });
 
         if (responseCriarProdutoFinal.status !== 201) {
-          const responseText = await responseCriarProdutoFinal.text();
-          console.error("Erro ao criar produto final:", responseText);
+          
           toast.error("Erro ao criar produto final.");
           return;
         }
@@ -187,7 +185,6 @@ export default function Insumos() {
         const produtoCriado = await responseCriarProdutoFinal.json();
         produtoFinalId = produtoCriado.id;
       } catch (error) {
-        console.error(error);
         toast.error("Erro ao criar produto final no estoque.");
         return;
       }
@@ -206,7 +203,6 @@ export default function Insumos() {
         body: JSON.stringify({ saldoBase: quantidadeNovasUnidades, custoMedio: custoMedioUnitario, }),
       });
     } catch (error) {
-      console.error(error);
       toast.error("Erro ao atualizar o estoque do produto final.");
       return;
     }
@@ -236,7 +232,6 @@ export default function Insumos() {
       setOpenModalProdutoFinal(false);
       setNomeProdutoFinal("");
     } catch (error) {
-      console.error(error);
       toast.error("Erro ao dar baixa nos insumos.");
     }
   }

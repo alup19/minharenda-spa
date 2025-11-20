@@ -2,7 +2,7 @@ import { toast } from 'sonner'
 import type { DespesaType } from "../utils/DespesaType";
 import { useUsuarioStore } from '../context/UsuarioContext';
 import Modal from "./Modal";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from 'react-hook-form';
 
 import {
@@ -31,29 +31,11 @@ type Inputs = {
     usuarioId: string
 }
 
-export default function DespesaItem({ despesa, despesas, setDespesas }: listaDespesaProps) {
+export default function UltimasDespesas({ despesa, despesas, setDespesas }: listaDespesaProps) {
     const { usuario } = useUsuarioStore()
     const [OpenAlterarDespesa, setOpenAlterarDespesas] = useState(false)
     const [OpenExcluirDespesa, setOpenExcluirDespesas] = useState(false)
-    const [openPreviewAnexo, setOpenPreviewAnexo] = useState(false)
-    const [imgErro, setImgErro] = useState(false)
     const { register, handleSubmit, reset, setFocus } = useForm<Inputs>()
-
-    const anexoUrl = useMemo(() => {
-        const url = (despesa as any).anexo as string | null | undefined;
-        if (!url) return null;
-        const urlTrim = url.trim();
-        return urlTrim.length > 0 ? urlTrim : null;
-    }, [despesa]);
-
-    function abrirPreview() {
-        if (!anexoUrl) {
-            toast.info("Esta despesa não possui anexo.");
-            return;
-        }
-        setImgErro(false);
-        setOpenPreviewAnexo(true);
-    }
 
     async function getDespesas() {
         const response = await fetch(`${apiUrl}/despesas/${usuario.id}`, {
@@ -64,12 +46,7 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
     }
 
     useEffect(() => {
-        if (!OpenAlterarDespesa) {
-            getDespesas()
-        }
-    }, [OpenAlterarDespesa])
-
-    useEffect(() => {
+        getDespesas()
         if (OpenAlterarDespesa) {
             setFocus("descricao")
         }
@@ -114,10 +91,10 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
         })
 
         if (response.status === 200) {
-            const despesaAtualizada  = await response.json()
+            const despesaAtualizada = await response.json()
 
             setDespesas(despesasAnteriores =>
-                despesasAnteriores.map((despesaLista: any) => (despesaLista.id === despesa.id ? { ...despesaLista, ...despesaAtualizada  } : despesaLista))
+                despesasAnteriores.map((despesaLista: any) => (despesaLista.id === despesa.id ? { ...despesaLista, ...despesaAtualizada } : despesaLista))
             )
 
             toast.success("Despesa atualizada com sucesso!")
@@ -149,38 +126,61 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
         }
     }
 
-    function dataDMA(data: string | Date | null | undefined) {
-        if (!data) return "Data inválida"
+    function formatarData(dataStr: string) {
+    const d = new Date(dataStr);
 
-        const d = new Date(data)
-        if (Number.isNaN(d.getTime())) return "Data inválida"
-
-        const dia = String(d.getDate()).padStart(2, "0")
-        const mes = String(d.getMonth() + 1).padStart(2, "0")
-        const ano = d.getFullYear()
-        return `${dia}/${mes}/${ano}`
-    }
+    return d
+      .toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "short",
+      })
+      .replace(" de ", " ");
+  }
 
     return (
         <section>
-            <div key={despesa.id} className="flex flex-col gap-[0.44rem]">
-                <div className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] flex flex-row justify-between items-center">
-                    <p className="text-[#656565] font-inter font-normal text-[1rem]">{dataDMA(despesa.data as any)}</p>
-                    <p className="text-[#303030] font-inter font-semibold">R$ {Number(despesa.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}</p>
-                    <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem]">{despesa.categoria}</p>
-                    <button type="button" onClick={abrirPreview} title={anexoUrl ? "Visualizar anexo" : "Sem anexo"} className={`inline-flex ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}><img src="/attachment.svg" alt="Anexo" /></button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger><img src="/options.svg" alt="opções" /></DropdownMenuTrigger>
-                        <DropdownMenuContent className="font-inter">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={abrirModalAlterar}>Alterar Dados</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setOpenExcluirDespesas(true)} className="text-[#c02424]">Excluir</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+            <div key={despesa.id} className="flex flex-col gap-[0.5rem]">
+                <div className="flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]">
+
+                    <div className="flex flex-row gap-[0.81rem]">
+                        <img src="/launch.svg" alt="" />
+                        <p className="text-[#656565] font-inter font-normal text-[1rem]">
+                            {formatarData(despesa.data as any)}
+                        </p>
+                    </div>
+
+                    <p className="font-inter font-semibold text-[#303030]">
+                        R$ {Number(despesa.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}
+                    </p>
+
+                    <div className="flex flex-row gap-[1.1875rem]">
+                        <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem]">
+                            {despesa.categoria}
+                        </p>
+
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <img src="/options.svg" alt="opções" />
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent className="font-inter">
+                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={abrirModalAlterar}>
+                                    Alterar Dados
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setOpenExcluirDespesas(true)}
+                                    className="text-[#c02424]"
+                                >
+                                    Excluir
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+
                 </div>
             </div>
-
             <Modal open={OpenAlterarDespesa} onClose={() => setOpenAlterarDespesas(false)}>
                 <div className="container">
                     <div className="container flex flex-col items-start">
@@ -294,17 +294,6 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                             <button onClick={excluirDespesa} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar</button>
                         </div>
                     </div>
-                </div>
-            </Modal>
-
-            <Modal open={openPreviewAnexo} onClose={() => setOpenPreviewAnexo(false)}>
-                <div className="flex flex-col items-center gap-3">
-                    <h2 className="font-inter font-semibold text-[1.1rem]">Anexo da despesa</h2>
-                    {anexoUrl && !imgErro ? (
-                        <img src={anexoUrl} alt="Anexo" className="max-h-[60vh] max-w-full rounded-lg" onError={() => setImgErro(true)}/>
-                    ) : (
-                        <p className="text-sm text-[#4A4B51]">Não foi possível carregar a imagem.</p>
-                    )}
                 </div>
             </Modal>
         </section>

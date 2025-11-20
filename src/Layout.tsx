@@ -13,7 +13,6 @@ export default function Layout() {
     if (Object.keys(usuario).length === 0) {
       navigate("/login", { replace: true })
     }
-    console.log(location.pathname)
     if (localStorage.getItem("usuarioKey")) {
       navigate(location.pathname)
     }
