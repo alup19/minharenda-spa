@@ -28,8 +28,10 @@ export default function Dashboard() {
     }
 
     useEffect(() => {
-        getDadosDashBoard();
-    }, [usuario.id]);
+        if (usuario?.id) {
+            getDadosDashBoard();
+        }
+    }, [usuario?.id]);
 
     function formatarNome(nomeCompleto: string) {
         if (!nomeCompleto) return ''

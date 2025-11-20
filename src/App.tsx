@@ -45,42 +45,33 @@ export default function App() {
   }
 
   async function getDespesas() {
-  try {
-    const resp = await fetch(`${apiUrl}/despesas/dashboard/${usuario.id}`, {
-      headers: { Authorization: `Bearer ${usuario.token}` },
-    });
+    try {
+      const resp = await fetch(`${apiUrl}/despesas/dashboard/${usuario.id}`, {
+        headers: { Authorization: `Bearer ${usuario.token}` },
+      });
 
-    const data = await resp.json();
-    setDespesas(Array.isArray(data) ? data : data.despesas ?? []);
-  } catch (error) {
-    toast.error("Não foi possível carregar despesas.");
+      const data = await resp.json();
+      setDespesas(Array.isArray(data) ? data : data.despesas ?? []);
+    } catch (error) {
+      toast.error("Não foi possível carregar despesas.");
+    }
   }
-}
 
   useEffect(() => {
-    getReceitas();
-    getClientes();
-    getDespesas();
-  }, []);
+    if (usuario?.id) {
+      getReceitas();
+      getClientes();
+      getDespesas();
+    }
+  }, [usuario]);
 
-  const listaReceitas = receitas.map((receita: any) => (
-    <UltimasReceitas
-      key={receita.id}
-      receita={receita}
-      receitas={receitas}
-      setReceitas={setReceitas}
-      clientes={clientes}
-    />
-  ));
+  const listaReceitas = receitas.length > 0 ? receitas.map((receita) => (
+  <UltimasReceitas key={receita.id} receita={receita} receitas={receitas} setReceitas={setReceitas} clientes={clientes} />
+)) : <p>Não há receitas para exibir.</p>;
 
-  const listaDespesas = despesas.map((despesa: any) => (
-    <UltimasDespesas
-      key={despesa.id}
-      despesa={despesa}
-      despesas={despesas}
-      setDespesas={setDespesas}
-    />
-  ));
+  const listaDespesas = despesas.length > 0 ? despesas.map((despesa) => (
+  <UltimasDespesas key={despesa.id} despesa={despesa} despesas={despesas} setDespesas={setDespesas} />
+)) : <p>Não há despesas para exibir.</p>;
 
   return (
     <>

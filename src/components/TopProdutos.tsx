@@ -25,8 +25,10 @@ export default function TopProdutos() {
     }
 
     useEffect(() => {
-        getTopProdutos();
-    }, [usuario.id]);
+        if (usuario?.id) {
+            getTopProdutos();
+        }
+    }, [usuario?.id]);
 
     return (
         <section className='flex flex-col py-[1.4375rem] px-[1.3875rem] bg-[#F5F5F5] rounded-[1.275rem] gap-[1rem]'>
