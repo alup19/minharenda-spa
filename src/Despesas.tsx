@@ -8,6 +8,32 @@ import DespesaItem from "./components/DespesaItem.js";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+const CATEGORIAS_DESPESA = [
+  "Não definido",
+  "Alimentação",
+  "Assinaturas e serviços",
+  "Bares e restaurantes",
+  "Casas",
+  "Compras",
+  "Cuidados pessoais",
+  "Dívidas e empréstimos",
+  "Educação",
+  "Família e filhos",
+  "Impostos e Taxas",
+  "Investimentos",
+  "Lazer e hobbies",
+  "Mercado",
+  "Outros",
+  "Pets",
+  "Presentes e doações",
+  "Roupas",
+  "Saúde",
+  "Trabalho",
+  "Transporte",
+  "Viagem",
+] as const;
+
+
 type Inputs = {
   descricao: string;
   valor: number;
@@ -21,6 +47,8 @@ export default function Despesas() {
   const { usuario } = useUsuarioStore();
   const [openAdicionarDespesas, setOpenAdicionarDespesas] = useState(false);
   const [despesas, setDespesas] = useState<any[]>([]);
+
+  const [filtroCategoria, setFiltroCategoria] = useState<string>("");
 
   const { register, handleSubmit, reset } = useForm<Inputs>({
     defaultValues: {
@@ -48,12 +76,19 @@ export default function Despesas() {
 
   async function incluirDespesa(data: Inputs) {
     const dataISO =
-      typeof data.data === "string" ? data.data : new Date(data.data).toISOString().slice(0, 10);
+      typeof data.data === "string"
+        ? data.data
+        : new Date(data.data).toISOString().slice(0, 10);
+
+    const categoriaNormalizada =
+      !data.categoria || data.categoria.trim() === ""
+        ? "Não definido"
+        : data.categoria;
 
     const payloadDespesa: Inputs = {
       descricao: data.descricao,
       valor: Number(data.valor),
-      categoria: data.categoria,
+      categoria: categoriaNormalizada,
       anexo: data.anexo,
       data: dataISO,
       usuarioId: usuario.id,
@@ -63,14 +98,17 @@ export default function Despesas() {
       const resp = await fetch(`${apiUrl}/despesas`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", Authorization: `Bearer ${usuario.token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${usuario.token}`,
         },
         body: JSON.stringify(payloadDespesa),
       });
 
       if (resp.status === 201) {
         toast.success("Despesa criada com sucesso!");
-        reset();
+        reset({
+          data: new Date().toISOString().slice(0, 10),
+        });
         setOpenAdicionarDespesas(false);
         getDespesas();
       } else {
@@ -81,8 +119,14 @@ export default function Despesas() {
     }
   }
 
-  const listaDespesas = despesas.length > 0
-    ? despesas.map((despesa: any) => (
+
+  const despesasFiltradas =
+    filtroCategoria && filtroCategoria.length > 0
+      ? despesas.filter((despesa: any) => despesa.categoria === filtroCategoria)
+      : despesas;
+
+  const listaDespesas = despesasFiltradas.length > 0
+    ? despesasFiltradas.map((despesa: any) => (
       <DespesaItem
         key={despesa.id}
         despesa={despesa}
@@ -91,6 +135,7 @@ export default function Despesas() {
       />
     ))
     : <p>Não há despesas para exibir.</p>;
+
 
   return (
     <>
@@ -118,17 +163,29 @@ export default function Despesas() {
                   <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">
                     CATEGORIA
                   </label>
-                  <input type="text" placeholder="Selecionar Categoria" className="border-2 border-[#4A4B51] rounded-xl font-inter pl-5 w-[14.6875rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-[#F5F5F5] outline-none focus:border-[#407B6A] transition-colors" id="filtro_categoria" />
+                  <select
+                    id="filtro_categoria"
+                    value={filtroCategoria}
+                    onChange={(event) => setFiltroCategoria(event.target.value)}
+                    className="border-2 border-[#4A4B51] rounded-xl font-inter pl-5 pr-8 w-[14.6875rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-[#F5F5F5] outline-none focus:border-[#407B6A] transition-colors"
+                  >
+                    <option value="">Todas</option>
+                    {CATEGORIAS_DESPESA.map((categoria) => (
+                      <option key={categoria} value={categoria}>
+                        {categoria}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-row justify-between font-inter text-[1rem] font-normal mt-4">
-              <h2>Data da Despesa</h2>
-              <h2 className="relative right-2">Valor</h2>
-              <h2 className="relative left-10">Categoria</h2>
-              <h2 className="relative left-[3.5rem]">Anexo</h2>
-              <h2>Opções</h2>
+            <div className="grid grid-cols-5 font-inter text-[1rem] font-normal mt-4 px-[1.06rem]">
+              <h2 className="text-start">Data da Despesa</h2>
+              <h2 className="text-center">Valor</h2>
+              <h2 className="text-center">Categoria</h2>
+              <h2 className="text-center">Anexo</h2>
+              <h2 className="text-center">Opções</h2>
             </div>
 
             {listaDespesas}
@@ -182,8 +239,18 @@ export default function Despesas() {
                     <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                       CATEGORIA
                     </label>
-                    <input type="text" placeholder="Operacional, Impostos, Serviços..." className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" {...register("categoria")}
-                    />
+                    <select
+                      className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
+                      defaultValue=""
+                      {...register("categoria")}
+                    >
+                      <option value="">Selecionar categoria</option>
+                      {CATEGORIAS_DESPESA.map((categoria) => (
+                        <option key={categoria} value={categoria}>
+                          {categoria}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="relative w-full">

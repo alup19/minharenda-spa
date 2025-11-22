@@ -180,13 +180,13 @@ export default function Clientes() {
               </div>
             </div>
 
-            <div className='flex flex-row justify-between font-inter text-[1rem] font-normal mt-4'>
+            <div className="grid grid-cols-6 font-inter text-[1rem] font-normal mt-4 px-[1.06rem]">
               <h2>Nome</h2>
-              <h2 className='relative left-[6.8rem]'>Total Gasto</h2>
-              <h2 className='relative left-[5.6rem]'>Nº de Compras</h2>
-              <h2 className='relative left-[5.7rem]'>Notas</h2>
-              <h2 className='relative left-[2.5rem]'>Vendas Vinc.</h2>
-              <h2 className=''>Opções</h2>
+              <h2 className='text-center'>Total Gasto</h2>
+              <h2 className='text-center'>Nº de Compras</h2>
+              <h2 className='text-center'>Notas</h2>
+              <h2 className='text-center'>Vendas Vinc.</h2>
+              <h2 className='text-center'>Opções</h2>
             </div>
 
             {listaClientes}

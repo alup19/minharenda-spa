@@ -41,6 +41,10 @@ export default function Dashboard() {
         return `${primeiroNome}`
     }
 
+    const lucroBruto = dashboards.lucroLiquido ?? 0
+    const lucroNegativo = lucroBruto < 0
+    const lucroAbsoluto = Math.abs(lucroBruto)
+
     return (
         <section className="bg-[#F5F5F5] rounded-[1.25rem] w-[83vw] flex items-center justify-between px-20 py-[2.3125rem]">
             <div className='flex flex-col items-start gap-3'>
@@ -48,21 +52,27 @@ export default function Dashboard() {
                 <div className="flex items-stretch font-inter text-[1rem]">
                     <div className="flex flex-col items-center justify-center pr-[1.06rem]">
                         <h2 className="text-[#4A4B51] font-semibold">Receita Total</h2>
-                        <h3 className="text-[#407B6A] font-medium text-[1.3rem]">{dashboards.totalReceitas?.toLocaleString("pt-br", { minimumFractionDigits: 2 })}</h3>
+                        <h3 className="text-[#407B6A] font-medium text-[1.3rem]">
+                            R${dashboards.totalReceitas?.toLocaleString("pt-br", { minimumFractionDigits: 2 })}
+                        </h3>
                     </div>
 
                     <div className="w-[0.1rem] rounded-[0.9375rem] bg-[#B7BBC7] mx-[1.06rem]" />
 
                     <div className="flex flex-col items-center justify-center px-[1.06rem]">
                         <h2 className="text-[#4A4B51] font-semibold">Despesas Totais</h2>
-                        <h3 className="text-[#CA3030] font-medium text-[1.3rem]">{dashboards.totalDespesas?.toLocaleString("pt-br", { minimumFractionDigits: 2 })}</h3>
+                        <h3 className="text-[#CA3030] font-medium text-[1.3rem]">
+                            R${dashboards.totalDespesas?.toLocaleString("pt-br", { minimumFractionDigits: 2 })}
+                        </h3>
                     </div>
 
                     <div className="w-[0.1rem] rounded-[0.9375rem] bg-[#B7BBC7] mx-[1.06rem]" />
 
                     <div className="flex flex-col items-center justify-center px-[1.06rem]">
                         <h2 className="text-[#4A4B51] font-semibold">Lucro Líquido</h2>
-                        <h3 className="text-[#407B6A] font-medium text-[1.3rem]">{dashboards.lucroLiquido?.toLocaleString("pt-br", { minimumFractionDigits: 2 })}</h3>
+                        <h3 className={`font-medium text-[1.3rem] ${lucroNegativo ? "text-[#CA3030]" : "text-[#407B6A]"}`}>
+                            R${lucroAbsoluto.toLocaleString("pt-br", { minimumFractionDigits: 2 })}
+                        </h3>
                     </div>
 
                 </div>

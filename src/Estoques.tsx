@@ -304,13 +304,13 @@ export default function Estoque() {
               </div>
             </div>
 
-            <div className="flex flex-row justify-between font-inter text-[1rem] font-normal mt-4">
+            <div className="grid grid-cols-6 font-inter text-[1rem] font-normal mt-4 px-[1.06rem]">
               <h2>Nome</h2>
-              <h2 className="relative left-[1.8rem]">Quantidade</h2>
-              <h2 className="relative left-[2.4rem]">Preço Médio</h2>
-              <h2 className="relative left-[3.5rem]">Categoria</h2>
-              <h2 className="relative left-[3.3rem]">Anexo</h2>
-              <h2>Opções</h2>
+              <h2 className="text-center">Quantidade</h2>
+              <h2 className="text-center">Preço Médio</h2>
+              <h2 className="text-center">Categoria</h2>
+              <h2 className="text-center">Anexo</h2>
+              <h2 className="text-center">Opções</h2>
             </div>
 
             {listaProdutos}

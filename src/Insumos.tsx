@@ -241,21 +241,42 @@ export default function Insumos() {
       <Titulo />
 
       <section className="mt-[3rem] mb-[2rem] flex flex-row justify-center gap-[3rem]">
-        <div className="w-[30rem] flex flex-col gap-[1.44rem]">
+        <div className="w-[45rem] flex flex-col gap-[1.44rem]">
           <div className="flex flex-row items-center gap-[0.7rem]">
             <img src="/tabela.svg" className="w-[2rem] h-[2rem]" alt="" />
             <h2 className="text-[2rem] font-inter font-semibold">Estoque</h2>
           </div>
 
           <div className="bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[0.75rem]">
-            {produtos.map((produto) => (
-              <div key={produto.id} className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] flex flex-row justify-between items-center">
-                <p className="text-[#656565] font-inter text-[1rem]">{produto.nome}</p>
-                <p className="text-[#303030] font-inter font-semibold">{produto.saldoDisplay} {produto.unidadeDisplay}</p>
-                <p className="text-[#656565] font-inter">R$ {produto.precoMedioDisplay.toFixed(2)}/{produto.unidadeDisplay}</p>
-                <button className="bg-[#F6DDA6] rounded-[0.46875rem] px-[1.06rem] py-[0.10rem] text-[#705519] font-inter text-[0.975rem] font-medium">-</button>
-              </div>
-            ))}
+            {produtos.map((produto) => {
+              const categoriaBadge =
+                produto.categoria && produto.categoria.trim() !== ""
+                  ? produto.categoria.replaceAll("_", " ")
+                  : "SEM CATEGORIA";
+
+              return (
+                <div
+                  key={produto.id}
+                  className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] grid grid-cols-4 items-center gap-2"
+                >
+                  <p className="text-[#656565] font-inter text-[1rem]">
+                    {produto.nome}
+                  </p>
+
+                  <p className="text-[#303030] font-inter font-semibold text-center">
+                    {produto.saldoDisplay} {produto.unidadeDisplay}
+                  </p>
+
+                  <p className="text-[#656565] font-inter text-center">
+                    R$ {produto.precoMedioDisplay.toFixed(2)}/{produto.unidadeDisplay}
+                  </p>
+
+                  <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem] text-center">
+                    {categoriaBadge}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -1,9 +1,9 @@
-import { toast } from 'sonner'
+import { toast } from "sonner";
 import type { DespesaType } from "../utils/DespesaType";
-import { useUsuarioStore } from '../context/UsuarioContext';
+import { useUsuarioStore } from "../context/UsuarioContext";
 import Modal from "./Modal";
-import { useEffect, useState, useMemo } from "react";
-import { useForm } from 'react-hook-form';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 import {
     DropdownMenu,
@@ -12,176 +12,231 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+} from "./ui/dropdown-menu";
 
-interface listaDespesaProps {
-    despesa: DespesaType;
+const apiUrl = import.meta.env.VITE_API_URL;
+
+const CATEGORIAS_DESPESA = [
+    "Não definido",
+    "Alimentação",
+    "Assinaturas e serviços",
+    "Bares e restaurantes",
+    "Casas",
+    "Compras",
+    "Cuidados pessoais",
+    "Dívidas e empréstimos",
+    "Educação",
+    "Família e filhos",
+    "Impostos e Taxas",
+    "Investimentos",
+    "Lazer e hobbies",
+    "Mercado",
+    "Outros",
+    "Pets",
+    "Presentes e doações",
+    "Roupas",
+    "Saúde",
+    "Trabalho",
+    "Transporte",
+    "Viagem",
+] as const;
+
+interface ListaDespesaProps {
+    despesa: DespesaType & {
+        anexo?: string | null;
+    };
     despesas: DespesaType[];
     setDespesas: React.Dispatch<React.SetStateAction<DespesaType[]>>;
 }
 
-const apiUrl = import.meta.env.VITE_API_URL
-
 type Inputs = {
-    descricao: string
-    valor: number
-    categoria: string
-    anexo?: string
-    data: string | Date
-    usuarioId: string
+    descricao: string;
+    valor: number;
+    data: string;
+    categoria: string;
+    anexo?: string;
+};
+
+function dataDMA(data: string | Date | null | undefined) {
+    if (!data) return "Data inválida";
+    const d = new Date(data);
+    if (Number.isNaN(d.getTime())) return "Data inválida";
+    const dia = String(d.getDate()).padStart(2, "0");
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const ano = d.getFullYear();
+    return `${dia}/${mes}/${ano}`;
 }
 
-export default function DespesaItem({ despesa, despesas, setDespesas }: listaDespesaProps) {
-    const { usuario } = useUsuarioStore()
-    const [OpenAlterarDespesa, setOpenAlterarDespesas] = useState(false)
-    const [OpenExcluirDespesa, setOpenExcluirDespesas] = useState(false)
-    const [openPreviewAnexo, setOpenPreviewAnexo] = useState(false)
-    const [imgErro, setImgErro] = useState(false)
-    const { register, handleSubmit, reset, setFocus } = useForm<Inputs>()
+export default function DespesaItem({
+    despesa,
+    despesas,
+    setDespesas,
+}: ListaDespesaProps) {
+    const { usuario } = useUsuarioStore();
 
-    const anexoUrl = useMemo(() => {
-        const url = (despesa as any).anexo as string | null | undefined;
-        if (!url) return null;
-        const urlTrim = url.trim();
-        return urlTrim.length > 0 ? urlTrim : null;
-    }, [despesa]);
+    const [openAlterarDespesa, setOpenAlterarDespesa] = useState(false);
+    const [openExcluirDespesa, setOpenExcluirDespesa] = useState(false);
+    const [openPreviewAnexo, setOpenPreviewAnexo] = useState(false);
+    const [anexoUrl, setAnexoUrl] = useState<string | null>(null);
+    const [imgErro, setImgErro] = useState(false);
 
-    function abrirPreview() {
-        if (!anexoUrl) {
-            toast.info("Esta despesa não possui anexo.");
+    const { register, handleSubmit, reset } = useForm<Inputs>();
+
+    function abrirModalAlterar() {
+        const dataRef: any = (despesa as any).data ?? (despesa as any).createdAt;
+        const iso = dataRef
+            ? new Date(dataRef).toISOString().slice(0, 10)
+            : new Date().toISOString().slice(0, 10);
+
+        reset({
+            descricao: (despesa as any).descricao ?? "",
+            valor: Number((despesa as any).valor ?? 0),
+            data: iso,
+            categoria: (despesa as any).categoria ?? "Não definido",
+            anexo: (despesa as any).anexo ?? "",
+        });
+
+        setOpenAlterarDespesa(true);
+    }
+
+    function abrirPreviewAnexo() {
+        const url = (despesa as any).anexo as string | undefined;
+        if (!url) {
+            toast.error("Esta despesa não possui anexo.");
             return;
         }
         setImgErro(false);
+        setAnexoUrl(url);
         setOpenPreviewAnexo(true);
     }
 
-    async function getDespesas() {
-        const response = await fetch(`${apiUrl}/despesas/${usuario.id}`, {
-            headers: { Authorization: `Bearer ${usuario.token}` },
-        })
-        const dados = await response.json()
-        setDespesas(Array.isArray(dados) ? dados : dados.despesas ?? [])
-    }
-
-    useEffect(() => {
-        if (!OpenAlterarDespesa) {
-            getDespesas()
-        }
-    }, [OpenAlterarDespesa])
-
-    useEffect(() => {
-        if (OpenAlterarDespesa) {
-            setFocus("descricao")
-        }
-    }, [OpenAlterarDespesa, setFocus])
-
-    function abrirModalAlterar() {
-        const d = despesa.data ? new Date(despesa.data as any) : new Date()
-        const iso = d.toISOString().slice(0, 10)
-
-        reset({
-            descricao: despesa.descricao ?? "",
-            valor: Number(despesa.valor ?? 0),
-            categoria: despesa.categoria ?? "",
-            anexo: (despesa as any).anexo ?? "",
-            data: iso,
-            usuarioId: usuario.id,
-        })
-
-        setOpenAlterarDespesas(true)
-    }
-
     async function atualizarDespesa(data: Inputs) {
-        const dataISO =
-            typeof data.data === "string" ? data.data : new Date(data.data).toISOString().slice(0, 10)
+        if (!usuario) return;
 
-        const payloadAtualizado: Inputs = {
+        const categoriaNormalizada =
+            !data.categoria || data.categoria.trim() === ""
+                ? "Não definido"
+                : data.categoria;
+
+        const payloadAtualizado = {
             descricao: data.descricao,
             valor: Number(data.valor),
-            categoria: data.categoria,
+            categoria: categoriaNormalizada,
             anexo: data.anexo || undefined,
-            data: dataISO,
+            data: data.data,
             usuarioId: usuario.id,
-        }
+        };
 
         const response = await fetch(`${apiUrl}/despesas/${despesa.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${usuario.token}`
+                Authorization: `Bearer ${usuario.token}`,
             },
-            body: JSON.stringify(payloadAtualizado)
-        })
+            body: JSON.stringify(payloadAtualizado),
+        });
 
         if (response.status === 200) {
-            const despesaAtualizada  = await response.json()
+            const despesaAtualizada = await response.json();
 
-            setDespesas(despesasAnteriores =>
-                despesasAnteriores.map((despesaLista: any) => (despesaLista.id === despesa.id ? { ...despesaLista, ...despesaAtualizada  } : despesaLista))
-            )
+            setDespesas((despesasAnteriores) =>
+                despesasAnteriores.map((despesaLista: any) =>
+                    despesaLista.id === despesa.id
+                        ? { ...despesaLista, ...despesaAtualizada }
+                        : despesaLista
+                )
+            );
 
-            toast.success("Despesa atualizada com sucesso!")
-            reset()
-            setOpenAlterarDespesas(false)
+            toast.success("Despesa atualizada com sucesso!");
+            reset();
+            setOpenAlterarDespesa(false);
         } else {
-            toast.error("Erro... Não foi possível atualizar esta Despesa")
+            toast.error("Erro... Não foi possível atualizar esta despesa");
         }
     }
 
     async function excluirDespesa() {
-        const response = await fetch(`${apiUrl}/despesas/${despesa.id}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${usuario.token}`
-                },
+        if (!usuario) return;
+
+        const response = await fetch(`${apiUrl}/despesas/${despesa.id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${usuario.token}`,
             },
-        )
-        if (response.status === 200) {
-            const despesasRestantes = despesas.filter(despesaLista => despesaLista.id !== despesa.id)
-            setDespesas(despesasRestantes)
-            setOpenExcluirDespesas(false)
-            toast.success("Despesa excluída com sucesso")
+        });
+
+        if (response.ok) {
+            const despesas2 = despesas.filter((x) => x.id !== despesa.id);
+            setDespesas(despesas2);
+            setOpenExcluirDespesa(false);
+            toast.success("Despesa excluída com sucesso");
         } else {
-            setOpenExcluirDespesas(false)
-            toast.error("Erro... Despesa não foi excluída")
+            setOpenExcluirDespesa(false);
+            toast.error("Erro... Despesa não foi excluída");
         }
     }
 
-    function dataDMA(data: string | Date | null | undefined) {
-        if (!data) return "Data inválida"
-
-        const d = new Date(data)
-        if (Number.isNaN(d.getTime())) return "Data inválida"
-
-        const dia = String(d.getDate()).padStart(2, "0")
-        const mes = String(d.getMonth() + 1).padStart(2, "0")
-        const ano = d.getFullYear()
-        return `${dia}/${mes}/${ano}`
-    }
+    const dataRef: any = (despesa as any).data ?? (despesa as any).createdAt;
+    const valorNumero = Number((despesa as any).valor ?? 0);
+    const categoria =
+        (despesa as any).categoria && (despesa as any).categoria.trim() !== ""
+            ? (despesa as any).categoria
+            : "Não definido";
 
     return (
         <section>
-            <div key={despesa.id} className="flex flex-col gap-[0.44rem]">
-                <div className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] flex flex-row justify-between items-center">
-                    <p className="text-[#656565] font-inter font-normal text-[1rem]">{dataDMA(despesa.data as any)}</p>
-                    <p className="text-[#303030] font-inter font-semibold">R$ {Number(despesa.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}</p>
-                    <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem]">{despesa.categoria}</p>
-                    <button type="button" onClick={abrirPreview} title={anexoUrl ? "Visualizar anexo" : "Sem anexo"} className={`inline-flex ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}><img src="/attachment.svg" alt="Anexo" /></button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger><img src="/options.svg" alt="opções" /></DropdownMenuTrigger>
-                        <DropdownMenuContent className="font-inter">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={abrirModalAlterar}>Alterar Dados</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setOpenExcluirDespesas(true)} className="text-[#c02424]">Excluir</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+            <div className="flex flex-col gap-[0.44rem]">
+                <div className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] grid grid-cols-5 items-center gap-2">
+                    <p className="text-[#656565] font-inter font-normal text-[1rem]">
+                        {dataDMA(dataRef)}
+                    </p>
+
+                    <p className="text-[#303030] font-inter font-semibold text-center">
+                        R${" "}
+                        {valorNumero.toLocaleString("pt-br", {
+                            minimumFractionDigits: 2,
+                        })}
+                    </p>
+
+                    <p className="text-[#705519] font-inter text-center text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem]">
+                        {categoria}
+                    </p>
+
+                    <button type="button" onClick={abrirPreviewAnexo} title={anexoUrl ? "Visualizar anexo" : "Sem anexo"} className={`flex items-center justify-center  ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}><img src="/attachment.svg" alt="Anexo" /></button>
+
+
+                    {/* Opções */}
+                    <div className="flex items-center justify-center">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button type="button">
+                                    <img src="/options.svg" alt="Opções" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="font-inter">
+                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={abrirModalAlterar}>
+                                    Alterar Dados
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => setOpenExcluirDespesa(true)}
+                                    className="text-[#c02424]"
+                                >
+                                    Excluir
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </div>
 
-            <Modal open={OpenAlterarDespesa} onClose={() => setOpenAlterarDespesas(false)}>
+            {/* Modal Alterar */}
+            <Modal
+                open={openAlterarDespesa}
+                onClose={() => setOpenAlterarDespesa(false)}
+            >
                 <div className="container">
                     <div className="container flex flex-col items-start">
                         <div className="flex flex-row items-center gap-[0.7rem] justify-center">
@@ -192,7 +247,10 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit(atualizarDespesa)} className="container flex flex-col items-center">
+                    <form
+                        onSubmit={handleSubmit(atualizarDespesa)}
+                        className="container flex flex-col items-center"
+                    >
                         <div className="flex flex-col items-center my-8 gap-8 w-[35rem]">
                             <div className="relative w-full">
                                 <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
@@ -200,10 +258,11 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="Ex.: Luz, aluguel, frete, marketing..."
+                                    placeholder="Ex: Aluguel, Conta de luz, Compra de material..."
                                     className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
-                                    required
+                                    id="descricao"
                                     {...register("descricao")}
+                                    required
                                 />
                             </div>
 
@@ -215,12 +274,11 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                                         </label>
                                         <input
                                             type="number"
-                                            step="0.01"
-                                            inputMode="decimal"
                                             placeholder="R$ 0,00"
                                             className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
-                                            required
+                                            id="valor"
                                             {...register("valor", { valueAsNumber: true })}
+                                            required
                                         />
                                     </div>
 
@@ -231,7 +289,9 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                                         <input
                                             type="date"
                                             className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
+                                            id="data"
                                             {...register("data")}
+                                            required
                                         />
                                     </div>
                                 </div>
@@ -241,23 +301,29 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                                         <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                                             CATEGORIA
                                         </label>
-                                        <input
-                                            type="text"
-                                            placeholder="Operacional, Impostos, Serviços..."
-                                            className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
+                                        <select
+                                            className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
+                                            id="categoria"
                                             {...register("categoria")}
-                                        />
+                                        >
+                                            {CATEGORIAS_DESPESA.map((categoria) => (
+                                                <option key={categoria} value={categoria}>
+                                                    {categoria}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
 
                                     <div className="relative w-full">
                                         <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
-                                            ANEXO
+                                            ANEXO (URL)
                                         </label>
                                         <input
-                                            type="url"
-                                            placeholder="Link / upload"
-                                            {...register("anexo")}
+                                            type="text"
+                                            placeholder="https://..."
                                             className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
+                                            id="anexo"
+                                            {...register("anexo")}
                                         />
                                     </div>
                                 </div>
@@ -265,48 +331,90 @@ export default function DespesaItem({ despesa, despesas, setDespesas }: listaDes
                         </div>
 
                         <div className="flex gap-4">
-                            <button type="button" onClick={() => setOpenAlterarDespesas(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">Cancelar
+                            <button
+                                type="button"
+                                onClick={() => setOpenAlterarDespesa(false)}
+                                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
+                            >
+                                Cancelar
                             </button>
-                            <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar
-                            </button>
+                            <input
+                                type="submit"
+                                value="Confirmar"
+                                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
+                            />
                         </div>
                     </form>
                 </div>
             </Modal>
 
-            <Modal open={OpenExcluirDespesa} onClose={() => setOpenExcluirDespesas(false)}>
+            {/* Modal Excluir */}
+            <Modal
+                open={openExcluirDespesa}
+                onClose={() => setOpenExcluirDespesa(false)}
+            >
                 <div className="container">
                     <div className="container flex flex-col items-start">
                         <div className="flex flex-row items-center gap-[0.7rem] justify-center">
                             <img src="/tabela.svg" className="w-[1.5rem] h-[1.5rem]" alt="" />
-                            <h2 className="text-center text-[1.4rem] font-inter font-semibold">Excluir Despesa</h2>
+                            <h2 className="text-center text-[1.4rem] font-inter font-semibold">
+                                Excluir Despesa
+                            </h2>
                         </div>
                     </div>
 
                     <div className="container flex flex-col items-center">
                         <div className="flex flex-col items-center my-6">
-                            <p className="font-inter">Você tem certeza que deseja apagar esta despesa?</p>
-                            <p className="font-inter">Após confirmar, essa ação será irreversível.</p>
+                            <p className="font-inter">
+                                Você tem certeza que deseja apagar esta despesa?
+                            </p>
+                            <p className="font-inter">
+                                Após confirmar, essa ação será irreversível.
+                            </p>
                         </div>
 
                         <div className="flex gap-4">
-                            <button onClick={() => setOpenExcluirDespesas(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer" >Cancelar</button>
-                            <button onClick={excluirDespesa} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar</button>
+                            <button
+                                type="button"
+                                onClick={() => setOpenExcluirDespesa(false)}
+                                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={excluirDespesa}
+                                className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
+                            >
+                                Confirmar
+                            </button>
                         </div>
                     </div>
                 </div>
             </Modal>
 
-            <Modal open={openPreviewAnexo} onClose={() => setOpenPreviewAnexo(false)}>
+            {/* Modal Preview Anexo */}
+            <Modal
+                open={openPreviewAnexo}
+                onClose={() => setOpenPreviewAnexo(false)}
+            >
                 <div className="flex flex-col items-center gap-3">
-                    <h2 className="font-inter font-semibold text-[1.1rem]">Anexo da despesa</h2>
+                    <h2 className="font-inter font-semibold text-[1.1rem]">
+                        Anexo da despesa
+                    </h2>
                     {anexoUrl && !imgErro ? (
-                        <img src={anexoUrl} alt="Anexo" className="max-h-[60vh] max-w-full rounded-lg" onError={() => setImgErro(true)}/>
+                        <img
+                            src={anexoUrl}
+                            alt="Anexo"
+                            className="max-h-[60vh] max-w-full rounded-lg"
+                            onError={() => setImgErro(true)}
+                        />
                     ) : (
-                        <p className="text-sm text-[#4A4B51]">Não foi possível carregar a imagem.</p>
+                        <p className="text-sm text-[#4A4B51]">
+                            Não foi possível carregar a imagem.
+                        </p>
                     )}
                 </div>
             </Modal>
         </section>
-    )
+    );
 }
