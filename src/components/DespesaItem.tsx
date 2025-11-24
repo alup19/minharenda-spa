@@ -41,6 +41,8 @@ const CATEGORIAS_DESPESA = [
     "Viagem",
 ] as const;
 
+
+
 interface ListaDespesaProps {
     despesa: DespesaType & {
         anexo?: string | null;
@@ -184,6 +186,8 @@ export default function DespesaItem({
             ? (despesa as any).categoria
             : "Não definido";
 
+    const temAnexo = !!(despesa as any).anexo;
+
     return (
         <section>
             <div className="flex flex-col gap-[0.44rem]">
@@ -203,7 +207,9 @@ export default function DespesaItem({
                         {categoria}
                     </p>
 
-                    <button type="button" onClick={abrirPreviewAnexo} title={anexoUrl ? "Visualizar anexo" : "Sem anexo"} className={`flex items-center justify-center  ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}><img src="/attachment.svg" alt="Anexo" /></button>
+                    <button type="button" onClick={abrirPreviewAnexo} title={temAnexo ? "Visualizar anexo" : "Sem anexo"} className={`flex items-center justify-center ${temAnexo ? "" : "opacity-40 cursor-not-allowed"}`}>
+                        <img src="/attachment.svg" alt="Anexo" />
+                    </button>
 
 
                     {/* Opções */}

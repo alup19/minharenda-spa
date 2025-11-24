@@ -38,7 +38,7 @@ export default function Receitas() {
   const { register, handleSubmit, reset, setValue, getValues } = useForm<Inputs>({
     defaultValues: {
       data: new Date().toISOString().slice(0, 10),
-      categoria: "Venda",
+      categoria: "Vendas",
     },
   });
 
