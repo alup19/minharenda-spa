@@ -140,10 +140,10 @@ export default function UltimasDespesas({ despesa, despesas, setDespesas }: list
     return (
         <section>
             <div key={despesa.id} className="flex flex-col gap-[0.5rem]">
-                <div className="flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]">
+                <div className="flex items-center justify-between bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]">
 
                     <div className="flex flex-row gap-[0.81rem]">
-                        <img src="/launch.svg" alt="" />
+                        <img className='rotate-180' src="/launch.svg" alt="" />
                         <p className="text-[#656565] font-inter font-normal text-[1rem]">
                             {formatarData(despesa.data as any)}
                         </p>
@@ -157,26 +157,6 @@ export default function UltimasDespesas({ despesa, despesas, setDespesas }: list
                         <p className="text-[#705519] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#F6DDA6] rounded-[0.46875rem]">
                             {despesa.categoria}
                         </p>
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger>
-                                <img src="/options.svg" alt="opções" />
-                            </DropdownMenuTrigger>
-
-                            <DropdownMenuContent className="font-inter">
-                                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={abrirModalAlterar}>
-                                    Alterar Dados
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => setOpenExcluirDespesas(true)}
-                                    className="text-[#c02424]"
-                                >
-                                    Excluir
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                     </div>
 
                 </div>

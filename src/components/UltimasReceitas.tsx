@@ -5,15 +5,6 @@ import Modal from "./Modal";
 import { useState } from "react";
 import { useForm } from 'react-hook-form';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
-
 interface listaReceitaProps {
   receita: ReceitaType & {
     itens?: {
@@ -43,20 +34,6 @@ export default function UltimasReceitas({ receita, receitas, setReceitas, client
   const [openItens, setOpenItens] = useState(false)
 
   const { register, handleSubmit, reset } = useForm<Inputs>()
-
-  function abrirModalAlterar() {
-    const dataRef: any = (receita as any).data ?? (receita as any).createdAt;
-    const iso = dataRef ? new Date(dataRef).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
-
-    reset({
-      descricao: receita.descricao ?? "",
-      valor: Number(receita.valor ?? 0),
-      data: iso,
-      clienteId: (receita as any).clienteId ?? receita.cliente?.id ?? undefined,
-    });
-
-    setOpenAlterarDados(true);
-  }
 
   async function atualizarReceita(data: Inputs) {
     const payload = {
@@ -129,8 +106,7 @@ export default function UltimasReceitas({ receita, receitas, setReceitas, client
   return (
     <section>
       <div key={receita.id} className="flex flex-col gap-[0.5rem]">
-        <div className="flex flex-row items-center gap-[3.75rem] bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]">
-
+        <div className="flex items-center justify-between bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]">
           <div className="flex flex-row gap-[0.81rem]">
             <img src="/launch.svg" alt="" />
             <p className="text-[#656565] font-inter font-normal text-[1rem]">
@@ -138,36 +114,17 @@ export default function UltimasReceitas({ receita, receitas, setReceitas, client
             </p>
           </div>
 
-          <p className="font-inter font-semibold text-[#303030]">
+          <p className="font-inter font-semibold text-[#303030] justify-self-center">
             R$ {Number(receita.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}
           </p>
 
-          <div className="flex flex-row gap-[1.1875rem]">
-            <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem]">
-              {(receita as any).categoria ?? "Vendas"}
-            </p>
+          <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] justify-self-center">
+            {(receita as any).categoria ?? "Vendas"}
+          </p>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <img src="/options.svg" alt="opções" />
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent className="font-inter">
-                <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={abrirModalAlterar}>
-                  Alterar Dados
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setOpenExcluirReceita(true)}
-                  className="text-[#c02424]"
-                >
-                  Excluir
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
+          <button type="button" onClick={() => setOpenItens(true)} className="flex items-center justify-self-end" title={itens.length ? "Ver itens vendidos" : "Nenhum item vinculado"}>
+            <img src="/attachment.svg" alt="Itens vendidos" />
+          </button>
         </div>
       </div>
 
@@ -272,28 +229,6 @@ export default function UltimasReceitas({ receita, receitas, setReceitas, client
               <input type="submit" value="Confirmar" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer" />
             </div>
           </form>
-        </div>
-      </Modal>
-
-      <Modal open={openExcluirReceita} onClose={() => setOpenExcluirReceita(false)}>
-        <div className="container">
-          <div className="container flex flex-col items-start">
-            <div className='flex flex-row items-center gap-[0.7rem] justify-center'>
-              <img src="/tabela.svg" className='w-[1.5rem] h-[1.5rem]' alt="" />
-              <h2 className='text-center text-[1.4rem] font-inter font-semibold'>Excluir Receita</h2>
-            </div>
-          </div>
-          <div className='container flex flex-col items-center'>
-            <div className='flex flex-col items-center my-6'>
-              <p className='font-inter'>Você tem certeza que deseja apagar esta receita?</p>
-              <p className='font-inter'>Após confirmar, essa ação será irreversível.</p>
-            </div>
-
-            <div className="flex gap-4">
-              <button onClick={() => setOpenExcluirReceita(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">Cancelar</button>
-              <button onClick={excluirReceita} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">Confirmar</button>
-            </div>
-          </div>
         </div>
       </Modal>
     </section>

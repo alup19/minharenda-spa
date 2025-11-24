@@ -67,11 +67,11 @@ export default function App() {
 
   const listaReceitas = receitas.length > 0 ? receitas.map((receita) => (
     <UltimasReceitas key={receita.id} receita={receita} receitas={receitas} setReceitas={setReceitas} clientes={clientes} />
-  )) : <p>Não há receitas para exibir.</p>;
+  )) : <p className='font-inter font-bold'>Não há receitas para exibir.</p>;
 
   const listaDespesas = despesas.length > 0 ? despesas.map((despesa) => (
     <UltimasDespesas key={despesa.id} despesa={despesa} despesas={despesas} setDespesas={setDespesas} />
-  )) : <p>Não há despesas para exibir.</p>;
+  )) : <p className='font-inter font-bold'>Não há despesas para exibir.</p>;
 
   return (
     <>
@@ -80,7 +80,7 @@ export default function App() {
         <Dashboard />
         <section className='flex flex-row justify-between w-[83vw] items-start'>
 
-          <section className='flex flex-col gap-[1rem] bg-[#F5F5F5] rounded-[1.275rem] px-[1.5625rem] py-[1.4375rem]'>
+          <section className='flex flex-col min-w-[34rem] gap-[1rem] bg-[#F5F5F5] rounded-[1.275rem] px-[1.5625rem] py-[1.4375rem]'>
             <div className='flex flex-row items-center gap-[0.75rem]'>
               <img src="/tabela.svg" alt="" className='w-[1.675rem]' />
               <h3 className='font-inter text-[1.25rem] font-semibold'>Últimas Receitas</h3>
@@ -89,7 +89,7 @@ export default function App() {
             {listaReceitas}
           </section>
 
-          <section className='flex flex-col gap-[1rem] bg-[#F5F5F5] rounded-[1.275rem] px-[1.5625rem] py-[1.4375rem]'>
+          <section className='flex flex-col min-w-[34rem] gap-[1rem] bg-[#F5F5F5] rounded-[1.275rem] px-[1.5625rem] py-[1.4375rem]'>
             <div className='flex flex-row items-center gap-[0.75rem]'>
               <img src="/tabela.svg" alt="" className='w-[1.675rem]' />
               <h3 className='font-inter text-[1.25rem] font-semibold'>Últimas Despesas</h3>

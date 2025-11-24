@@ -41,7 +41,7 @@ export default function TopClientes() {
 
                 {topClientes?.length > 0 &&
                     topClientes.map((c) => (
-                        <div key={c.id} className='flex flex-row justify-between w-[10rem]'>
+                        <div key={c.id} className='flex flex-row justify-between w-[11rem]'>
                             <p className='text-[#656565] font-inter font-normal'>
                                 {c.nome}
                             </p>
