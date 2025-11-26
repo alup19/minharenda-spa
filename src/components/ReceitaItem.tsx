@@ -155,39 +155,27 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
   return (
     <section>
       <div key={receita.id} className='flex flex-col gap-[0.44rem]'>
-        {/* LINHA PRINCIPAL EM GRID */}
         <div className='bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] grid grid-cols-6 items-center gap-2'>
-          {/* Data */}
           <p className='text-[#656565] font-inter font-normal text-[1rem]'>
             {dataDMA(dataRef)}
           </p>
 
-          {/* Valor */}
           <p className='text-[#303030] font-inter font-semibold text-center'>
             R$ {valorNumero.toLocaleString("pt-br", { minimumFractionDigits: 2 })}
           </p>
 
-          {/* Cliente */}
           <p className='text-[#656565] font-inter font-normal text-center'>
             {receita.cliente?.nome ?? "Sem cliente"}
           </p>
 
-          {/* Categoria */}
           <p className='text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem] text-center'>
             {categoria}
           </p>
 
-          {/* Itens Vendidos */}
-          <button
-            type="button"
-            onClick={() => setOpenItens(true)}
-            className="flex items-center justify-center"
-            title={itens.length ? "Ver itens vendidos" : "Nenhum item vinculado"}
-          >
+          <button type="button" onClick={() => setOpenItens(true)} className="flex items-center justify-center" title={itens.length ? "Ver itens vendidos" : "Nenhum item vinculado"}>
             <img src="/attachment.svg" alt="Itens vendidos" />
           </button>
 
-          {/* Opções */}
           <div className="flex items-center justify-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -211,7 +199,6 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
         </div>
       </div>
 
-      {/* MODAL ITENS */}
       <Modal open={openItens} onClose={() => setOpenItens(false)}>
         <div className="container">
           <div className="container flex flex-col items-start">
@@ -259,18 +246,13 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
           </div>
 
           <div className="flex justify-center mt-6">
-            <button
-              type="button"
-              onClick={() => setOpenItens(false)}
-              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-            >
+            <button type="button" onClick={() => setOpenItens(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">
               Fechar
             </button>
           </div>
         </div>
       </Modal>
 
-      {/* MODAL ALTERAR DADOS */}
       <Modal open={openAlterarDados} onClose={() => setOpenAlterarDados(false)}>
         <div className="container">
           <div className="container flex flex-col items-start">
@@ -285,13 +267,8 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
                 <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                   DESCRIÇÃO
                 </label>
-                <input
-                  type="text"
-                  placeholder='Vendi duas camisetas M do Senac'
-                  className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                  id="descricao"
-                  {...register("descricao")}
-                  required
+                <input type="text" placeholder='Vendi duas camisetas M do Senac' className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors' id="descricao"
+                  {...register("descricao")} required
                 />
               </div>
               <div className='flex flex-col gap-8'>
@@ -300,25 +277,16 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
                     <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                       VALOR
                     </label>
-                    <input
-                      type="number"
-                      placeholder='R$800,00'
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                      id="valor"
-                      {...register("valor", { valueAsNumber: true })}
-                      required
+                    <input type="number" placeholder='R$800,00' className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors' id="valor"
+                      {...register("valor", { valueAsNumber: true })} required
                     />
                   </div>
                   <div className='relative w-full'>
                     <label className='absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                       DATA
                     </label>
-                    <input
-                      type="date"
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                      id="data"
-                      {...register("data")}
-                      required
+                    <input type="date" className='w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors' id="data"
+                      {...register("data")} required
                     />
                   </div>
                 </div>
@@ -327,11 +295,7 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
                     <label className='absolute font-inter -top-2 left-4 bg:white bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                       CLIENTE
                     </label>
-                    <select
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg:white bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                      id="cliente"
-                      {...register("clienteId", { valueAsNumber: true })}
-                    >
+                    <select className='w-full border-2 border-[#4A4B51] rounded-xl bg:white bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors' id="cliente" {...register("clienteId", { valueAsNumber: true })}>
                       <option value="">Sem cliente</option>
                       {clientes.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -344,11 +308,7 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
                     <label className='absolute font-inter -top-2 left-4 bg:white bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide'>
                       CATEGORIA
                     </label>
-                    <select
-                      className='w-full border-2 border-[#4A4B51] rounded-xl bg:white bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors'
-                      id="categoria"
-                      {...register("categoria")}
-                    >
+                    <select className='w-full border-2 border-[#4A4B51] rounded-xl bg:white bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors' id="categoria" {...register("categoria")}>
                       {CATEGORIAS_RECEITA.map((categoria) => (
                         <option key={categoria} value={categoria}>
                           {categoria}
@@ -360,24 +320,15 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
               </div>
             </div>
             <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setOpenAlterarDados(false)}
-                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-              >
+              <button type="button" onClick={() => setOpenAlterarDados(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">
                 Cancelar
               </button>
-              <input
-                type="submit"
-                value="Confirmar"
-                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-              />
+              <input type="submit" value="Confirmar" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"/>
             </div>
           </form>
         </div>
       </Modal>
 
-      {/* MODAL EXCLUIR */}
       <Modal open={openExcluirReceita} onClose={() => setOpenExcluirReceita(false)}>
         <div className="container">
           <div className="container flex flex-col items-start">
@@ -393,16 +344,10 @@ export default function ReceitaItem({ receita, receitas, setReceitas, clientes }
             </div>
 
             <div className="flex gap-4">
-              <button
-                onClick={() => setOpenExcluirReceita(false)}
-                className="text:white text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-              >
+              <button onClick={() => setOpenExcluirReceita(false)} className="text:white text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">
                 Cancelar
               </button>
-              <button
-                onClick={excluirReceita}
-                className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-              >
+              <button onClick={excluirReceita} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">
                 Confirmar
               </button>
             </div>

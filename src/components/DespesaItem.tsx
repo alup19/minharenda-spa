@@ -212,7 +212,6 @@ export default function DespesaItem({
                     </button>
 
 
-                    {/* Opções */}
                     <div className="flex items-center justify-center">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -226,10 +225,7 @@ export default function DespesaItem({
                                 <DropdownMenuItem onClick={abrirModalAlterar}>
                                     Alterar Dados
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => setOpenExcluirDespesa(true)}
-                                    className="text-[#c02424]"
-                                >
+                                <DropdownMenuItem onClick={() => setOpenExcluirDespesa(true)} className="text-[#c02424]">
                                     Excluir
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -238,11 +234,7 @@ export default function DespesaItem({
                 </div>
             </div>
 
-            {/* Modal Alterar */}
-            <Modal
-                open={openAlterarDespesa}
-                onClose={() => setOpenAlterarDespesa(false)}
-            >
+            <Modal open={openAlterarDespesa} onClose={() => setOpenAlterarDespesa(false)}>
                 <div className="container">
                     <div className="container flex flex-col items-start">
                         <div className="flex flex-row items-center gap-[0.7rem] justify-center">
@@ -253,23 +245,13 @@ export default function DespesaItem({
                         </div>
                     </div>
 
-                    <form
-                        onSubmit={handleSubmit(atualizarDespesa)}
-                        className="container flex flex-col items-center"
-                    >
+                    <form onSubmit={handleSubmit(atualizarDespesa)} className="container flex flex-col items-center">
                         <div className="flex flex-col items-center my-8 gap-8 w-[35rem]">
                             <div className="relative w-full">
                                 <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                                     DESCRIÇÃO
                                 </label>
-                                <input
-                                    type="text"
-                                    placeholder="Ex: Aluguel, Conta de luz, Compra de material..."
-                                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
-                                    id="descricao"
-                                    {...register("descricao")}
-                                    required
-                                />
+                                <input type="text" placeholder="Ex: Aluguel, Conta de luz, Compra de material..." className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" id="descricao" {...register("descricao")} required />
                             </div>
 
                             <div className="flex flex-col gap-8">
@@ -278,27 +260,14 @@ export default function DespesaItem({
                                         <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                                             VALOR
                                         </label>
-                                        <input
-                                            type="number"
-                                            placeholder="R$ 0,00"
-                                            className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
-                                            id="valor"
-                                            {...register("valor", { valueAsNumber: true })}
-                                            required
-                                        />
+                                        <input type="number" placeholder="R$ 0,00" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" id="valor" {...register("valor", { valueAsNumber: true })} required />
                                     </div>
 
                                     <div className="relative w-full">
                                         <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                                             DATA
                                         </label>
-                                        <input
-                                            type="date"
-                                            className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
-                                            id="data"
-                                            {...register("data")}
-                                            required
-                                        />
+                                        <input type="date" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" id="data" {...register("data")} required />
                                     </div>
                                 </div>
 
@@ -307,11 +276,7 @@ export default function DespesaItem({
                                         <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                                             CATEGORIA
                                         </label>
-                                        <select
-                                            className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
-                                            id="categoria"
-                                            {...register("categoria")}
-                                        >
+                                        <select className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" id="categoria" {...register("categoria")}>
                                             {CATEGORIAS_DESPESA.map((categoria) => (
                                                 <option key={categoria} value={categoria}>
                                                     {categoria}
@@ -324,41 +289,23 @@ export default function DespesaItem({
                                         <label className="absolute font-inter -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold tracking-wide">
                                             ANEXO (URL)
                                         </label>
-                                        <input
-                                            type="text"
-                                            placeholder="https://..."
-                                            className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors"
-                                            id="anexo"
-                                            {...register("anexo")}
-                                        />
+                                        <input type="text" placeholder="https://..." className="w-full border-2 border-[#4A4B51] rounded-xl bg-white font-inter px-5 py-3 placeholder:text-[1.1rem] placeholder:text-[#828386] text-[#4A4B51] text-lg font-normal outline-none focus:border-[#407B6A] transition-colors" id="anexo" {...register("anexo")} />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <div className="flex gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setOpenAlterarDespesa(false)}
-                                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-                            >
+                            <button type="button" onClick={() => setOpenAlterarDespesa(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">
                                 Cancelar
                             </button>
-                            <input
-                                type="submit"
-                                value="Confirmar"
-                                className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-                            />
+                            <input type="submit" value="Confirmar" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer" />
                         </div>
                     </form>
                 </div>
             </Modal>
 
-            {/* Modal Excluir */}
-            <Modal
-                open={openExcluirDespesa}
-                onClose={() => setOpenExcluirDespesa(false)}
-            >
+            <Modal open={openExcluirDespesa} onClose={() => setOpenExcluirDespesa(false)}>
                 <div className="container">
                     <div className="container flex flex-col items-start">
                         <div className="flex flex-row items-center gap-[0.7rem] justify-center">
@@ -380,17 +327,10 @@ export default function DespesaItem({
                         </div>
 
                         <div className="flex gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setOpenExcluirDespesa(false)}
-                                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer"
-                            >
+                            <button type="button" onClick={() => setOpenExcluirDespesa(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter hover:opacity-90 transition cursor-pointer">
                                 Cancelar
                             </button>
-                            <button
-                                onClick={excluirDespesa}
-                                className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer"
-                            >
+                            <button onClick={excluirDespesa} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold hover:opacity-90 font-inter transition cursor-pointer">
                                 Confirmar
                             </button>
                         </div>
@@ -398,22 +338,13 @@ export default function DespesaItem({
                 </div>
             </Modal>
 
-            {/* Modal Preview Anexo */}
-            <Modal
-                open={openPreviewAnexo}
-                onClose={() => setOpenPreviewAnexo(false)}
-            >
+            <Modal open={openPreviewAnexo} onClose={() => setOpenPreviewAnexo(false)}>
                 <div className="flex flex-col items-center gap-3">
                     <h2 className="font-inter font-semibold text-[1.1rem]">
                         Anexo da despesa
                     </h2>
                     {anexoUrl && !imgErro ? (
-                        <img
-                            src={anexoUrl}
-                            alt="Anexo"
-                            className="max-h-[60vh] max-w-full rounded-lg"
-                            onError={() => setImgErro(true)}
-                        />
+                        <img src={anexoUrl} alt="Anexo" className="max-h-[60vh] max-w-full rounded-lg" onError={() => setImgErro(true)}/>
                     ) : (
                         <p className="text-sm text-[#4A4B51]">
                             Não foi possível carregar a imagem.

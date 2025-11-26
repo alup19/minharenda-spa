@@ -122,12 +122,10 @@ export default function EstoqueItem({
     }
   }
 
-  // Dados vindos da API para exibição
   const preco = Number((produto as any).precoMedioDisplay ?? 0);
   const unidadeDisplay = (produto as any).unidadeDisplay ?? "un";
   const saldoDisplay = Number((produto as any).saldoDisplay ?? 0);
 
-  // Dados em unidade base para cálculo
   const unidadeBase = (produto as any).unidadeBase as string | undefined;
   const saldoBase = Number((produto as any).saldoBase ?? 0);
   const custoMedio = Number((produto as any).custoMedio ?? 0);
@@ -205,41 +203,27 @@ export default function EstoqueItem({
   return (
     <section>
       <div className="flex flex-col gap-[0.44rem]">
-        {/* LINHA EM GRID ALINHADA AO CABEÇALHO */}
         <div className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] grid grid-cols-6 items-center gap-2">
-          {/* Nome */}
           <p className="text-[#656565] font-inter font-normal text-[1rem]">
             {produto.nome}
           </p>
 
-          {/* Quantidade */}
           <p className="text-[#303030] font-inter font-semibold text-center">
             {saldoDisplay} {unidadeDisplay}
           </p>
 
-          {/* Preço médio */}
           <p className="text-[#656565] font-inter font-normal text-center">
             R$ {preco.toFixed(2)} /{unidadeDisplay}
           </p>
 
-          {/* Categoria */}
           <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem] text-center">
             {categoriaBadge}
           </p>
 
-          {/* Anexo */}
-          <button
-            type="button"
-            onClick={abrirPreview}
-            title={anexoUrl ? "Visualizar anexo" : "Sem anexo"}
-            className={`flex items-center justify-center ${
-              anexoUrl ? "" : "opacity-40 cursor-not-allowed"
-            }`}
-          >
+          <button type="button" onClick={abrirPreview} title={anexoUrl ? "Visualizar anexo" : "Sem anexo"} className={`flex items-center justify-center ${anexoUrl ? "" : "opacity-40 cursor-not-allowed"}`}>
             <img src="/attachment.svg" alt="Anexo" />
           </button>
 
-          {/* Opções */}
           <div className="flex items-center justify-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -250,18 +234,13 @@ export default function EstoqueItem({
               <DropdownMenuContent className="font-inter">
                 <DropdownMenuLabel>Ações</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setOpenAlterarQuantidade(true)}
-                >
+                <DropdownMenuItem onClick={() => setOpenAlterarQuantidade(true)}>
                   Remover Quantidade
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setOpenAlterarProduto(true)}>
                   Alterar Dados
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setOpenExcluirProduto(true)}
-                  className="text-[#c02424]"
-                >
+                <DropdownMenuItem onClick={() => setOpenExcluirProduto(true)} className="text-[#c02424]">
                   Arquivar
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -270,11 +249,7 @@ export default function EstoqueItem({
         </div>
       </div>
 
-      {/* MODAL ALTERAR PRODUTO */}
-      <Modal
-        open={OpenAlterarProduto}
-        onClose={() => setOpenAlterarProduto(false)}
-      >
+      <Modal open={OpenAlterarProduto} onClose={() => setOpenAlterarProduto(false)}>
         <form className="container" onSubmit={handleSubmit(atualizarProduto)}>
           <div className="container flex flex-col items-start">
             <div className="flex flex-row items-center gap-[0.7rem] justify-center">
@@ -290,20 +265,14 @@ export default function EstoqueItem({
               <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                 NOME DO PRODUTO
               </label>
-              <input
-                {...register("nome")}
-                className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-              />
+              <input {...register("nome")} className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" />
             </div>
 
             <div className="relative">
               <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                 CATEGORIA
               </label>
-              <select
-                {...register("categoria")}
-                className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-              >
+              <select {...register("categoria")} className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]">
                 <option value="">Sem categoria</option>
                 {CATEGORIAS.map((c) => (
                   <option key={c} value={c}>
@@ -315,16 +284,10 @@ export default function EstoqueItem({
           </div>
 
           <div className="mt-6 flex gap-4 justify-end">
-            <button
-              type="button"
-              onClick={() => setOpenAlterarProduto(false)}
-              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
-            >
+            <button type="button" onClick={() => setOpenAlterarProduto(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
               Cancelar
             </button>
-            <button
-              type="submit"
-              className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
+            <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
             >
               Salvar alterações
             </button>
@@ -332,7 +295,6 @@ export default function EstoqueItem({
         </form>
       </Modal>
 
-      {/* MODAL ARQUIVAR */}
       <Modal
         open={OpenExcluirProduto}
         onClose={() => setOpenExcluirProduto(false)}
@@ -350,39 +312,23 @@ export default function EstoqueItem({
           </p>
 
           <div className="mt-4 flex gap-4 justify-end">
-            <button
-              type="button"
-              onClick={() => setOpenExcluirProduto(false)}
-              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
-            >
+            <button type="button" onClick={() => setOpenExcluirProduto(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
               Cancelar
             </button>
-            <button
-              type="button"
-              onClick={arquivarProduto}
-              className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
-            >
+            <button type="button" onClick={arquivarProduto} className="text-white bg-[#c02424] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90">
               Arquivar
             </button>
           </div>
         </div>
       </Modal>
 
-      {/* MODAL PREVIEW ANEXO */}
-      <Modal
-        open={openPreviewAnexo}
-        onClose={() => setOpenPreviewAnexo(false)}
-      >
+      <Modal open={openPreviewAnexo} onClose={() => setOpenPreviewAnexo(false)}>
         <div className="flex flex-col items-center gap-3">
           <h2 className="font-inter font-semibold text-[1.1rem]">
             Anexo do produto
           </h2>
           {anexoUrl && !imgErro ? (
-            <img
-              src={anexoUrl}
-              alt="Anexo"
-              className="max-h-[60vh] max-w-full rounded-lg"
-              onError={() => setImgErro(true)}
+            <img src={anexoUrl} alt="Anexo" className="max-h-[60vh] max-w-full rounded-lg" onError={() => setImgErro(true)}
             />
           ) : (
             <p className="text-sm text-[#4A4B51]">
@@ -392,15 +338,8 @@ export default function EstoqueItem({
         </div>
       </Modal>
 
-      {/* MODAL ALTERAR QUANTIDADE */}
-      <Modal
-        open={openAlterarQuantidade}
-        onClose={() => setOpenAlterarQuantidade(false)}
-      >
-        <form
-          className="container flex flex-col items-center gap-4 font-inter"
-          onSubmit={onSubmitAlterarQuantidade}
-        >
+      <Modal open={openAlterarQuantidade} onClose={() => setOpenAlterarQuantidade(false)}>
+        <form className="container flex flex-col items-center gap-4 font-inter" onSubmit={onSubmitAlterarQuantidade}>
           <h2 className="text-[1.3rem] font-semibold">
             Alterar Quantidade do Estoque
           </h2>
@@ -409,39 +348,22 @@ export default function EstoqueItem({
               Produto: <strong>{produto.nome}</strong>
             </p>
             <p className="text-[1rem] text-[#4A4B51]">
-              Estoque atual:{" "}
-              <strong>
-                {saldoDisplay} {unidadeDisplay}
-              </strong>
+              Estoque atual:{" "} <strong>{saldoDisplay} {unidadeDisplay}</strong>
             </p>
           </div>
           <div className="relative mt-2">
             <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
               QUANTIDADE A REMOVER ({unidadeInputLabel})
             </label>
-            <input
-              type="number"
-              step="0.001"
-              min={0}
-              value={qtdRemover}
-              onChange={(e) => setQtdRemover(e.target.value)}
-              className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-              placeholder="Ex: 400"
+            <input type="number" step="0.001" min={0} value={qtdRemover} onChange={(e) => setQtdRemover(e.target.value)} className="w-[20rem] border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Ex: 400"
             />
           </div>
 
           <div className="mt-2 flex gap-4 justify-end">
-            <button
-              type="button"
-              onClick={() => setOpenAlterarQuantidade(false)}
-              className="text-white bg-[#292727] rounded-md px-6 py-2 text-[0.95rem] hover:bg-[#3a3939] font-bold font-inter"
-            >
+            <button type="button" onClick={() => setOpenAlterarQuantidade(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[0.95rem] hover:bg-[#3a3939] font-bold font-inter">
               Cancelar
             </button>
-            <button
-              type="submit"
-              className="text-white bg-[#c08324] rounded-md px-6 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90"
-            >
+            <button type="submit" className="text-white bg-[#c08324] rounded-md px-6 py-2 text-[0.95rem] font-bold font-inter hover:opacity-90">
               Confirmar saída
             </button>
           </div>

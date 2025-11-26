@@ -154,22 +154,14 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                 <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                   NOME DO PRODUTO
                 </label>
-                <input
-                  type="text"
-                  value={novoNome}
-                  onChange={(e) => setNovoNome(e.target.value)}
-                  placeholder="Ex.: Farofa Yoki"
-                  className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
+                <input type="text" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} placeholder="Ex.: Farofa Yoki" className="w-[18rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
                 />
               </div>
               <div className="relative">
                 <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                   BASE
                 </label>
-                <select
-                  value={novaUnidade}
-                  onChange={(e) => setNovaUnidade(e.target.value as Unidade)}
-                  className="border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]">
+                <select value={novaUnidade} onChange={(e) => setNovaUnidade(e.target.value as Unidade)} className="border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]">
                   <option value="UN">UN</option>
                   <option value="G">G</option>
                   <option value="ML">ML</option>
@@ -191,18 +183,13 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
             estoque == null ? "-" : Number.isInteger(estoque) ? estoque.toString() : estoque.toFixed(3);
 
           return (
-            <div
-              key={idx}
-              className="border border-[#D0D0D0] rounded-xl px-4 py-3 flex flex-col gap-2 bg-[#F5F5F5]"
-            >
+            <div key={idx} className="border border-[#D0D0D0] rounded-xl px-4 py-3 flex flex-col gap-2 bg-[#F5F5F5]">
               <div className="flex flex-wrap gap-3 items-end">
                 <div className="relative">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     PRODUTO
                   </label>
-                  <select
-                    className="w-[16rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                    value={it.produtoId ?? ""}
+                  <select className="w-[16rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" value={it.produtoId ?? ""}
                     onChange={(e) => {
                       const id = Number(e.target.value || 0);
                       const p = produtos.find((pp) => pp.id === id);
@@ -225,11 +212,7 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                           <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                             CONTEÚDO (1 unid.)
                           </label>
-                          <input
-                            type="text"
-                            className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                            placeholder={ unidade === "G" ? "950g" : unidade === "ML" ? "1000 ML" : "1un" }
-                            value={it.qtdConteudoInput ?? ""}
+                          <input type="text" className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" placeholder={ unidade === "G" ? "950g" : unidade === "ML" ? "1000 ML" : "1un" } value={it.qtdConteudoInput ?? ""}
                             onChange={(e) =>
                               setItem(idx, {qtdConteudoInput: e.target.value,})
                             }
@@ -245,11 +228,7 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                       <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                         CUSTO R$
                       </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                        value={it.custoUnitario ?? ""}
+                      <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" value={it.custoUnitario ?? ""}
                         onChange={(e) =>
                           setItem(idx, {custoUnitario: Number(e.target.value || 0),})
                         }
@@ -262,11 +241,7 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                     QTD COMPRADA
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                    value={it.quantidadeComprada ?? ""}
+                  <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" value={it.quantidadeComprada ?? ""}
                     onChange={(e) =>
                       setItem(idx, {quantidadeComprada: Number(e.target.value || 0),})
                     }
@@ -279,11 +254,7 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                       <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                         VALOR R$
                       </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]"
-                        value={it.custoUnitario ?? ""}
+                      <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" value={it.custoUnitario ?? ""}
                         onChange={(e) =>
                           setItem(idx, {custoUnitario: Number(e.target.value || 0),})
                         }
