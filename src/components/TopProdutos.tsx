@@ -45,7 +45,7 @@ export default function TopProdutos() {
                             <p className='text-[#656565] font-inter font-normal'>
                                 {p.nome}
                             </p>
-                            <p className='text-[#656565] font-inter font-semibold'>
+                            <p className='text-[#656565] font-inter ml-4 font-semibold'>
                                 {p.totalVendido} Vendas
                             </p>
                         </div>

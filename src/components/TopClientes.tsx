@@ -41,12 +41,12 @@ export default function TopClientes() {
 
                 {topClientes?.length > 0 &&
                     topClientes.map((c) => (
-                        <div key={c.id} className='flex flex-row justify-between w-[11rem]'>
+                        <div key={c.id} className='flex flex-row justify-between w-[13rem]'>
                             <p className='text-[#656565] font-inter font-normal'>
                                 {c.nome}
                             </p>
 
-                            <p className='text-[#656565] font-inter font-semibold'>
+                            <p className='text-[#656565] font-inter ml-4 font-semibold'>
                                 R${Number(c.totalGasto).toLocaleString("pt-br", { minimumFractionDigits: 2 })}
                             </p>
                         </div>
