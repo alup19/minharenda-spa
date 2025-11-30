@@ -12,6 +12,7 @@ import Clientes from './Clientes.js'
 import Estoques from './Estoques.js'
 import Insumos from './Insumos.js'
 import Relatorio from './Relatorio.js'
+import UsuarioArea from './UsuarioArea.js'
 
 const rotas = createBrowserRouter([
   {
@@ -26,7 +27,8 @@ const rotas = createBrowserRouter([
       { path: 'insumos', element: <Insumos /> },
       { path: 'estoques', element: <Estoques /> },
       { path: 'relatorios', element: <Relatorio /> },
-      { path: 'receitas', element: <Receitas /> }
+      { path: 'receitas', element: <Receitas /> },
+      { path: 'dashboard', element: <UsuarioArea /> }
     ],
   },
 ])

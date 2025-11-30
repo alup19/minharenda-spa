@@ -55,7 +55,7 @@ export default function Titulo() {
         <section className='flex flex-row items-center justify-center h-[7.375rem] gap-[11.75rem]'>
             <img src="/logo3.png" className="w-[15.8125rem]" alt="" />
             <div className='flex flex-row gap-[3.12rem] font-inter text-[1.0625rem] font-normal text-[#2A2A2A]'>
-                <Link to={"/usuarioarea"}>visão geral</Link>
+                <Link to={"/dashboard"}>visão geral</Link>
                 <Link to={"/estoques"}>estoque</Link>
                 <Link to={"/insumos"}>insumos</Link>
                 <Link to={"/despesas"}>despesas</Link>

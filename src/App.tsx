@@ -1,4 +1,5 @@
 import './tailwind.css'
+import { Link } from 'react-router-dom'
 
 import { useState } from 'react';
 import { 
@@ -10,12 +11,9 @@ import {
   NotebookPen, 
   PieChart, 
   ArrowRight,
-  ShieldCheck,
-  Wifi,
-  Smartphone
 } from 'lucide-react';
 
-function App() {
+export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState<number | null>(null);
 
@@ -39,30 +37,23 @@ function App() {
   ];
 
   return (
-    // AQUI ESTÁ A MUDANÇA: troquei font-sans por font-inter
     <div className="min-h-screen bg-[#F9FAFB] font-inter text-gray-900 selection:bg-[#2E8B57] selection:text-white">
       
-      {/* --- HEADER --- */}
       <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer">
               <img src="/logo.png" className='w-[15rem]' alt="" />
             </div>
 
-            {/* Desktop Nav */}
             <nav className="hidden md:flex gap-8 items-center">
               <a href="#funcionalidades" className="text-gray-600 hover:text-[#2E8B57] font-medium transition-colors">Funcionalidades</a>
               <a href="#depoimentos" className="text-gray-600 hover:text-[#2E8B57] font-medium transition-colors">Quem usa</a>
               <a href="#planos" className="text-gray-600 hover:text-[#2E8B57] font-medium transition-colors">Planos</a>
               <a href="#faq" className="text-gray-600 hover:text-[#2E8B57] font-medium transition-colors">Dúvidas</a>
-              <button className="bg-[#2E8B57] hover:bg-[#246e45] text-white px-6 py-2.5 rounded-lg font-semibold transition-all shadow-lg shadow-[#2E8B57]/20 hover:shadow-[#2E8B57]/40">
-                Entrar
-              </button>
+              <Link to={"/login"} className="bg-[#2E8B57] hover:bg-[#246e45] text-white px-6 py-2.5 rounded-lg font-semibold transition-all shadow-lg shadow-[#2E8B57]/20 hover:shadow-[#2E8B57]/40 cursor-pointer">Entrar</Link>
             </nav>
 
-            {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-600">
                 {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -71,7 +62,6 @@ function App() {
           </div>
         </div>
 
-        {/* Mobile Nav Dropdown */}
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
             <div className="px-4 pt-2 pb-6 space-y-2">
@@ -87,7 +77,6 @@ function App() {
         )}
       </header>
 
-      {/* --- HERO SECTION --- */}
       <section className="pt-32 pb-20 lg:pt-40 lg:pb-28 bg-gradient-to-b from-white via-white to-[#F0FDF4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight mb-6">
@@ -107,7 +96,6 @@ function App() {
             </button>
           </div>
 
-          {/* App Mockup Placeholder */}
           <div className="relative mx-auto max-w-5xl">
             <div className="relative rounded-2xl bg-gray-900 p-2 sm:p-4 shadow-2xl ring-1 ring-gray-900/10">
               <div className="relative rounded-lg bg-gray-800 overflow-hidden aspect-[16/9] flex items-center justify-center">
@@ -122,7 +110,6 @@ function App() {
         </div>
       </section>
 
-      {/* --- PAIN POINTS (DORES) --- */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -164,11 +151,9 @@ function App() {
         </div>
       </section>
 
-      {/* --- FEATURES --- */}
       <section id="funcionalidades" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
           
-          {/* Feature 1 */}
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <div className="lg:w-1/2">
               <h3 className="text-3xl font-bold text-gray-900 mb-6">Fluxo de Caixa Real</h3>
@@ -191,7 +176,6 @@ function App() {
             </div>
           </div>
 
-          {/* Feature 2 (Reverse) */}
           <div className="flex flex-col lg:flex-row-reverse items-center gap-12 lg:gap-20">
             <div className="lg:w-1/2">
               <h3 className="text-3xl font-bold text-gray-900 mb-6">Estoque Inteligente</h3>
@@ -217,7 +201,6 @@ function App() {
         </div>
       </section>
 
-      {/* --- TESTIMONIALS --- */}
       <section id="depoimentos" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -248,7 +231,6 @@ function App() {
         </div>
       </section>
 
-      {/* --- PRICING --- */}
       <section id="planos" className="py-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -257,7 +239,6 @@ function App() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Free Plan */}
             <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm flex flex-col">
               <h3 className="text-xl font-bold text-gray-900">MinhaRenda Básico</h3>
               <div className="my-6">
@@ -276,7 +257,6 @@ function App() {
               </button>
             </div>
 
-            {/* Premium Plan */}
             <div className="bg-white p-8 rounded-2xl border-2 border-[#2E8B57] shadow-xl relative flex flex-col transform md:-translate-y-4">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#2E8B57] text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide">
                 MAIS POPULAR
@@ -305,7 +285,6 @@ function App() {
         </div>
       </section>
 
-      {/* --- FAQ --- */}
       <section id="faq" className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Perguntas Frequentes</h2>
@@ -335,7 +314,6 @@ function App() {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
       <footer className="bg-gray-900 text-gray-300 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex justify-center items-center gap-2 mb-8">
@@ -357,5 +335,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

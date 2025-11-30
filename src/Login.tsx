@@ -21,7 +21,7 @@ export default function Login() {
   useEffect(() => {
     const check = () => {
       const token = localStorage.getItem("usuarioKey")
-      if (token) navigate("/")
+      if (token) navigate("/dashboard")
     }
     setTimeout(check, 0)
   }, [navigate])
@@ -46,7 +46,7 @@ export default function Login() {
         }
       }
 
-      navigate("/")
+      navigate("/dashboard")
     } else {
       toast.error("Erro... Login ou senha incorretos")
     }
