@@ -10,12 +10,12 @@ export default function Layout() {
   const location = useLocation();
 
   useEffect(() => {
-    if (Object.keys(usuario).length === 0) {
-      navigate("/login", { replace: true })
-    }
-    if (localStorage.getItem("usuarioKey")) {
-      navigate(location.pathname)
-    }
+    // if (Object.keys(usuario).length === 0) {
+      // navigate("/login", { replace: true })
+    // }
+    // if (localStorage.getItem("usuarioKey")) {
+      // navigate(location.pathname)
+    // }
   }, [])
 
   return (
