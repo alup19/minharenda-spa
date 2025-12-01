@@ -92,7 +92,6 @@ export default function Relatorio() {
   const [relatorio, setRelatorio] = useState<RelatorioResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Descobrir usuarioId do localStorage
   let usuarioId: string | null = null;
   const usuarioRaw = localStorage.getItem("usuarioKey");
 
@@ -145,13 +144,11 @@ export default function Relatorio() {
     carregarRelatorio();
   }, [usuarioId]);
 
-  // Helpers de formatação
   function formatMoney(valor: number | undefined | null): string {
     const num = Number(valor ?? 0);
     return `R$ ${num.toFixed(2)}`;
   }
 
-  // Estoque
   const categoriasEstoqueItems: RelatorioItem[] =
     relatorio?.estoque.categoriasEstoque.map((c) => ({
       label: c.categoria,
@@ -176,7 +173,6 @@ export default function Relatorio() {
       value: `${p.quantidade} ${p.unidade ?? "L"}`,
     })) ?? [];
 
-  // Despesas
   const categoriasMaisDespesasItems: RelatorioItem[] =
     relatorio?.despesas.categoriasMaisDespesas.map((c) => ({
       label: c.categoria,
@@ -189,7 +185,6 @@ export default function Relatorio() {
       value: formatMoney(c.valor),
     })) ?? [];
 
-  // Receitas
   const categoriasMaisVendidasItems: RelatorioItem[] =
     relatorio?.receitas.categoriasMaisVendidas.map((c) => ({
       label: c.categoria,
@@ -202,7 +197,6 @@ export default function Relatorio() {
       value: `${p.quantidade} ${p.unidade}`,
     })) ?? [];
 
-  // Clientes
   const clientesMaisGastaramItems: RelatorioItem[] =
     relatorio?.clientes.clientesQueMaisGastaram.map((c) => ({
       label: c.nome,
@@ -215,7 +209,6 @@ export default function Relatorio() {
       value: `${c.contagem} compras`,
     })) ?? [];
 
-  // PDF
   async function gerarPDF() {
     const element = relatorioRef.current;
     if (!element) return;
@@ -243,10 +236,7 @@ export default function Relatorio() {
     <section>
       <Titulo />
 
-      <section
-        ref={relatorioRef}
-        className="mt-[3rem] mb-[2rem] flex flex-col justify-center items-center gap-[2.63rem]"
-      >
+      <section ref={relatorioRef} className="mt-[3rem] mb-[2rem] flex flex-col justify-center items-center gap-[2.63rem]">
         <div className="flex flex-row items-center justify-between w-[83vw]">
           <div className="flex flex-col items-start">
             <div className="flex flex-row items-center gap-[0.7rem] justify-center">
@@ -260,15 +250,8 @@ export default function Relatorio() {
             </h2>
           </div>
           <div className="flex flex-row gap-[2.25rem]">
-            <button
-              onClick={gerarPDF}
-              className="ignore-pdf flex items-center gap-3 px-[0.9375rem] rounded-[0.375rem] border-[#969b96] border-2 py-[0.625rem] flex-row bg-[linear-gradient(139deg,#184047_-40.56%,#F89900_279.19%)]"
-            >
-              <img
-                src="/relatorio-icon.svg"
-                className="w-[1.25rem]"
-                alt=""
-              />
+            <button onClick={gerarPDF} className="ignore-pdf flex items-center gap-3 px-[0.9375rem] rounded-[0.375rem] border-[#969b96] border-2 py-[0.625rem] flex-row bg-[linear-gradient(139deg,#184047_-40.56%,#F89900_279.19%)]" >
+              <img src="/relatorio-icon.svg" className="w-[1.25rem]" alt="" />
               <span className="font-inter text-white font-normal">
                 Exportar relatório para PDF
               </span>
@@ -276,17 +259,12 @@ export default function Relatorio() {
           </div>
         </div>
 
-        {/* CARD RESUMO FINANCEIRO */}
         <section className="bg-[#F5F5F5] rounded-[1.25rem] w-[83vw] flex items-center justify-center py-[2.3125rem]">
           <div className="flex items-stretch font-inter text-[1rem]">
             <div className="flex flex-col items-center justify-center px-[1.06rem]">
               <h2 className="text-[#4A4B51] font-semibold">Receita Total</h2>
               <h3 className="text-[#407B6A] font-medium text-[1.3rem]">
-                {relatorio
-                  ? formatMoney(relatorio.totais.totalReceitas)
-                  : loading
-                    ? "Carregando..."
-                    : "R$ 0,00"}
+                {relatorio ? formatMoney(relatorio.totais.totalReceitas) : loading ? "Carregando..." : "R$ 0,00"}
               </h3>
             </div>
             <div className="w-[0.2rem] rounded-[0.9375rem] bg-[#B7BBC7] mx-[1.06rem]" />
@@ -295,29 +273,20 @@ export default function Relatorio() {
                 Despesas Totais
               </h2>
               <h3 className="text-[#CA3030] font-medium text-[1.3rem]">
-                {relatorio
-                  ? formatMoney(relatorio.totais.totalDespesas)
-                  : loading
-                    ? "Carregando..."
-                    : "R$ 0,00"}
+                {relatorio ? formatMoney(relatorio.totais.totalDespesas) : loading ? "Carregando..." : "R$ 0,00"}
               </h3>
             </div>
             <div className="w-[0.2rem] rounded-[0.9375rem] bg-[#B7BBC7] mx-[1.06rem]" />
             <div className="flex flex-col items-center justify-center px-[1.06rem]">
               <h2 className="text-[#4A4B51] font-semibold">Lucro Líquido</h2>
               <h3 className="text-[#407B6A] font-medium text-[1.3rem]">
-                {relatorio
-                  ? formatMoney(relatorio.totais.lucroLiquido)
-                  : loading
-                    ? "Carregando..."
-                    : "R$ 0,00"}
+                {relatorio ? formatMoney(relatorio.totais.lucroLiquido) : loading ? "Carregando..." : "R$ 0,00"}
               </h3>
             </div>
           </div>
         </section>
 
         <section className="flex flex-row gap-[2.19rem]">
-          {/* ESTOQUE */}
           <div className="flex flex-col items-center gap-[0.5rem]">
             <h2 className="text-center text-[2rem] font-inter font-semibold">
               Estoque
@@ -329,10 +298,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {categoriasEstoqueItems.length ? (
                   categoriasEstoqueItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -354,10 +320,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {estoqueUnidadeItems.length ? (
                   estoqueUnidadeItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -379,10 +342,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {estoqueKgItems.length ? (
                   estoqueKgItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -402,20 +362,16 @@ export default function Relatorio() {
                 Maior quantidade em estoque (L):
               </p>
               <div className="flex flex-col gap-[0.5rem]">
-                {estoqueMlItems.length ? (
-                  estoqueMlItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
-                      <p className="font-inter font-normal text-[#656565]">
-                        {item.label}
-                      </p>
-                      <p className="font-inter font-semibold text-[#4d4d4d]">
-                        {item.value}
-                      </p>
-                    </div>
-                  ))
+                {estoqueMlItems.length ? (estoqueMlItems.map((item) => (
+                  <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
+                    <p className="font-inter font-normal text-[#656565]">
+                      {item.label}
+                    </p>
+                    <p className="font-inter font-semibold text-[#4d4d4d]">
+                      {item.value}
+                    </p>
+                  </div>
+                ))
                 ) : (
                   <span className="text-sm text-[#777]">
                     {loading ? "Carregando..." : "Sem dados de estoque (L)"}
@@ -425,7 +381,6 @@ export default function Relatorio() {
             </div>
           </div>
 
-          {/* DESPESAS */}
           <div className="flex flex-col items-center gap-[0.5rem]">
             <h2 className="text-center text-[2rem] font-inter font-semibold">
               Despesas
@@ -437,10 +392,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {categoriasMaisDespesasItems.length ? (
                   categoriasMaisDespesasItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]">
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -462,10 +414,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {valorGastoCategoriasItems.length ? (
                   valorGastoCategoriasItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -498,7 +447,6 @@ export default function Relatorio() {
             </div>
           </div>
 
-          {/* RECEITAS */}
           <div className="flex flex-col items-center gap-[0.5rem]">
             <h2 className="text-center text-[2rem] font-inter font-semibold">
               Receitas
@@ -510,10 +458,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {categoriasMaisVendidasItems.length ? (
                   categoriasMaisVendidasItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -535,10 +480,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {produtosMaisVendidosItems.length ? (
                   produtosMaisVendidosItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -600,7 +542,6 @@ export default function Relatorio() {
             </div>
           </div>
 
-          {/* CLIENTES */}
           <div className="flex flex-col items-center gap-[0.5rem]">
             <h2 className="text-center text-[2rem] font-inter font-semibold">
               Clientes
@@ -612,10 +553,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {clientesMaisGastaramItems.length ? (
                   clientesMaisGastaramItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
@@ -637,10 +575,7 @@ export default function Relatorio() {
               <div className="flex flex-col gap-[0.5rem]">
                 {clientesMaisComprasItems.length ? (
                   clientesMaisComprasItems.map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]"
-                    >
+                    <div key={item.label} className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]" >
                       <p className="font-inter font-normal text-[#656565]">
                         {item.label}
                       </p>
