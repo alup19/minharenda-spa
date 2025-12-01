@@ -110,7 +110,6 @@ export default function Receitas() {
     if (openCriar && modo === "itens") getProdutos();
   }, [openCriar, modo]);
 
-  // CRIAR RECEITA (modo rápida)
   async function incluirReceita(formData: Inputs) {
     const categoriaNormalizada =
       !formData.categoria || formData.categoria.trim() === ""
@@ -154,7 +153,6 @@ export default function Receitas() {
     }
   }
 
-  // CRIAR RECEITA COM ITENS
   async function incluirReceitaComItens() {
     if (!itensVenda.length) return toast.error("Adicione pelo menos um item.");
 
@@ -283,13 +281,7 @@ export default function Receitas() {
 
   const listaReceitas = receitasFiltradas.length > 0
     ? receitasFiltradas.map((receita: any) => (
-      <ReceitaItem
-        key={receita.id}
-        receita={receita}
-        receitas={receitas}
-        setReceitas={setReceitas}
-        clientes={clientes}
-      />
+      <ReceitaItem key={receita.id} receita={receita} receitas={receitas} setReceitas={setReceitas} clientes={clientes} />
     ))
     : <p>Não há receitas para exibir.</p>;
 
@@ -304,35 +296,17 @@ export default function Receitas() {
               <h2 className="text-center text-[2rem] font-inter font-semibold">Receitas</h2>
             </div>
             <button
-              onClick={() => {
-                setOpenCriar(true);
-                setModo("rapida");
-                setValue("data", new Date().toISOString().slice(0, 10));
-              }}
-              className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal">Adicionar</button>
+              onClick={() => { setOpenCriar(true); setModo("rapida"); setValue("data", new Date().toISOString().slice(0, 10)); }} className="flex text-white items-center justify-center rounded-[0.5rem] bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] w-[12rem] h-[2.7rem] text-[1.25rem] font-roboto font-normal">Adicionar</button>
           </div>
 
-
-
           <div className="bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[1.44rem]">
-            {/* Barra de mês + filtro de categoria */}
             <div className="flex flex-col gap-[1.44rem]">
               <div className="flex flex-row justify-between">
-                <div className="flex flex-row items-center gap-[1.125rem]">
-                  <img src="/arrow_l.svg" alt="" />
-                  <h3 className="text-[1.5rem] font-inter font-semibold">Setembro</h3>
-                  <img src="/arrow_r.svg" alt="" />
-                </div>
                 <div className="relative">
                   <label className="absolute font-inter -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.6875rem] font-semibold tracking-wide">
                     CATEGORIA
                   </label>
-                  <select
-                    id="filtro_categoria_receita"
-                    value={filtroCategoria}
-                    onChange={(event) => setFiltroCategoria(event.target.value)}
-                    className="border-2 border-[#4A4B51] rounded-xl font-inter pl-5 pr-8 w-[14.6875rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-[#F5F5F5] outline-none focus:border-[#407B6A] transition-colors"
-                  >
+                  <select id="filtro_categoria_receita" value={filtroCategoria} onChange={(event) => setFiltroCategoria(event.target.value)} className="border-2 border-[#4A4B51] rounded-xl font-inter pl-5 pr-8 w-[14.6875rem] h-[2.75rem] placeholder:text-[1rem] placeholder:font-normal placeholder:text-[#828386] text-[#4A4B51] text-lg font-medium bg-[#F5F5F5] outline-none focus:border-[#407B6A] transition-colors">
                     <option value="">Todas</option>
                     {CATEGORIAS_RECEITA.map((categoria) => (
                       <option key={categoria} value={categoria}>
@@ -344,7 +318,6 @@ export default function Receitas() {
               </div>
             </div>
 
-            {/* Cabeçalho da tabela */}
             <div className="grid grid-cols-6 font-inter text-[1rem] font-normal mt-4 px-[1.06rem]">
               <h2>Data da Receita</h2>
               <h2 className="text-center">Valor</h2>
@@ -368,18 +341,10 @@ export default function Receitas() {
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button
-              className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
-              onClick={() => setModo("rapida")}
-              type="button"
-            >
+            <button className={`px-3 py-1 rounded ${modo === "rapida" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`} onClick={() => setModo("rapida")} type="button">
               Venda rápida
             </button>
-            <button
-              className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`}
-              onClick={() => { setModo("itens"); getProdutos(); }}
-              type="button"
-            >
+            <button className={`px-3 py-1 rounded ${modo === "itens" ? "bg-[#E8F5EA] text-[#407B6A]" : "bg-[#F5F5F5]"}`} onClick={() => { setModo("itens"); getProdutos(); }} type="button">
               Com itens
             </button>
           </div>
@@ -390,30 +355,19 @@ export default function Receitas() {
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                   DESCRIÇÃO
                 </label>
-                <input
-                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                  placeholder="Venda balcão"
-                  {...register("descricao")}
-                />
+                <input className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Venda balcão" {...register("descricao")} />
               </div>
               <div className="relative">
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                   DATA
                 </label>
-                <input
-                  type="date"
-                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                  {...register("data")}
-                />
+                <input type="date" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" {...register("data")} />
               </div>
               <div className="relative">
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                   CLIENTE (opcional)
                 </label>
-                <select
-                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                  {...register("clienteId", { valueAsNumber: true })}
-                >
+                <select className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" {...register("clienteId", { valueAsNumber: true })} >
                   <option value="">Sem cliente</option>
                   {clientes.map((cliente: any) => (
                     <option key={cliente.id} value={cliente.id}>{cliente.nome}</option>
@@ -424,11 +378,7 @@ export default function Receitas() {
                 <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                   CATEGORIA
                 </label>
-                <select
-                  className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                  {...register("categoria")}
-                  defaultValue="Venda"
-                >
+                <select className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" {...register("categoria")} defaultValue="Venda" >
                   {CATEGORIAS_RECEITA.map((categoria) => (
                     <option key={categoria} value={categoria}>
                       {categoria}
@@ -444,13 +394,7 @@ export default function Receitas() {
                   <label className="absolute -top-2 left-4 bg-white px-2 text-[#4A4B51] text-[0.78rem] font-semibold">
                     VALOR RECEBIDO
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]"
-                    placeholder="R$"
-                    {...register("valor", { valueAsNumber: true })}
-                  />
+                  <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-white px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="R$" {...register("valor", { valueAsNumber: true })} />
                 </div>
               </div>
             )}
@@ -479,27 +423,16 @@ export default function Receitas() {
             )}
 
             <div className="mt-6 flex gap-4">
-              <button
-                type="button"
-                onClick={() => { setOpenCriar(false); setItensVenda([]); }}
-                className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter"
-              >
+              <button type="button" onClick={() => { setOpenCriar(false); setItensVenda([]); }} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter" >
                 Cancelar
               </button>
 
               {modo === "rapida" ? (
-                <button
-                  type="submit"
-                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
-                >
+                <button type="submit" className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90" >
                   Salvar
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={incluirReceitaComItens}
-                  className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90"
-                >
+                <button type="button" onClick={incluirReceitaComItens} className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90" >
                   Salvar com itens
                 </button>
               )}
