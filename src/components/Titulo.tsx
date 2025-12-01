@@ -70,9 +70,7 @@ export default function Titulo() {
                     <DropdownMenuContent className="font-inter">
                         <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Perfil</DropdownMenuItem>
-                        <DropdownMenuItem>Configurações</DropdownMenuItem>
-                        <DropdownMenuItem>Pagamentos</DropdownMenuItem>
+                        <DropdownMenuItem><Link to={"/usuarioconfig"}>Configurações</Link></DropdownMenuItem>
                         <DropdownMenuItem onClick={usuarioSair}>Sair</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
