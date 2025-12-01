@@ -2,14 +2,14 @@ import './tailwind.css'
 import { Link } from 'react-router-dom'
 
 import { useState } from 'react';
-import { 
-  Menu, 
-  X, 
-  Check, 
-  ChevronDown, 
-  TrendingUp, 
-  NotebookPen, 
-  PieChart, 
+import {
+  Menu,
+  X,
+  Check,
+  ChevronDown,
+  TrendingUp,
+  NotebookPen,
+  PieChart,
   ArrowRight,
 } from 'lucide-react';
 
@@ -23,27 +23,26 @@ export default function App() {
 
   const faqData = [
     {
-      question: "Preciso de internet o tempo todo?",
-      answer: "O MinhaRenda funciona melhor com internet para garantir que seus dados estejam salvos na nuvem em tempo real, mas estamos trabalhando em funcionalidades offline para futuras atualizações."
+      pergunta: "Preciso de internet o tempo todo?",
+      resposta: "O MinhaRenda funciona melhor com internet para garantir que seus dados estejam salvos na nuvem em tempo real, mas estamos trabalhando em funcionalidades offline para futuras atualizações."
     },
     {
-      question: "Meus dados estão seguros?",
-      answer: "Sim! Utilizamos criptografia de ponta e servidores seguros para garantir que apenas você tenha acesso às informações financeiras do seu negócio."
+      pergunta: "Meus dados estão seguros?",
+      resposta: "Sim! Utilizamos criptografia de ponta e servidores seguros para garantir que apenas você tenha acesso às informações financeiras do seu negócio."
     },
     {
-      question: "É difícil de mexer?",
-      answer: "Não. O aplicativo foi desenhado especificamente para substituir o caderno, focando na simplicidade visual sem gráficos complexos ou termos técnicos difíceis."
+      pergunta: "É difícil de mexer?",
+      resposta: "Não. O aplicativo foi desenhado especificamente para substituir o caderno, focando na simplicidade visual sem gráficos complexos ou termos técnicos difíceis."
     }
   ];
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-inter text-gray-900 selection:bg-[#2E8B57] selection:text-white">
-      
+    <div className="h-screen overflow-y-auto scroll-smooth scroll-pt-24 bg-[#F9FAFB] font-inter text-gray-900 selection:bg-[#2E8B57] selection:text-white">
       <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-2 cursor-pointer">
-              <img src="/logo.png" className='w-[15rem]' alt="" />
+              <a href="#inicio"><img src="/logo.png" className='w-[15rem]' alt="" /></a>
             </div>
 
             <nav className="hidden md:flex gap-8 items-center">
@@ -77,7 +76,7 @@ export default function App() {
         )}
       </header>
 
-      <section className="pt-32 pb-20 lg:pt-40 lg:pb-28 bg-gradient-to-b from-white via-white to-[#F0FDF4]">
+      <section id="inicio" className="pt-32 pb-20 lg:pt-40 lg:pb-28 bg-gradient-to-b from-white via-white to-[#F0FDF4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight mb-6">
             Abandone o caderninho.<br />
@@ -86,7 +85,7 @@ export default function App() {
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
             O aplicativo financeiro feito para MEIs e Autônomos que não têm tempo a perder com sistemas complicados. Controle vendas, estoque e lucro de forma simples.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
             <button className="w-full sm:w-auto bg-[#2E8B57] hover:bg-[#246e45] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all shadow-xl shadow-[#2E8B57]/30 hover:transform hover:-translate-y-1">
               Começar Grátis
@@ -96,15 +95,9 @@ export default function App() {
             </button>
           </div>
 
-          <div className="relative mx-auto max-w-5xl">
-            <div className="relative rounded-2xl bg-gray-900 p-2 sm:p-4 shadow-2xl ring-1 ring-gray-900/10">
-              <div className="relative rounded-lg bg-gray-800 overflow-hidden aspect-[16/9] flex items-center justify-center">
-                <img 
-                   src="https://placehold.co/1200x675/1e293b/FFF?text=Dashboard+MinhaRenda" 
-                   alt="App Dashboard" 
-                   className="w-full h-full object-cover"
-                />
-              </div>
+          <div className="relative mx-auto max-w-5xl mt-8 mb-16 px-4">
+            <div className="flex justify-center items-center">
+              <img src="/notebook_mainarea.png" alt="App Dashboard no Notebook" className="w-full h-auto object-contain max-w-4xl drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500 ease-in-out" />
             </div>
           </div>
         </div>
@@ -153,7 +146,7 @@ export default function App() {
 
       <section id="funcionalidades" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
-          
+
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             <div className="lg:w-1/2">
               <h3 className="text-3xl font-bold text-gray-900 mb-6">Fluxo de Caixa Real</h3>
@@ -172,7 +165,7 @@ export default function App() {
               </ul>
             </div>
             <div className="lg:w-1/2 w-full bg-white p-4 rounded-2xl shadow-lg border border-gray-100">
-               <img src="https://placehold.co/800x600/f1f5f9/cbd5e1?text=Tela+de+Vendas" alt="Tela de Vendas" className="rounded-xl w-full" />
+              <img src="/telavenda.png" alt="Tela de Vendas" className="rounded-xl w-full" />
             </div>
           </div>
 
@@ -194,10 +187,10 @@ export default function App() {
               </ul>
             </div>
             <div className="lg:w-1/2 w-full bg-white p-4 rounded-2xl shadow-lg border border-gray-100">
-               <img src="https://placehold.co/800x600/f1f5f9/cbd5e1?text=Tela+de+Estoque" alt="Tela de Estoque" className="rounded-xl w-full" />
+              <img src="/telaestoque.png" alt="Tela de Estoque" className="rounded-xl w-full" />
             </div>
           </div>
-          
+
         </div>
       </section>
 
@@ -212,7 +205,7 @@ export default function App() {
             {[
               { name: "Samira", role: "Dona de Mercearia", quote: "Eu perdia horas somando o caderno no fim do dia e sempre achava erros. Agora sei meu lucro na hora, sem dor de cabeça." },
               { name: "João Felipe", role: "Técnico e Freelancer", quote: "Como freelancer, eu misturava o dinheiro pessoal com o do trabalho. O app organizou meus orçamentos e clientes." },
-              { name: "Cláudia", role: "Vendedora de Roupas", quote: "Controlo meu estoque de roupas e as cobranças de clientes (fiado) na rua, direto pelo celular. Não perco mais vendas." }
+              { name: "Cláudia", role: "Vendedora de Roupas", quote: "Controlo meu estoque de roupas e as cobranças de clientes. Não perco mais nenhuma venda." }
             ].map((person, i) => (
               <div key={i} className="bg-gray-50 p-8 rounded-2xl border border-gray-100">
                 <div className="flex items-center gap-4 mb-6">
@@ -263,12 +256,12 @@ export default function App() {
               </div>
               <h3 className="text-xl font-bold text-gray-900">MinhaRenda Premium</h3>
               <div className="my-6">
-                <span className="text-4xl font-extrabold text-gray-900">R$ 29,90</span>
+                <span className="text-4xl font-extrabold text-gray-900">R$ 19,90</span>
                 <span className="text-gray-500">/mês</span>
               </div>
               <p className="text-gray-500 mb-8">Recursos avançados para lucrar mais.</p>
               <ul className="space-y-4 mb-8 flex-1">
-                {['Tudo do plano Básico', 'Cálculo automático de Lucro', 'Gestão de Clientes (Fiado)', 'Relatórios em PDF e Excel', 'Indicadores de Desempenho'].map((feat, i) => (
+                {['Tudo do plano Básico', 'Módulos de Ensino', 'Relatórios em PDF e Excel', 'Indicadores de Desempenho'].map((feat, i) => (
                   <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
                     <div className="bg-[#DCFCE7] p-1 rounded-full">
                       <Check size={14} className="text-[#2E8B57]" />
@@ -277,9 +270,7 @@ export default function App() {
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-3 px-6 rounded-lg font-bold bg-[#2E8B57] text-white hover:bg-[#246e45] shadow-lg shadow-[#2E8B57]/20 transition-all">
-                Testar Premium
-              </button>
+              <button className="w-full py-3 px-6 rounded-lg font-bold bg-[#2E8B57] text-white hover:bg-[#246e45] shadow-lg shadow-[#2E8B57]/20 transition-all">Testar Premium</button>
             </div>
           </div>
         </div>
@@ -288,24 +279,18 @@ export default function App() {
       <section id="faq" className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">Perguntas Frequentes</h2>
-          
+
           <div className="space-y-4">
             {faqData.map((item, index) => (
               <div key={index} className="border border-gray-200 rounded-xl overflow-hidden transition-all duration-300">
-                <button 
-                  onClick={() => toggleAccordion(index)}
-                  className="w-full flex justify-between items-center p-5 bg-white hover:bg-gray-50 text-left"
-                >
-                  <span className="font-semibold text-gray-900 text-lg">{item.question}</span>
-                  <ChevronDown 
-                    className={`text-gray-500 transition-transform duration-300 ${activeAccordion === index ? 'rotate-180' : ''}`} 
-                  />
+                <button onClick={() => toggleAccordion(index)} className="w-full flex justify-between items-center p-5 bg-white hover:bg-gray-50 text-left">
+                  <span className="font-semibold text-gray-900 text-lg">{item.pergunta}</span>
+                  <ChevronDown className={`text-gray-500 transition-transform duration-300 ${activeAccordion === index ? 'rotate-180' : ''}`} />
                 </button>
-                <div 
-                  className={`overflow-hidden transition-all duration-300 bg-gray-50 ${activeAccordion === index ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
-                >
+                <div
+                  className={`overflow-hidden transition-all duration-300 bg-gray-50 ${activeAccordion === index ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
                   <p className="p-5 text-gray-600 leading-relaxed">
-                    {item.answer}
+                    {item.resposta}
                   </p>
                 </div>
               </div>
@@ -319,7 +304,7 @@ export default function App() {
           <div className="flex justify-center items-center gap-2 mb-8">
             <img src="/logo2.png" className='w-[20rem]' alt="" />
           </div>
-          
+
           <div className="flex flex-wrap justify-center gap-8 mb-12">
             <a href="#" className="hover:text-white transition-colors">Termos de Uso</a>
             <a href="#" className="hover:text-white transition-colors">Política de Privacidade</a>

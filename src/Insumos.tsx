@@ -8,6 +8,16 @@ import { useUsuarioStore } from "./context/UsuarioContext.js";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+const CATEGORIAS = [
+  "ALIMENTOS",
+  "BEBIDAS",
+  "CUIDADOS_PESSOAIS",
+  "LIMPEZA",
+  "OUTROS",
+] as const;
+
+type Categoria = (typeof CATEGORIAS)[number];
+
 type ProdutoEstoque = {
   id: number;
   nome: string;
@@ -40,6 +50,9 @@ export default function Insumos() {
 
   const [openModalProdutoFinal, setOpenModalProdutoFinal] = useState(false);
   const [nomeProdutoFinal, setNomeProdutoFinal] = useState("");
+  const [categoriaProdutoFinal, setCategoriaProdutoFinal] = useState<
+    Categoria | ""
+  >("");
 
   async function carregarProdutos() {
     if (!usuario?.id) return;
@@ -57,16 +70,38 @@ export default function Insumos() {
         .map((produto: any) => {
           const unidadeBase: Unidade = produto.unidadeBase as Unidade;
 
-          let unidadeDisplay = produto.unidadeDisplay ?? (unidadeBase === "G" ? "kg" : unidadeBase === "ML" ? "L" : "un");
+          let unidadeDisplay =
+            produto.unidadeDisplay ??
+            (unidadeBase === "G"
+              ? "kg"
+              : unidadeBase === "ML"
+                ? "L"
+                : "un");
 
           let saldoBase = Number(produto.saldoBase ?? 0);
-          let saldoDisplay = produto.saldoDisplay ?? (unidadeBase === "G" || unidadeBase === "ML" ? +(saldoBase / 1000).toFixed(3) : saldoBase);
+          let saldoDisplay =
+            produto.saldoDisplay ??
+            (unidadeBase === "G" || unidadeBase === "ML"
+              ? +(saldoBase / 1000).toFixed(3)
+              : saldoBase);
 
           let custoMedio = Number(produto.custoMedio ?? 0);
-          let precoMedioDisplay = produto.precoMedioDisplay ?? (unidadeBase === "G" || unidadeBase === "ML" ? +(custoMedio * 1000).toFixed(6) : custoMedio);
+          let precoMedioDisplay =
+            produto.precoMedioDisplay ??
+            (unidadeBase === "G" || unidadeBase === "ML"
+              ? +(custoMedio * 1000).toFixed(6)
+              : custoMedio);
 
           return {
-            id: produto.id, nome: produto.nome, unidadeBase, saldoBase, custoMedio, saldoDisplay, unidadeDisplay, precoMedioDisplay, categoria: produto.categoria ?? null,
+            id: produto.id,
+            nome: produto.nome,
+            unidadeBase,
+            saldoBase,
+            custoMedio,
+            saldoDisplay,
+            unidadeDisplay,
+            precoMedioDisplay,
+            categoria: produto.categoria ?? null,
           };
         });
 
@@ -82,32 +117,53 @@ export default function Insumos() {
     }
   }, [usuario?.id]);
 
-  function atualizarLinhaInsumo(linhaIndex: number, dadosParciais: Partial<LinhaInsumo>) {
+  function atualizarLinhaInsumo(
+    linhaIndex: number,
+    dadosParciais: Partial<LinhaInsumo>
+  ) {
     const linhasAtualizadas = [...linhasInsumos];
 
-    linhasAtualizadas[linhaIndex] = { ...linhasAtualizadas[linhaIndex], ...dadosParciais, };
+    linhasAtualizadas[linhaIndex] = {
+      ...linhasAtualizadas[linhaIndex],
+      ...dadosParciais,
+    };
 
-    const produtoSelecionado = produtos.find((produto) => produto.id === linhasAtualizadas[linhaIndex].produtoId);
+    const produtoSelecionado = produtos.find(
+      (produto) => produto.id === linhasAtualizadas[linhaIndex].produtoId
+    );
 
     const unidadeProduto: Unidade = produtoSelecionado?.unidadeBase ?? "UN";
-    const quantidadeBase = parseQuantidade(linhasAtualizadas[linhaIndex].qtdInput || "0", unidadeProduto);
+    const quantidadeBase = parseQuantidade(
+      linhasAtualizadas[linhaIndex].qtdInput || "0",
+      unidadeProduto
+    );
 
     linhasAtualizadas[linhaIndex].qtdBase = quantidadeBase || undefined;
 
-    linhasAtualizadas[linhaIndex].erro = !linhasAtualizadas[linhaIndex].produtoId ? "Selecione um produto" : quantidadeBase <= 0 ? "Informe uma quantidade válida" : undefined;
+    linhasAtualizadas[linhaIndex].erro = !linhasAtualizadas[linhaIndex]
+      .produtoId
+      ? "Selecione um produto"
+      : quantidadeBase <= 0
+        ? "Informe uma quantidade válida"
+        : undefined;
 
     setLinhasInsumos(linhasAtualizadas);
   }
 
   function adicionarLinhaInsumo() {
-    setLinhasInsumos((linhasAnteriores) => [...linhasAnteriores, { produtoId: undefined, qtdInput: "" },
+    setLinhasInsumos((linhasAnteriores) => [
+      ...linhasAnteriores,
+      { produtoId: undefined, qtdInput: "" },
     ]);
   }
 
   function removerLinhaInsumo(linhaIndex: number) {
     const linhasAtualizadas = [...linhasInsumos];
     linhasAtualizadas.splice(linhaIndex, 1);
-    setLinhasInsumos(linhasAtualizadas.length ? linhasAtualizadas : [{ produtoId: undefined, qtdInput: "" }]
+    setLinhasInsumos(
+      linhasAtualizadas.length
+        ? linhasAtualizadas
+        : [{ produtoId: undefined, qtdInput: "" }]
     );
   }
 
@@ -122,7 +178,13 @@ export default function Insumos() {
     }, 0);
   }, [linhasInsumos, produtos]);
 
-  const precoUnitarioSugerido = useMemo(() => {
+  const custoMedioUnitario = useMemo(() => {
+    const quantidadeUnidades = Number(unidadesProduzidas || 0);
+    if (!quantidadeUnidades) return 0;
+    return +(custoTotalInsumos / quantidadeUnidades).toFixed(6);
+  }, [custoTotalInsumos, unidadesProduzidas]);
+
+  const precoUnitarioComMargem = useMemo(() => {
     const quantidadeUnidades = Number(unidadesProduzidas || 0);
     if (!quantidadeUnidades) return 0;
 
@@ -145,13 +207,17 @@ export default function Insumos() {
 
     const possuiUsoAcimaDoEstoque = linhasInsumos.some((linhaInsumo) => {
       if (!linhaInsumo.produtoId || !linhaInsumo.qtdBase) return false;
-      const produto = produtos.find((produto) => produto.id === linhaInsumo.produtoId);
+      const produto = produtos.find(
+        (produto) => produto.id === linhaInsumo.produtoId
+      );
       if (!produto) return false;
       return linhaInsumo.qtdBase > produto.saldoBase;
     });
 
     if (possuiUsoAcimaDoEstoque) {
-      toast.error("Você está utilizando mais insumos do que há em estoque. Verifique as quantidades.");
+      toast.error(
+        "Você está utilizando mais insumos do que há em estoque. Verifique as quantidades."
+      );
       return;
     }
 
@@ -169,15 +235,19 @@ export default function Insumos() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
+            ...(usuario?.token
+              ? { Authorization: `Bearer ${usuario.token}` }
+              : {}),
           },
           body: JSON.stringify({
-            nome: nomeFinal, unidadeBase: "UN", usuarioId: usuario.id, categoria: null,
+            nome: nomeFinal,
+            unidadeBase: "UN",
+            usuarioId: usuario.id,
+            categoria: categoriaProdutoFinal || null,
           }),
         });
 
         if (responseCriarProdutoFinal.status !== 201) {
-
           toast.error("Erro ao criar produto final.");
           return;
         }
@@ -191,16 +261,23 @@ export default function Insumos() {
     }
 
     const quantidadeNovasUnidades = quantidadeUnidades;
-    const custoMedioUnitario = precoUnitarioSugerido;
+
+    // custoMedio = Custo Total / Unidades Produzidas (sem margem)
+    const custoMedioParaSalvar = custoMedioUnitario;
 
     try {
       await fetch(`${apiUrl}/produtos/${produtoFinalId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
+          ...(usuario?.token
+            ? { Authorization: `Bearer ${usuario.token}` }
+            : {}),
         },
-        body: JSON.stringify({ saldoBase: quantidadeNovasUnidades, custoMedio: custoMedioUnitario, }),
+        body: JSON.stringify({
+          saldoBase: quantidadeNovasUnidades,
+          custoMedio: custoMedioParaSalvar,
+        }),
       });
     } catch (error) {
       toast.error("Erro ao atualizar o estoque do produto final.");
@@ -211,26 +288,36 @@ export default function Insumos() {
       for (const linhaInsumo of linhasInsumos) {
         if (!linhaInsumo.produtoId || !linhaInsumo.qtdBase) continue;
 
-        const produto = produtos.find((produto) => produto.id === linhaInsumo.produtoId);
+        const produto = produtos.find(
+          (produto) => produto.id === linhaInsumo.produtoId
+        );
         if (!produto) continue;
 
-        const novoSaldoBase = Math.max(0, produto.saldoBase - linhaInsumo.qtdBase);
+        const novoSaldoBase = Math.max(
+          0,
+          produto.saldoBase - linhaInsumo.qtdBase
+        );
 
         await fetch(`${apiUrl}/produtos/${linhaInsumo.produtoId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            ...(usuario?.token ? { Authorization: `Bearer ${usuario.token}` } : {}),
+            ...(usuario?.token
+              ? { Authorization: `Bearer ${usuario.token}` }
+              : {}),
           },
-          body: JSON.stringify({ saldoBase: novoSaldoBase, }),
+          body: JSON.stringify({ saldoBase: novoSaldoBase }),
         });
       }
 
       await carregarProdutos();
 
-      toast.success("Produto final adicionado e insumos descontados do estoque!");
+      toast.success(
+        "Produto final adicionado e insumos descontados do estoque!"
+      );
       setOpenModalProdutoFinal(false);
       setNomeProdutoFinal("");
+      setCategoriaProdutoFinal("");
     } catch (error) {
       toast.error("Erro ao dar baixa nos insumos.");
     }
@@ -249,16 +336,10 @@ export default function Insumos() {
 
           <div className="bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[0.75rem]">
             {produtos.map((produto) => {
-              const categoriaBadge =
-                produto.categoria && produto.categoria.trim() !== ""
-                  ? produto.categoria.replaceAll("_", " ")
-                  : "SEM CATEGORIA";
+              const categoriaBadge = produto.categoria && produto.categoria.trim() !== "" ? produto.categoria.replaceAll("_", " ") : "SEM CATEGORIA";
 
               return (
-                <div
-                  key={produto.id}
-                  className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] grid grid-cols-4 items-center gap-2"
-                >
+                <div key={produto.id} className="bg-[#E2E2E2] py-[0.875rem] px-[1.06rem] rounded-[0.9375rem] grid grid-cols-4 items-center gap-2">
                   <p className="text-[#656565] font-inter text-[1rem]">
                     {produto.nome}
                   </p>
@@ -268,7 +349,8 @@ export default function Insumos() {
                   </p>
 
                   <p className="text-[#656565] font-inter text-center">
-                    R$ {produto.precoMedioDisplay.toFixed(2)}/{produto.unidadeDisplay}
+                    R$ {produto.precoMedioDisplay.toFixed(2)}/
+                    {produto.unidadeDisplay}
                   </p>
 
                   <p className="text-[#705519] font-inter text-[0.975rem] font-medium bg-[#F6DDA6] py-[0.10rem] px-[1.06rem] rounded-[0.46875rem] text-center">
@@ -288,7 +370,9 @@ export default function Insumos() {
 
           <div className="bg-[#F5F5F5] px-[1.62rem] py-[1.93rem] rounded-[1rem] flex flex-col gap-[0.75rem]">
             {linhasInsumos.map((linhaInsumo, linhaIndex) => {
-              const produto = produtos.find((produto) => produto.id === linhaInsumo.produtoId);
+              const produto = produtos.find(
+                (produto) => produto.id === linhaInsumo.produtoId
+              );
               const unidadeProduto = produto?.unidadeBase ?? "UN";
 
               return (
@@ -297,72 +381,101 @@ export default function Insumos() {
                     onChange={(event) =>
                       atualizarLinhaInsumo(linhaIndex, {
                         produtoId: event.target.value === "" ? undefined : Number(event.target.value),
-                      })
-                    }>
-
+                      })}>
                     <option value="">Selecione</option>
                     {produtos.map((produto) => (
-                      <option key={produto.id} value={produto.id}>{produto.nome}</option>
+                      <option key={produto.id} value={produto.id}>
+                        {produto.nome}
+                      </option>
                     ))}
                   </select>
 
-                  <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[9rem] h-[2.5rem] bg-white outline-none"
-                    placeholder={unidadeProduto === "G" ? "500 (g)" : unidadeProduto === "ML" ? "500 (ml)" : "2 (un)"}
-                    value={linhaInsumo.qtdInput ?? ""}
+                  <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[9rem] h-[2.5rem] bg-white outline-none" placeholder={unidadeProduto === "G" ? "500 (g)" : unidadeProduto === "ML" ? "500 (ml)" : "2 (un)"} value={linhaInsumo.qtdInput ?? ""}
                     onChange={(event) =>
-                      atualizarLinhaInsumo(linhaIndex, { qtdInput: event.target.value, })
-                    } />
+                      atualizarLinhaInsumo(linhaIndex, {
+                        qtdInput: event.target.value,
+                      })} />
 
-                  <button type="button" onClick={() => removerLinhaInsumo(linhaIndex)} className="text-[#D13B3B] font-inter font-semibold text-[0.95rem]">Remover</button>
-
+                  <button type="button" onClick={() => removerLinhaInsumo(linhaIndex)} className="text-[#D13B3B] font-inter font-semibold text-[0.95rem]">
+                    Remover
+                  </button>
                 </div>
               );
             })}
 
-            <button type="button" onClick={adicionarLinhaInsumo} className="text-white bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] rounded-md px-6 my-3 py-2 text-[1rem] font-bold font-inter hover:opacity-90" >+ Adicionar insumo</button>
+            <button type="button" onClick={adicionarLinhaInsumo} className="text-white bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] rounded-md px-6 my-3 py-2 text-[1rem] font-bold font-inter hover:opacity-90">
+              + Adicionar insumo
+            </button>
 
             <div className="flex flex-row gap-[0.75rem]">
-              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[15rem] h-[2.5rem] bg-white outline-none"
-                placeholder="Margem %"
-                type="number"
-                value={margemPercentual}
+              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[15rem] h-[2.5rem] bg-white outline-none" placeholder="Margem %" type="number" value={margemPercentual}
                 onChange={(event) =>
                   setMargemPercentual(
-                    event.target.value === "" ? "" : Number(event.target.value))} />
+                    event.target.value === "" ? "" : Number(event.target.value))
+                } />
 
-              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[15rem] h-[2.5rem] bg-white outline-none"
-                placeholder="Unidades Produzidas"
-                type="number"
-                value={unidadesProduzidas}
+              <input className="border-2 border-[#4A4B51] rounded-xl pl-3 w-[15rem] h-[2.5rem] bg-white outline-none" placeholder="Unidades Produzidas" type="number" value={unidadesProduzidas}
                 onChange={(event) =>
-                  setUnidadesProduzidas(
-                    event.target.value === "" ? "" : Number(event.target.value))} />
+                  setUnidadesProduzidas(event.target.value === "" ? "" : Number(event.target.value))
+                } />
             </div>
+
             <div className="flex flex-col gap-[0.75rem] mt-3">
               <div className="flex flex-row justify-between font-inter text-[#656565] bg-[#E2E2E2] rounded-[0.9375rem] py-[0.875rem] px-[1.0625rem]">
                 <h3>Custo Total:</h3>
-                <p className="text-[#3a3a3a] font-medium">R$ {custoTotalInsumos.toFixed(2)}</p>
+                <p className="text-[#3a3a3a] font-medium">
+                  R$ {custoTotalInsumos.toFixed(2)}
+                </p>
               </div>
               <div className="flex flex-row justify-between font-inter text-[#656565] bg-[#E2E2E2] rounded-[0.9375rem] py-[0.875rem] px-[1.0625rem]">
-                <h3>Preço unitário com {margemPercentual}% de margem:</h3>
-                <p className="text-[#3a3a3a] font-medium">R$ {precoUnitarioSugerido.toFixed(2)}</p>
+                <h3>
+                  Preço unitário com {margemPercentual || 0}% de margem
+                </h3>
+                <p className="text-[#3a3a3a] font-medium">
+                  R$ {precoUnitarioComMargem.toFixed(2)}
+                </p>
               </div>
             </div>
-            <button type="button" onClick={() => setOpenModalProdutoFinal(true)} className="text-white bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] rounded-md px-6 my-3 py-2 text-[1rem] font-bold font-inter hover:opacity-90">Acrescentar Produtos no Estoque</button>
 
+            <button type="button" onClick={() => setOpenModalProdutoFinal(true)} className="text-white bg-[linear-gradient(139deg,_#114114_-40.56%,_#00C000_279.19%)] rounded-md px-6 my-3 py-2 text-[1rem] font-bold font-inter hover:opacity-90">
+              Acrescentar Produtos no Estoque
+            </button>
           </div>
         </div>
       </section>
 
-      <Modal open={openModalProdutoFinal} onClose={() => setOpenModalProdutoFinal(false)}>
+      <Modal open={openModalProdutoFinal} onClose={() => { setOpenModalProdutoFinal(false); }}>
         <div className="container flex flex-col gap-4 font-inter">
-          <h2 className="text-[1.3rem] font-semibold">Nome do produto que será criado no estoque</h2>
+          <h2 className="text-[1.3rem] font-semibold">
+            Nome do produto que será criado no estoque
+          </h2>
 
           <input className="border-2 border-[#4A4B51] rounded-xl px-4 py-2 outline-none focus:border-[#407B6A]" placeholder="Ex: Panetone" value={nomeProdutoFinal} onChange={(event) => setNomeProdutoFinal(event.target.value)} />
 
+          <div className="flex flex-col gap-2 mt-2">
+            <label className="text-[0.9rem] font-semibold text-[#4A4B51]">
+              Categoria do produto final
+            </label>
+            <select
+              className="border-2 border-[#4A4B51] rounded-xl px-4 py-2 outline-none bg-white focus:border-[#407B6A]"
+              value={categoriaProdutoFinal}
+              onChange={(event) => setCategoriaProdutoFinal(event.target.value as Categoria | "")}>
+              <option value="">Sem categoria</option>
+              {CATEGORIAS.map((categoria) => (
+                <option key={categoria} value={categoria}>
+                  {categoria.replaceAll("_", " ")}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="mt-4 flex gap-4 justify-end">
-            <button type="button" onClick={() => setOpenModalProdutoFinal(false)} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">Cancelar</button>
-            <button type="button" onClick={handleConfirmarProdutoFinal} className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90">Confirmar</button>
+            <button type="button" onClick={() => { setOpenModalProdutoFinal(false); }} className="text-white bg-[#292727] rounded-md px-6 py-2 text-[1rem] hover:bg-[#3a3939] font-bold font-inter">
+              Cancelar
+            </button>
+            <button type="button" onClick={handleConfirmarProdutoFinal} className="text-white bg-[#308021] rounded-md px-6 py-2 text-[1rem] font-bold font-inter hover:opacity-90">
+              Confirmar
+            </button>
           </div>
         </div>
       </Modal>
