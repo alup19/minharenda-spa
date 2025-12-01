@@ -431,7 +431,7 @@ export default function Relatorio() {
               </div>
 
               <p className="text-[#4A4B51] font-inter text-[1.25rem] font-medium">
-                Em setembro, você:
+                Nesse mês você:
               </p>
               <div className="flex flex-col gap-[0.5rem]">
                 <div className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]">
@@ -497,7 +497,7 @@ export default function Relatorio() {
               </div>
 
               <p className="text-[#4A4B51] font-inter text-[1.25rem] font-medium">
-                Em setembro, você:
+                Nesse mês você:
               </p>
               <div className="flex flex-col gap-[0.5rem]">
                 <div className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]">
@@ -592,7 +592,7 @@ export default function Relatorio() {
               </div>
 
               <p className="text-[#4A4B51] font-inter text-[1.25rem] font-medium">
-                Em setembro, você:
+                Nesse mês você:
               </p>
               <div className="flex flex-col gap-[0.5rem]">
                 <div className="flex flex-row justify-between bg-[#E2E2E2] rounded-[0.9375rem] px-[1.06rem] py-[0.875rem]">
