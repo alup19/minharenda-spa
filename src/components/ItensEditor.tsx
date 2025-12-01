@@ -24,7 +24,7 @@ export interface ItemLinha {
   quantidadeComprada?: number;
 
   // CAMPOS COMUNS (base / totais)
-  qtdTotalBase?: number; 
+  qtdTotalBase?: number;
   subtotal?: number;
   custoUnitBase?: number;
 
@@ -57,7 +57,7 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
     modo === "compra" ? "Adicionar item comprado" : "Adicionar item vendido";
 
   function addLinha() {
-    const nova: ItemLinha = {quantidadeComprada: 1,};
+    const nova: ItemLinha = { quantidadeComprada: 1, };
     onChange([...itens, nova]);
   }
 
@@ -86,26 +86,57 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
       itensAtualizados[indiceLinha].custoUnitBase = custoUnitBase;
 
     } else {
-      const qtdVendida = Number(itensAtualizados[indiceLinha].quantidadeComprada || 0);
-      const precoUnit = Number(itensAtualizados[indiceLinha].custoUnitario || 0);
+      const qtdVendida = Number(
+        itensAtualizados[indiceLinha].quantidadeComprada || 0
+      );
+      const valorDigitado = Number(
+        itensAtualizados[indiceLinha].custoUnitario || 0
+      );
 
-      const qtdTotalBase = Math.max(0, qtdVendida);
-      const subtotal = Math.max(0, +(precoUnit * qtdVendida).toFixed(2));
-      const custoUnitBase = qtdTotalBase > 0 && subtotal > 0 ? +(subtotal / qtdTotalBase).toFixed(4) : undefined;
+      const unidadeBaseProduto = prod?.unidadeBase;
 
-      itensAtualizados[indiceLinha].qtdTotalBase = qtdTotalBase || undefined;
+      let qtdTotalBase = 0;
+      let subtotal = 0;
+      let custoUnitBase: number | undefined;
+
+      if (unidadeBaseProduto === "G" || unidadeBaseProduto === "ML") {
+        qtdTotalBase = Math.max(0, qtdVendida);
+        subtotal = Math.max(0, +valorDigitado.toFixed(2));
+      } else {
+        qtdTotalBase = Math.max(0, qtdVendida);
+        subtotal = Math.max(
+          0,
+          +(valorDigitado * qtdVendida).toFixed(2)
+        );
+      }
+
+      if (qtdTotalBase > 0 && subtotal > 0) {
+        custoUnitBase = +(subtotal / qtdTotalBase).toFixed(6);
+      }
+
+      itensAtualizados[indiceLinha].qtdTotalBase =
+        qtdTotalBase || undefined;
       itensAtualizados[indiceLinha].subtotal = subtotal || undefined;
       itensAtualizados[indiceLinha].custoUnitBase = custoUnitBase;
 
-      const estoqueDisponivel = prod && prod.saldoBase != null ? Number(prod.saldoBase) : undefined;
+      const estoqueDisponivel =
+        prod && prod.saldoBase != null
+          ? Number(prod.saldoBase)
+          : undefined;
 
       let erro: string | undefined;
-      if (!itensAtualizados[indiceLinha].produtoId) erro = "Selecione um produto";
-      else if (qtdVendida <= 0) erro = "Informe a quantidade vendida";
-      else if (precoUnit <= 0) erro = "Informe o valor por unidade";
+      if (!itensAtualizados[indiceLinha].produtoId)
+        erro = "Selecione um produto";
+      else if (qtdVendida <= 0)
+        erro = "Informe a quantidade vendida";
+      else if (valorDigitado <= 0)
+        erro =
+          unidadeBaseProduto === "G" || unidadeBaseProduto === "ML"
+            ? "Informe o valor total da venda"
+            : "Informe o valor por unidade";
       else if (
         estoqueDisponivel != null &&
-        qtdVendida > estoqueDisponivel
+        qtdTotalBase > estoqueDisponivel
       ) {
         erro = `Quantidade em estoque: ${estoqueDisponivel}`;
       }
@@ -212,9 +243,9 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                           <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
                             CONTEÚDO (1 unid.)
                           </label>
-                          <input type="text" className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" placeholder={ unidade === "G" ? "950g" : unidade === "ML" ? "1000 ML" : "1un" } value={it.qtdConteudoInput ?? ""}
+                          <input type="text" className="w-[9rem] border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" placeholder={unidade === "G" ? "950g" : unidade === "ML" ? "1000 ML" : "1un"} value={it.qtdConteudoInput ?? ""}
                             onChange={(e) =>
-                              setItem(idx, {qtdConteudoInput: e.target.value,})
+                              setItem(idx, { qtdConteudoInput: e.target.value, })
                             }
                           />
                         </div>
@@ -230,7 +261,7 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                       </label>
                       <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" value={it.custoUnitario ?? ""}
                         onChange={(e) =>
-                          setItem(idx, {custoUnitario: Number(e.target.value || 0),})
+                          setItem(idx, { custoUnitario: Number(e.target.value || 0), })
                         }
                       />
                     </div>
@@ -239,11 +270,11 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
 
                 <div className="relative w-[12rem]">
                   <label className="absolute -top-2 left-4 bg-[#F5F5F5] px-2 text-[#4A4B51] text-[0.72rem] font-semibold">
-                    QTD COMPRADA
+                    {modo === "venda" ? "QTD VENDIDA" : "QTD COMPRADA"}
                   </label>
                   <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" value={it.quantidadeComprada ?? ""}
                     onChange={(e) =>
-                      setItem(idx, {quantidadeComprada: Number(e.target.value || 0),})
+                      setItem(idx, { quantidadeComprada: Number(e.target.value || 0), })
                     }
                   />
                 </div>
@@ -256,7 +287,7 @@ export default function ItensEditor({ itens, produtos, onChange, modo = "compra"
                       </label>
                       <input type="number" step="0.01" className="w-full border-2 border-[#4A4B51] rounded-xl bg-[#F5F5F5] px-4 py-2 outline-none focus:border-[#407B6A]" value={it.custoUnitario ?? ""}
                         onChange={(e) =>
-                          setItem(idx, {custoUnitario: Number(e.target.value || 0),})
+                          setItem(idx, { custoUnitario: Number(e.target.value || 0), })
                         }
                       />
                     </div>

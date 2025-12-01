@@ -102,27 +102,28 @@ export default function UltimasReceitas({ receita, receitas, setReceitas, client
 
   const dataRef: any = (receita as any).data ?? (receita as any).createdAt;
   const itens = (receita as any).itens ?? [];
+  const temItens = itens && itens.length > 0;
 
   return (
     <section>
       <div key={receita.id} className="flex flex-col gap-[0.5rem]">
-        <div className="flex items-center justify-between bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem]">
-          <div className="flex flex-row gap-[0.81rem]">
+        <div className="flex items-center bg-[#E2E2E2] px-[1.0625rem] py-[0.875rem] rounded-[0.9375rem] gap-4">
+          <div className="flex items-center gap-[0.81rem]">
             <img src="/launch.svg" alt="" />
             <p className="text-[#656565] font-inter font-normal text-[1rem]">
               {formatarData(dataRef)}
             </p>
           </div>
 
-          <p className="font-inter font-semibold text-[#303030] justify-self-center">
+          <p className="flex-1 text-center font-inter font-semibold text-[#303030]">
             R$ {Number(receita.valor).toLocaleString("pt-br", { minimumFractionDigits: 2 })}
           </p>
 
-          <p className="text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] text-center font-medium bg-[#7C9D74] rounded-[0.46875rem] justify-self-center">
+          <p className="flex-1 text-center text-[#daffd1] font-inter text-[0.975rem] py-[0.25rem] px-[1.0625rem] font-medium bg-[#7C9D74] rounded-[0.46875rem]">
             {(receita as any).categoria ?? "Vendas"}
           </p>
 
-          <button type="button" onClick={() => setOpenItens(true)} className="flex items-center justify-self-end" title={itens.length ? "Ver itens vendidos" : "Nenhum item vinculado"}>
+          <button type="button" onClick={() => temItens && setOpenItens(true)} className={`ml-auto flex items-center justify-center ${temItens ? "" : "opacity-40 cursor-not-allowed"}`} title={temItens ? "Ver itens vendidos" : "Nenhum item vinculado"}>
             <img src="/attachment.svg" alt="Itens vendidos" />
           </button>
         </div>
@@ -231,6 +232,6 @@ export default function UltimasReceitas({ receita, receitas, setReceitas, client
           </form>
         </div>
       </Modal>
-    </section>
+    </section >
   )
 }

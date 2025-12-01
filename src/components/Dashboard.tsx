@@ -1,6 +1,7 @@
 import { useUsuarioStore } from '../context/UsuarioContext'
 import { toast } from 'sonner'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom';
 // import { useNavigate } from "react-router-dom"
 // import { Link } from 'react-router-dom'
 
@@ -81,22 +82,30 @@ export default function Dashboard() {
             <div className='flex flex-col items-center gap-2'>
                 <h2 className='text-[#2A2A2A] font-inter text-[1.25rem] font-semibold'>Menu Rápido</h2>
                 <div className='flex flex-row gap-[0.88rem]'>
-                    <button className='flex flex-row gap-[0.5rem] border-[#7C7DCE] border bg-[linear-gradient(139deg,#111241_-40.56%,#C04300_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
-                        <img src="/estoque-icon.svg" alt="" />
-                        <p className='font-inter text-white font-normal'>Estoque</p>
-                    </button>
-                    <button className='flex flex-row gap-[0.5rem] border-[#F00] border bg-[linear-gradient(139deg,#972E2E_-40.56%,#C00000_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
-                        <img src="/despesa-icon.svg" alt="" />
-                        <p className='font-inter text-white font-normal'>Despesa</p>
-                    </button>
-                    <button className='flex flex-row gap-[0.5rem] border-[#0F1] border bg-[linear-gradient(139deg,#114114_-40.56%,#00C000_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
-                        <img src="/receita-icon.svg" alt="" />
-                        <p className='font-inter text-white font-normal'>Receita</p>
-                    </button>
-                    <button className='flex flex-row gap-[0.5rem] border-[#7CBCCE] border bg-[linear-gradient(139deg,#184047_-40.56%,#F89900_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
-                        <img src="/relatorio-icon.svg" alt="" />
-                        <p className='font-inter text-white font-normal'>Relatório</p>
-                    </button>
+                    <Link to={"/estoques"}>
+                        <button className='flex flex-row gap-[0.5rem] border-[#7C7DCE] border bg-[linear-gradient(139deg,#111241_-40.56%,#C04300_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
+                            <img src="/estoque-icon.svg" alt="" />
+                            <p className='font-inter text-white font-normal'>Estoque</p>
+                        </button>
+                    </Link>
+                    <Link to={"/despesas"}>
+                        <button className='flex flex-row gap-[0.5rem] border-[#F00] border bg-[linear-gradient(139deg,#972E2E_-40.56%,#C00000_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
+                            <img src="/despesa-icon.svg" alt="" />
+                            <p className='font-inter text-white font-normal'>Despesa</p>
+                        </button>
+                    </Link>
+                    <Link to={"/receitas"}>
+                        <button className='flex flex-row gap-[0.5rem] border-[#0F1] border bg-[linear-gradient(139deg,#114114_-40.56%,#00C000_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
+                            <img src="/receita-icon.svg" alt="" />
+                            <p className='font-inter text-white font-normal'>Receita</p>
+                        </button>
+                    </Link>
+                    <Link to={"/relatorios"}>
+                        <button className='flex flex-row gap-[0.5rem] border-[#7CBCCE] border bg-[linear-gradient(139deg,#184047_-40.56%,#F89900_279.19%)] px-[0.8125rem] py-[0.4375rem] rounded-[0.375rem]'>
+                            <img src="/relatorio-icon.svg" alt="" />
+                            <p className='font-inter text-white font-normal'>Relatório</p>
+                        </button>
+                    </Link>
                 </div>
             </div>
         </section>
