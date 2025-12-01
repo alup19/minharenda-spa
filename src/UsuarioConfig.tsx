@@ -21,6 +21,7 @@ import {
 
 import { toast } from "sonner";
 import { useUsuarioStore } from "./context/UsuarioContext.js";
+import { Link } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -204,11 +205,8 @@ export default function UsuarioConfig() {
           <button className="text-left px-4 py-2 bg-[#F0FDF4] text-[#2E8B57] font-medium rounded-md transition-colors">
             Geral
           </button>
-          <button className="text-left px-4 py-2 hover:bg-gray-100 rounded-md transition-colors">
-            Planos
-          </button>
           <button className="text-left px-4 py-2 hover:bg-gray-100 rounded-md transition-colors text-red-600 hover:text-red-700">
-            Sair
+            <Link to={"/dashboard"}>Voltar</Link>
           </button>
         </nav>
 
@@ -236,9 +234,6 @@ export default function UsuarioConfig() {
 
                 <div className="text-center sm:text-left space-y-1">
                   <h3 className="font-medium text-gray-900">Sua Foto</h3>
-                  <p className="text-sm text-gray-500">
-                    Clique na foto para alterar.
-                  </p>
                 </div>
               </div>
 
@@ -288,10 +283,6 @@ export default function UsuarioConfig() {
                           Nova Senha
                         </Label>
                         <Input id="password" name="password" type="password" className="border-gray-300 focus-visible:ring-[#2E8B57]" value={formData.password} onChange={handleChange} placeholder="Informe uma nova senha" />
-                        <span className="text-xs text-gray-500">
-                          Mínimo 8 caracteres, com maiúsculas, minúsculas,
-                          números e símbolos.
-                        </span>
                       </div>
 
                       <div className="grid gap-2">

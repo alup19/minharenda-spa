@@ -56,7 +56,7 @@ export default function Relatorio() {
               onClick={gerarPDF}
               className="ignore-pdf flex items-center gap-3 px-[0.9375rem] rounded-[0.375rem] border-[#969b96] border-2 py-[0.625rem] flex-row bg-[linear-gradient(139deg,#184047_-40.56%,#F89900_279.19%)]"
             >
-              <img className="w-[1.25rem]" src="/print.svg" alt="" />
+              <img src="/relatorio-icon.svg" className="w-[1.25rem]" alt="" />
               <span className="font-inter text-white font-normal">
                 Exportar relatório para PDF
               </span>
